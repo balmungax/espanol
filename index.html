@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Cuaderno — K–6 Spanish Literacy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EEDF; --paper-soft:#FFFDF7; --ink:#1F3A5F; --ink-text:#2B2418;
+    --teal:#1F6E64; --marigold:#E3A62F; --violet:#7A4FBF; --coral:#D64545;
+    --border:#E7E0CB; --shadow:0 12px 34px rgba(31,58,95,0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%; margin:0;}
+  body{background:var(--paper); color:var(--ink-text); font-family:'Century Gothic','CenturyGothic',Jost,sans-serif; display:flex; flex-direction:column;}
+
+  .shell-top{
+    background:var(--ink); padding:12px 24px; display:flex; align-items:center; justify-content:space-between;
+    flex-wrap:wrap; gap:12px; z-index:100;
+  }
+  .brand{display:flex; align-items:center; gap:10px;}
+  .crest{width:32px; height:32px; flex-shrink:0;}
+  .brand-title{color:#F5F1E4; font-size:17px; font-weight:800;}
+  .brand-title span{color:var(--marigold);}
+
+  .tool-launcher{display:flex; gap:8px; flex-wrap:wrap;}
+  .tool-btn{
+    display:flex; align-items:center; gap:7px; background:rgba(255,255,255,0.08); border:none; color:#EAF1F7;
+    padding:9px 16px; border-radius:999px; font-weight:700; font-size:13.5px; cursor:pointer; font-family:inherit;
+    transition:background .15s ease;
+  }
+  .tool-btn:hover{background:rgba(255,255,255,0.18);}
+  .tool-btn.on{background:var(--marigold); color:#3A2C05;}
+
+  .shell-nav{
+    background:var(--paper-soft); border-bottom:1px solid var(--border); padding:10px 24px;
+    display:flex; gap:8px; flex-wrap:wrap; align-items:center; z-index:90;
+  }
+  .grade-btn{
+    border:none; color:#fff; padding:8px 18px; border-radius:999px;
+    font-weight:700; font-size:13px; cursor:pointer; font-family:inherit; opacity:0.55;
+    transition:opacity .15s ease, transform .1s ease;
+  }
+  .grade-btn:hover{opacity:0.8; transform:translateY(-1px);}
+  .grade-btn.active{opacity:1; box-shadow:0 0 0 2px #fff inset, 0 4px 10px rgba(31,58,95,0.25);}
+
+  .frame-wrap{flex:1; position:relative; min-height:0;}
+  #mainFrame{width:100%; height:100%; border:none; display:block; background:var(--paper);}
+  .home-screen{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:10px; text-align:center; padding:24px;
+  }
+  .home-screen.hidden{display:none;}
+  .home-crest{width:64px; height:64px; margin-bottom:6px;}
+  .home-title{font-size:26px; font-weight:800; color:var(--ink);}
+  .home-sub{font-size:14px; color:#8A8270; max-width:420px;}
+
+  .overlay-backdrop{display:none; position:fixed; inset:0; background:rgba(31,58,95,0.35); z-index:998;}
+  .overlay-backdrop.open{display:block;}
+  .overlay-panel{
+    display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:min(640px, 92vw); max-height:86vh; overflow-y:auto; background:var(--paper-soft);
+    border-radius:22px; box-shadow:var(--shadow); z-index:999; padding:26px;
+  }
+  .overlay-panel.wide{width:min(1440px, 97vw);}
+  .overlay-panel.open{display:block;}
+  .overlay-head{display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;}
+  .overlay-title{font-size:19px; font-weight:800; color:var(--ink);}
+  .overlay-close{background:#EAE4D2; border:none; width:32px; height:32px; border-radius:50%; font-size:15px; cursor:pointer; color:#55503F;}
+
+  .kb-output{width:100%; min-height:90px; border-radius:14px; border:1.5px solid var(--border); padding:14px; font-size:19px; font-family:inherit; resize:vertical; margin-bottom:14px;}
+  .kb-output:focus{outline:none; border-color:var(--violet);}
+  .kb-row{display:flex; gap:7px; margin-bottom:7px; flex-wrap:wrap; justify-content:center;}
+  .kb-key{background:var(--ink); color:#F5F1E4; border:none; border-radius:10px; padding:13px 0; width:40px; font-size:16px; font-weight:700; cursor:pointer; font-family:inherit; transition:transform .1s ease;}
+  .kb-key:hover{transform:translateY(-2px); background:var(--teal);}
+  .kb-key.special{background:var(--marigold); color:#3A2C05;}
+  .kb-key.action{width:46px; padding:13px 0; font-size:19px;}
+  .kb-key.action.act-shift{background:var(--violet);}
+  .kb-key.action.act-back{background:var(--coral);}
+  .kb-key.action.act-clear{background:#c98f26;}
+  .kb-key.action.act-enter{background:var(--teal);}
+  .kb-key:active{transform:scale(0.92);}
+  .kb-actions{display:flex; gap:10px; margin-top:10px;}
+  .btn{display:inline-flex; align-items:center; gap:6px; border:none; border-radius:12px; padding:10px 18px; font-weight:700; font-size:13.5px; cursor:pointer; font-family:inherit;}
+  .btn-primary{background:var(--ink); color:#F5F1E4;}
+  .btn-ghost{background:transparent; border:1.5px solid var(--border); color:#55503F;}
+
+  .write-prompt-row{display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap;}
+  .write-prompt-row input{flex:1; min-width:180px; padding:11px 14px; border-radius:12px; border:1.5px solid var(--border); font-family:inherit; font-size:15px;}
+  .worksheet-area{position:relative; width:100%; height:300px; background:#fff; border-radius:14px; border:1.5px solid var(--border); overflow:hidden; margin-bottom:14px;}
+  #guideCanvas, #inkCanvas{position:absolute; inset:0; width:100%; height:100%;}
+  #guideCanvas{z-index:1; pointer-events:none;}
+  #inkCanvas{z-index:2; cursor:crosshair; background:transparent;}
+  .guide-lines{position:absolute; inset:0; z-index:1; pointer-events:none;}
+  .guide-line{position:absolute; left:20px; right:20px; height:1px;}
+  .top-line{top:50px; border-bottom:2px solid #ffb3ae;}
+  .middle-line{top:150px; border-bottom:2px dashed #7fd9c4;}
+  .bottom-line{top:230px; border-bottom:2px solid #9cc7ec;}
+  .toolbar-write{display:flex; justify-content:center; gap:18px; flex-wrap:wrap; align-items:flex-end; background:#F0EDE1; border-radius:14px; padding:14px;}
+  .tool-group{display:flex; flex-direction:column; align-items:center; gap:6px;}
+  .tool-group-label{font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#6B6350;}
+  .tool-btn-w{width:40px; height:40px; border-radius:10px; border:2px solid var(--border); background:#fff; cursor:pointer; font-size:16px;}
+  .tool-btn-w.active{background:var(--violet); border-color:var(--violet);}
+  .size-btn-w{width:34px; height:34px; border-radius:50%; border:2px solid var(--border); background:#fff; font-weight:700; cursor:pointer;}
+  .size-btn-w.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .color-btn-w{width:30px; height:30px; border-radius:50%; border:2px solid var(--border); cursor:pointer;}
+  .color-btn-w.active{border-color:var(--ink);}
+
+  #scheduleFrameHolder{width:100%; height:85vh; border-radius:14px; overflow:hidden; border:1.5px solid var(--border);}
+  #scheduleFrameHolder iframe{width:100%; height:100%; border:none;}
+
+  @media (max-width:720px){
+    .shell-top{padding:10px 14px;} .shell-nav{padding:8px 14px;}
+    .brand-title{font-size:15px;} .tool-btn{padding:8px 12px; font-size:12.5px;}
+  }
+</style>
+</head>
+<body>
+
+  <div class="shell-top">
+    <div class="brand">
+      <svg class="crest" viewBox="0 0 48 48" fill="none">
+        <path d="M24 4 L42 12 V24 C42 35 34 42 24 44 C14 42 6 35 6 24 V12 Z" fill="#1F3A5F"/>
+        <path d="M24 4 L42 12 V24 C42 35 34 42 24 44 C14 42 6 35 6 24 V12 Z" stroke="#E3A62F" stroke-width="1.5"/>
+        <text x="24" y="30" text-anchor="middle" font-family="Jost, sans-serif" font-weight="800" font-size="18" fill="#F5F1E4">C</text>
+      </svg>
+      <div class="brand-title">Cuaderno · <span>K–6 Spanish Literacy</span></div>
+    </div>
+    <div class="tool-launcher">
+      <button class="tool-btn" id="btnKeyboard">⌨️ Teclado</button>
+      <button class="tool-btn" id="btnTimer">⏱️ Temporizador</button>
+      <button class="tool-btn" id="btnWriting">✍️ Escritura</button>
+      <button class="tool-btn" id="btnSchedule">🗓️ Schedule</button>
+    </div>
+  </div>
+
+  <div class="shell-nav" id="gradeNav">
+    <button class="grade-btn" data-src="nursery.html" style="background:#E3A62F;">Nursery</button>
+    <button class="grade-btn" data-src="reception.html" style="background:#1F6E64;">Reception</button>
+    <button class="grade-btn" data-src="grade-1.html" style="background:#7A4FBF;">Year 1</button>
+    <button class="grade-btn" data-src="grade-2.html" style="background:#D64545;">Year 2</button>
+    <button class="grade-btn" data-src="grade-3.html" style="background:#2E7DB8;">Year 3</button>
+    <button class="grade-btn" data-src="grade-4.html" style="background:#7A9A3C;">Year 4</button>
+    <button class="grade-btn" data-src="grade-5.html" style="background:#B4517A;">Year 5</button>
+    <div style="width:1px; height:22px; background:var(--border); margin:0 4px;"></div>
+    <button class="grade-btn" data-src="tiempo.html" style="background:var(--ink);">🌤️ Tiempo</button>
+  </div>
+
+  <div class="frame-wrap">
+    <div class="home-screen" id="homeScreen">
+      <svg class="home-crest" viewBox="0 0 48 48" fill="none">
+        <path d="M24 4 L42 12 V24 C42 35 34 42 24 44 C14 42 6 35 6 24 V12 Z" fill="#1F3A5F"/>
+        <path d="M24 4 L42 12 V24 C42 35 34 42 24 44 C14 42 6 35 6 24 V12 Z" stroke="#E3A62F" stroke-width="2"/>
+        <text x="24" y="30" text-anchor="middle" font-family="Jost, sans-serif" font-weight="800" font-size="18" fill="#F5F1E4">C</text>
+      </svg>
+      <div class="home-title">Welcome to Cuaderno</div>
+      <div class="home-sub">Pick a grade above to open its lesson plans, standards, and tracker — or use the tools in the top bar anytime, from anywhere.</div>
+    </div>
+    <iframe id="mainFrame" title="Cuaderno content" style="display:none;"></iframe>
+  </div>
+
+  <div class="overlay-backdrop" id="overlayBackdrop"></div>
+
+  <div class="overlay-panel" id="panelKeyboard">
+    <div class="overlay-head">
+      <span class="overlay-title">⌨️ Teclado</span>
+      <button class="overlay-close" data-close>✕</button>
+    </div>
+    <textarea class="kb-output" id="kbOutput" placeholder="Toca las letras para escribir…"></textarea>
+    <div id="kbKeyboard"></div>
+  </div>
+
+  <div class="overlay-panel" id="panelWriting">
+    <div class="overlay-head">
+      <span class="overlay-title">✍️ Escritura</span>
+      <button class="overlay-close" data-close>✕</button>
+    </div>
+    <div class="write-prompt-row">
+      <input type="text" id="writePrompt" placeholder="Por ejemplo: hola, mamá, ñ…" />
+      <button class="btn btn-primary" id="writeTraceBtn">Trazar</button>
+      <button class="btn btn-ghost" id="writeClearGuide">Quitar guía</button>
+    </div>
+    <div class="worksheet-area">
+      <canvas id="guideCanvas"></canvas>
+      <div class="guide-lines">
+        <div class="guide-line top-line"></div>
+        <div class="guide-line middle-line"></div>
+        <div class="guide-line bottom-line"></div>
+      </div>
+      <canvas id="inkCanvas"></canvas>
+    </div>
+    <div class="toolbar-write">
+      <div class="tool-group">
+        <div class="tool-group-label">Herramienta</div>
+        <div style="display:flex; gap:6px;">
+          <button class="tool-btn-w active" id="writePenBtn" title="Lápiz">✏️</button>
+          <button class="tool-btn-w" id="writeEraserBtn" title="Borrador">🧽</button>
+        </div>
+      </div>
+      <div class="tool-group">
+        <div class="tool-group-label">Tamaño</div>
+        <div style="display:flex; gap:6px;">
+          <button class="size-btn-w active" data-size="3">P</button>
+          <button class="size-btn-w" data-size="5">M</button>
+          <button class="size-btn-w" data-size="8">G</button>
+        </div>
+      </div>
+      <div class="tool-group">
+        <div class="tool-group-label">Color</div>
+        <div style="display:flex; gap:6px;">
+          <button class="color-btn-w active" style="background:#2c3e50;" data-color="#2c3e50"></button>
+          <button class="color-btn-w" style="background:#D64545;" data-color="#D64545"></button>
+          <button class="color-btn-w" style="background:#1F6E64;" data-color="#1F6E64"></button>
+          <button class="color-btn-w" style="background:#7A4FBF;" data-color="#7A4FBF"></button>
+        </div>
+      </div>
+      <div class="tool-group">
+        <div class="tool-group-label">&nbsp;</div>
+        <button class="btn btn-ghost" id="writeClearInk">Borrar todo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay-panel wide" id="panelSchedule">
+    <div class="overlay-head">
+      <span class="overlay-title">🗓️ Schedule</span>
+      <button class="overlay-close" data-close>✕</button>
+    </div>
+    <div id="scheduleFrameHolder">
+      <iframe src="schedule.html" title="Schedule"></iframe>
+    </div>
+  </div>
+
+<script>
+document.getElementById('gradeNav').addEventListener('click', e=>{
+  const btn = e.target.closest('.grade-btn[data-src]');
+  if(!btn) return;
+  document.querySelectorAll('.grade-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('homeScreen').classList.add('hidden');
+  const frame = document.getElementById('mainFrame');
+  frame.style.display = 'block';
+  frame.src = btn.dataset.src;
+});
+
+const backdrop = document.getElementById('overlayBackdrop');
+function openPanel(id, btn){
+  document.querySelectorAll('.overlay-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById(id).classList.add('open');
+  backdrop.classList.add('open');
+  if(btn) btn.classList.add('on');
+  if(id==='panelWriting') setTimeout(sizeCanvases, 0);
+}
+function closeAllPanels(){
+  document.querySelectorAll('.overlay-panel').forEach(p=>p.classList.remove('open'));
+  document.querySelectorAll('.tool-btn').forEach(b=>b.classList.remove('on'));
+  backdrop.classList.remove('open');
+}
+document.getElementById('btnKeyboard').addEventListener('click', function(){ openPanel('panelKeyboard', this); });
+document.getElementById('btnWriting').addEventListener('click', function(){ openPanel('panelWriting', this); });
+document.getElementById('btnSchedule').addEventListener('click', function(){ openPanel('panelSchedule', this); });
+document.getElementById('btnTimer').addEventListener('click', function(){
+  document.getElementById('cdnoTimerCard')?.classList.toggle('open');
+});
+backdrop.addEventListener('click', closeAllPanels);
+document.querySelectorAll('[data-close]').forEach(b=>b.addEventListener('click', closeAllPanels));
+document.addEventListener('keydown', e=>{ if(e.key==='Escape') closeAllPanels(); });
+
+const KB_ROWS = [
+  ["q","w","e","r","t","y","u","i","o","p"],
+  ["a","s","d","f","g","h","j","k","l","ñ"],
+  ["z","x","c","v","b","n","m"],
+];
+const KB_SPECIAL_ROW = ["á","é","í","ó","ú","ü","¿","¡"];
+let kbShiftOn = false;
+function renderKeyboard(){
+  const kb = document.getElementById('kbKeyboard');
+  let html = "";
+  KB_ROWS.forEach(row=>{
+    html += `<div class="kb-row">${row.map(k=>{
+      const ch = kbShiftOn ? k.toUpperCase() : k;
+      return `<button class="kb-key" onclick="insertChar('${ch}')">${ch}</button>`;
+    }).join('')}</div>`;
+  });
+  html += `<div class="kb-row">${KB_SPECIAL_ROW.map(k=>{
+    const ch = kbShiftOn ? k.toUpperCase() : k;
+    return `<button class="kb-key special" onclick="insertChar('${ch}')">${ch}</button>`;
+  }).join('')}</div>`;
+  html += `<div class="kb-row">
+      <button class="kb-key action act-shift" id="kbShiftBtn" title="Mayúsculas">⇧</button>
+      <button class="kb-key action" onclick="insertChar(' ')" title="Espacio">␣</button>
+      <button class="kb-key action act-back" title="Borrar letra" onclick="backspace()">⌫</button>
+      <button class="kb-key action act-enter" title="Salto de línea" onclick="insertChar('\\n')">↵</button>
+      <button class="kb-key action act-clear" title="Borrar todo" onclick="document.getElementById('kbOutput').value=''">🧹</button>
+    </div>`;
+  kb.innerHTML = html;
+  document.getElementById('kbShiftBtn').addEventListener('click', ()=>{
+    kbShiftOn = !kbShiftOn;
+    renderKeyboard();
+  });
+  document.getElementById('kbShiftBtn').style.background = kbShiftOn ? '#5c3894' : '';
+}
+function insertChar(ch){
+  const ta = document.getElementById('kbOutput');
+  const start = ta.selectionStart ?? ta.value.length;
+  const end = ta.selectionEnd ?? ta.value.length;
+  ta.value = ta.value.slice(0,start) + ch + ta.value.slice(end);
+  ta.focus(); ta.selectionStart = ta.selectionEnd = start + ch.length;
+}
+function backspace(){
+  const ta = document.getElementById('kbOutput');
+  const start = ta.selectionStart ?? ta.value.length;
+  const end = ta.selectionEnd ?? ta.value.length;
+  if(start===end && start>0){ ta.value = ta.value.slice(0,start-1) + ta.value.slice(end); ta.focus(); ta.selectionStart=ta.selectionEnd=start-1; }
+  else { ta.value = ta.value.slice(0,start) + ta.value.slice(end); ta.focus(); ta.selectionStart=ta.selectionEnd=start; }
+}
+renderKeyboard();
+
+/* ============================================================
+   ESCRITURA — fixed baseline alignment + bigger font
+   ============================================================ */
+const guideCanvas = document.getElementById('guideCanvas');
+const inkCanvas = document.getElementById('inkCanvas');
+const guideCtx = guideCanvas.getContext('2d');
+const inkCtx = inkCanvas.getContext('2d');
+let writeIsDrawing=false, writeLastX=0, writeLastY=0, writeLineSize=5, writeIsEraser=false, writePenColor='#2c3e50', writeEraserSize=20;
+
+function sizeCanvases(){
+  const area = document.querySelector('.worksheet-area');
+  [guideCanvas, inkCanvas].forEach(c=>{ c.width=area.clientWidth; c.height=area.clientHeight; });
+  redrawGuide();
+}
+function redrawGuide(){
+  guideCtx.clearRect(0,0,guideCanvas.width,guideCanvas.height);
+  const word = document.getElementById('writePrompt').value.trim();
+  if(!word) return;
+  // Baseline matches the .bottom-line CSS position (230px of a 300px-tall area)
+  const baseline = guideCanvas.height * (230/300);
+  const fontSize = Math.min(70, Math.max(28, (guideCanvas.width*0.75)/(word.length*0.65)));
+  guideCtx.font = `700 ${fontSize}px 'Century Gothic', Jost, sans-serif`;
+  guideCtx.textBaseline='alphabetic';
+  const totalWidth = guideCtx.measureText(word).width;
+  let x = Math.max(20,(guideCanvas.width-totalWidth)/2);
+  guideCtx.save();
+  guideCtx.setLineDash([5,6]); guideCtx.lineWidth=2; guideCtx.strokeStyle='rgba(122,79,191,0.6)';
+  guideCtx.strokeText(word,x,baseline);
+  guideCtx.restore();
+  guideCtx.fillStyle='rgba(122,79,191,0.22)';
+  guideCtx.fillText(word,x,baseline);
+}
+// Canvas text doesn't automatically wait for web fonts to finish loading — redraw once ready,
+// so the guide word doesn't briefly render in a fallback font with different letter proportions.
+if(document.fonts){ document.fonts.ready.then(()=>{ if(document.getElementById('writePrompt').value.trim()) sizeCanvases(); }); }
+document.getElementById('writeTraceBtn').addEventListener('click', sizeCanvases);
+document.getElementById('writePrompt').addEventListener('keydown', e=>{ if(e.key==='Enter') sizeCanvases(); });
+document.getElementById('writeClearGuide').addEventListener('click', ()=>{ document.getElementById('writePrompt').value=''; guideCtx.clearRect(0,0,guideCanvas.width,guideCanvas.height); });
+document.getElementById('writeClearInk').addEventListener('click', ()=>{ inkCtx.clearRect(0,0,inkCanvas.width,inkCanvas.height); });
+function writeGetPos(e){ const r=inkCanvas.getBoundingClientRect(); const cx=e.touches?e.touches[0].clientX:e.clientX; const cy=e.touches?e.touches[0].clientY:e.clientY; return {x:cx-r.left,y:cy-r.top}; }
+function writeStart(e){ e.preventDefault(); writeIsDrawing=true; const p=writeGetPos(e); writeLastX=p.x; writeLastY=p.y; inkCtx.beginPath(); inkCtx.moveTo(writeLastX,writeLastY); }
+function writeMove(e){ if(!writeIsDrawing) return; e.preventDefault(); const p=writeGetPos(e);
+  if(writeIsEraser){ inkCtx.globalCompositeOperation='destination-out'; inkCtx.lineWidth=writeEraserSize; }
+  else { inkCtx.globalCompositeOperation='source-over'; inkCtx.strokeStyle=writePenColor; inkCtx.lineWidth=writeLineSize; }
+  inkCtx.lineCap='round'; inkCtx.lineJoin='round'; inkCtx.lineTo(p.x,p.y); inkCtx.stroke(); writeLastX=p.x; writeLastY=p.y; }
+function writeStop(){ writeIsDrawing=false; }
+inkCanvas.addEventListener('mousedown', writeStart); inkCanvas.addEventListener('mousemove', writeMove);
+inkCanvas.addEventListener('mouseup', writeStop); inkCanvas.addEventListener('mouseout', writeStop);
+inkCanvas.addEventListener('touchstart', writeStart, {passive:false}); inkCanvas.addEventListener('touchmove', writeMove, {passive:false}); inkCanvas.addEventListener('touchend', writeStop);
+document.getElementById('writePenBtn').addEventListener('click', ()=>{ writeIsEraser=false; document.getElementById('writePenBtn').classList.add('active'); document.getElementById('writeEraserBtn').classList.remove('active'); });
+document.getElementById('writeEraserBtn').addEventListener('click', ()=>{ writeIsEraser=true; document.getElementById('writeEraserBtn').classList.add('active'); document.getElementById('writePenBtn').classList.remove('active'); });
+document.querySelectorAll('.size-btn-w').forEach(btn=>btn.addEventListener('click', ()=>{ document.querySelectorAll('.size-btn-w').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); writeLineSize=parseInt(btn.dataset.size); writeEraserSize=writeLineSize*4; }));
+document.querySelectorAll('.color-btn-w').forEach(btn=>btn.addEventListener('click', ()=>{ document.querySelectorAll('.color-btn-w').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); writePenColor=btn.dataset.color; }));
+window.addEventListener('resize', ()=>{ if(document.getElementById('panelWriting').classList.contains('open')) sizeCanvases(); });
+
+/* ============================================================
+   FLOATING TIMER WIDGET — now draggable + maximizable
+   ============================================================ */
+(function () {
+  const STORAGE_KEY = "cuaderno-floating-timer";
+  const RING_R = 46;
+  const RING_CIRC = 2 * Math.PI * RING_R;
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { running: false, endTime: null, totalSeconds: 300, remaining: 300, x:null, y:null, maximized:false };
+      return JSON.parse(raw);
+    } catch (e) { return { running: false, endTime: null, totalSeconds: 300, remaining: 300, x:null, y:null, maximized:false }; }
+  }
+  function saveState(s) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {} }
+
+  let state = loadState();
+  let tickInterval = null;
+
+  const style = document.createElement("style");
+  style.textContent = `
+    #cdnoTimerWidget{position:fixed; bottom:20px; right:20px; z-index:1200; font-family:'Century Gothic','CenturyGothic',Jost,sans-serif;}
+    #cdnoTimerPill{display:flex; align-items:center; gap:8px; background:#1F3A5F; color:#F5F1E4; padding:10px 16px; border-radius:999px; box-shadow:0 8px 24px rgba(31,58,95,0.28); cursor:grab; font-weight:800; font-size:15px; border:none;}
+    #cdnoTimerPill:active{cursor:grabbing;}
+    #cdnoTimerPill.finished{background:#D64545;}
+    #cdnoTimerCard{display:none; position:fixed; bottom:20px; right:20px; width:260px; background:#FFFDF7; border:1.5px solid #E7E0CB; border-radius:20px; padding:22px; box-shadow:0 16px 40px rgba(31,58,95,0.22); z-index:1200;}
+    #cdnoTimerCard.open{display:block;}
+    #cdnoTimerCard.open.maximized{top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; max-width:none; border-radius:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+    #cdnoTimerCard.open.maximized #cdnoTimerRingWrap{width:min(60vw,60vh); height:min(60vw,60vh);}
+    #cdnoTimerCard.open.maximized #cdnoTimerRingWrap svg{width:100%; height:100%;}
+    #cdnoTimerCard.open.maximized .num{font-size:min(10vw,10vh);}
+    #cdnoTimerCard .cdno-drag-handle{cursor:move; text-align:center; font-size:10px; color:#C9C2AA; letter-spacing:.1em; margin-bottom:8px; user-select:none;}
+    #cdnoTimerCard .cdno-close{position:absolute; top:12px; right:14px; background:none; border:none; font-size:16px; cursor:pointer; color:#8A8270;}
+    #cdnoTimerCard .cdno-max{position:absolute; top:12px; right:44px; background:none; border:none; font-size:14px; cursor:pointer; color:#8A8270;}
+    #cdnoTimerRingWrap{position:relative; width:110px; height:110px; margin:6px auto 14px;}
+    #cdnoTimerRingWrap svg{transform:rotate(-90deg); width:110px; height:110px;}
+    #cdnoTimerRingWrap circle.bg{fill:none; stroke:#E7E2D3; stroke-width:9;}
+    #cdnoTimerRingWrap circle.fg{fill:none; stroke:#1F6E64; stroke-width:9; stroke-linecap:round; transition:stroke-dashoffset 1s linear, stroke .3s ease;}
+    #cdnoTimerRingWrap .num{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:19px; color:#1F3A5F;}
+    .cdno-set-row{display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:10px;}
+    .cdno-set-row input{width:48px; padding:6px; border-radius:8px; border:1.5px solid #E7E0CB; text-align:center; font-family:inherit; font-size:13px;}
+    .cdno-presets{display:flex; gap:6px; justify-content:center; margin-bottom:12px; flex-wrap:wrap;}
+    .cdno-preset{background:#EAE4D2; border:none; border-radius:8px; padding:5px 9px; font-size:11px; font-weight:700; cursor:pointer; color:#3A3223;}
+    .cdno-btns{display:flex; gap:8px; justify-content:center;}
+    .cdno-btn{border:none; border-radius:10px; padding:9px 14px; font-weight:700; font-size:12.5px; cursor:pointer; font-family:inherit;}
+    .cdno-btn.primary{background:#1F3A5F; color:#F5F1E4;}
+    .cdno-btn.ghost{background:transparent; border:1.5px solid #E7E0CB; color:#55503F;}
+    .cdno-msg{text-align:center; font-size:11.5px; font-weight:700; color:#D64545; min-height:16px; margin-top:8px;}
+  `;
+  document.head.appendChild(style);
+
+  const wrap = document.createElement("div");
+  wrap.id = "cdnoTimerWidget";
+  if(state.x!=null && state.y!=null){ wrap.style.left = state.x+'px'; wrap.style.top = state.y+'px'; wrap.style.right='auto'; wrap.style.bottom='auto'; }
+  wrap.innerHTML = `
+    <button id="cdnoTimerPill">⏱️ <span id="cdnoPillText">Temporizador</span></button>
+    <div id="cdnoTimerCard">
+      <div class="cdno-drag-handle" id="cdnoDragHandle">⠿⠿⠿</div>
+      <button class="cdno-max" id="cdnoMax" title="Maximizar">⤢</button>
+      <button class="cdno-close" id="cdnoClose">✕</button>
+      <div id="cdnoTimerRingWrap">
+        <svg viewBox="0 0 110 110"><circle class="bg" cx="55" cy="55" r="${RING_R}"/><circle class="fg" id="cdnoRingFg" cx="55" cy="55" r="${RING_R}" stroke-dasharray="${RING_CIRC}"/></svg>
+        <div class="num" id="cdnoDisplay">05:00</div>
+      </div>
+      <div class="cdno-presets">
+        <button class="cdno-preset" data-min="1">1m</button>
+        <button class="cdno-preset" data-min="3">3m</button>
+        <button class="cdno-preset" data-min="5">5m</button>
+        <button class="cdno-preset" data-min="10">10m</button>
+      </div>
+      <div class="cdno-set-row">
+        <input type="number" id="cdnoMin" min="0" max="60" value="5"/> min
+        <input type="number" id="cdnoSec" min="0" max="59" value="0"/> seg
+      </div>
+      <div class="cdno-btns">
+        <button class="cdno-btn primary" id="cdnoStart">Iniciar</button>
+        <button class="cdno-btn ghost" id="cdnoPause">Pausar</button>
+        <button class="cdno-btn ghost" id="cdnoReset">Reiniciar</button>
+      </div>
+      <div class="cdno-msg" id="cdnoMsg"></div>
+    </div>
+  `;
+  document.body.appendChild(wrap);
+
+  const els = {
+    pill: document.getElementById("cdnoTimerPill"),
+    pillText: document.getElementById("cdnoPillText"),
+    card: document.getElementById("cdnoTimerCard"),
+    ring: document.getElementById("cdnoRingFg"),
+    display: document.getElementById("cdnoDisplay"),
+    min: document.getElementById("cdnoMin"),
+    sec: document.getElementById("cdnoSec"),
+    msg: document.getElementById("cdnoMsg"),
+  };
+  if(state.maximized) els.card.classList.add('maximized');
+
+  function fmt(sec) {
+    sec = Math.max(0, Math.round(sec));
+    const m = Math.floor(sec / 60), s = sec % 60;
+    return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+  }
+  function currentRemaining() {
+    if (state.running && state.endTime) return Math.max(0, (state.endTime - Date.now()) / 1000);
+    return state.remaining;
+  }
+  function render() {
+    const remaining = currentRemaining();
+    els.display.textContent = fmt(remaining);
+    els.pillText.textContent = state.running || remaining < state.totalSeconds ? fmt(remaining) : "Temporizador";
+    const offset = RING_CIRC * (1 - remaining / state.totalSeconds);
+    els.ring.setAttribute("stroke-dashoffset", isFinite(offset) ? offset : 0);
+    els.ring.style.stroke = remaining <= 10 && remaining > 0 ? "#D64545" : "#1F6E64";
+  }
+  function tick() {
+    const remaining = currentRemaining();
+    if (state.running && remaining <= 0) {
+      state.running = false; state.remaining = 0;
+      saveState(state);
+      els.msg.textContent = "¡Se acabó el tiempo!";
+      clearInterval(tickInterval);
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const o = ctx.createOscillator(), g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination); o.frequency.value = 880;
+        g.gain.setValueAtTime(0.15, ctx.currentTime);
+        o.start(); o.stop(ctx.currentTime + 0.4);
+      } catch (e) {}
+    }
+    render();
+  }
+  function startTicking() { clearInterval(tickInterval); tickInterval = setInterval(tick, 1000); }
+
+  let pillDragged = false;
+  els.pill.addEventListener("click", () => { if(!pillDragged) els.card.classList.toggle("open"); });
+  document.getElementById("cdnoClose").addEventListener("click", () => els.card.classList.remove("open"));
+  document.getElementById("cdnoMax").addEventListener("click", () => {
+    els.card.classList.toggle("maximized");
+    if (els.card.classList.contains("maximized")) {
+      // clear any position the card picked up from being dragged, so full-screen applies cleanly
+      els.card.style.left = ''; els.card.style.top = ''; els.card.style.right = ''; els.card.style.bottom = '';
+    }
+    state.maximized = els.card.classList.contains("maximized");
+    saveState(state);
+  });
+  document.querySelectorAll(".cdno-preset").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const min = parseInt(btn.dataset.min);
+      els.min.value = min; els.sec.value = 0;
+      state.totalSeconds = min * 60; state.remaining = state.totalSeconds;
+      state.running = false; state.endTime = null;
+      clearInterval(tickInterval); els.msg.textContent = "";
+      saveState(state); render();
+    });
+  });
+  document.getElementById("cdnoStart").addEventListener("click", () => {
+    if (state.running) return;
+    if (state.remaining <= 0 || state.remaining === state.totalSeconds) {
+      const min = parseInt(els.min.value) || 0, sec = parseInt(els.sec.value) || 0;
+      state.totalSeconds = min * 60 + sec; state.remaining = state.totalSeconds;
+      if (state.totalSeconds <= 0) { els.msg.textContent = "Elige un tiempo primero."; return; }
+    }
+    state.running = true; state.endTime = Date.now() + state.remaining * 1000;
+    els.msg.textContent = ""; saveState(state); startTicking(); render();
+  });
+  document.getElementById("cdnoPause").addEventListener("click", () => {
+    if (!state.running) return;
+    state.remaining = currentRemaining(); state.running = false; state.endTime = null;
+    clearInterval(tickInterval); saveState(state); render();
+  });
+  document.getElementById("cdnoReset").addEventListener("click", () => {
+    const min = parseInt(els.min.value) || 0, sec = parseInt(els.sec.value) || 0;
+    state.totalSeconds = min * 60 + sec; state.remaining = state.totalSeconds;
+    state.running = false; state.endTime = null;
+    clearInterval(tickInterval); els.msg.textContent = ""; saveState(state); render();
+  });
+
+  let pillDragging = false, dragOffsetX = 0, dragOffsetY = 0;
+  els.pill.addEventListener("mousedown", (e) => {
+    pillDragging = true; pillDragged = false;
+    const rect = wrap.getBoundingClientRect();
+    dragOffsetX = e.clientX - rect.left; dragOffsetY = e.clientY - rect.top;
+  });
+  document.addEventListener("mousemove", (e) => {
+    if (!pillDragging) return;
+    pillDragged = true;
+    wrap.style.left = (e.clientX - dragOffsetX) + 'px';
+    wrap.style.top = (e.clientY - dragOffsetY) + 'px';
+    wrap.style.right = 'auto'; wrap.style.bottom = 'auto';
+  });
+  document.addEventListener("mouseup", () => {
+    if (pillDragging && pillDragged) {
+      const rect = wrap.getBoundingClientRect();
+      state.x = rect.left; state.y = rect.top;
+      saveState(state);
+    }
+    pillDragging = false;
+    setTimeout(()=>{ pillDragged = false; }, 50);
+  });
+
+  let cardDragging = false, cardOffsetX = 0, cardOffsetY = 0;
+  document.getElementById("cdnoDragHandle").addEventListener("mousedown", (e) => {
+    if (els.card.classList.contains('maximized')) return;
+    cardDragging = true;
+    const rect = els.card.getBoundingClientRect();
+    cardOffsetX = e.clientX - rect.left; cardOffsetY = e.clientY - rect.top;
+  });
+  document.addEventListener("mousemove", (e) => {
+    if (!cardDragging) return;
+    els.card.style.left = (e.clientX - cardOffsetX) + 'px';
+    els.card.style.top = (e.clientY - cardOffsetY) + 'px';
+    els.card.style.right = 'auto'; els.card.style.bottom = 'auto';
+  });
+  document.addEventListener("mouseup", () => { cardDragging = false; });
+
+  if (state.running && state.endTime) {
+    if (state.endTime <= Date.now()) { state.running = false; state.remaining = 0; saveState(state); }
+    else startTicking();
+  }
+  els.min.value = Math.floor((state.totalSeconds || 300) / 60);
+  els.sec.value = (state.totalSeconds || 300) % 60;
+  render();
+})();
+</script>
+</body>
+</html>
