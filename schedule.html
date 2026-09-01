@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Schedule — Cuaderno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--paper:#F2EEDF; --paper-soft:#FFFDF7; --ink:#1F3A5F; --ink-text:#2B2418; --teal:#1F6E64; --marigold:#E3A62F; --border:#E7E0CB; --shadow:0 8px 24px rgba(31,58,95,0.08);}
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink-text); font-family:'Century Gothic','CenturyGothic',Jost,sans-serif;}
+  .topbar{background:var(--ink); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;}
+  .brand a{color:#9FB4C9; text-decoration:none; font-size:13px; font-weight:600; border:1.5px solid rgba(159,180,201,0.4); padding:5px 12px; border-radius:999px;}
+  .brand-title{color:#F5F1E4; font-size:19px; font-weight:800; margin-left:12px;}
+  html.framed #standaloneTopbar{display:none;}
+  .now-badge{display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.1); color:#F5F1E4; padding:8px 16px; border-radius:999px; font-size:13px; font-weight:700;}
+  .now-badge .dot{width:8px; height:8px; border-radius:50%; background:var(--marigold); animation:pulse 1.6s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;} 50%{opacity:.3;}}
+  main{max-width:1200px; margin:0 auto; padding:32px;}
+  .eyebrow{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:4px;}
+  h1{font-size:28px; font-weight:800; color:var(--ink); margin:0 0 4px;}
+  .muted{color:#6B6350; font-size:14px; margin-bottom:24px;}
+  .card{background:var(--paper-soft); border:1px solid var(--border); border-radius:18px; box-shadow:var(--shadow); padding:22px;}
+  table{width:100%; border-collapse:collapse; font-size:12px;}
+  th,td{padding:8px 5px; text-align:center; border:1px solid var(--border);}
+  thead th{background:var(--ink); color:#F5F1E4; font-weight:700; font-size:10.5px;}
+  thead tr.times th{background:#DCEFE9; color:#164E47; font-weight:700; font-size:10px;}
+  thead th.current-col{background:var(--marigold); color:#3A2C05;}
+  tbody th{background:#F0EDE1; font-weight:700; text-align:left; padding-left:12px; white-space:nowrap;}
+  tbody tr.current-day th{background:var(--marigold); color:#3A2C05;}
+  td.empty{color:#D8D2BE;}
+  td.current-col{background:#FCF3D9;}
+  .grade-chip{display:inline-block; padding:3px 8px; border-radius:999px; font-weight:700; font-size:10.5px; color:#fff;}
+  .grade-chip.now{box-shadow:0 0 0 3px #3A2C05 inset, 0 0 0 5px var(--marigold);}
+  .legend{display:flex; gap:10px; flex-wrap:wrap; margin:16px 0 0;}
+  .legend .grade-chip{font-size:10.5px;}
+</style>
+</head>
+<body>
+<script>if (window.self !== window.top) { document.documentElement.classList.add('framed'); }</script>
+
+<div class="topbar" id="standaloneTopbar">
+  <div class="brand"><a href="index.html">← All grades</a><span class="brand-title">Cuaderno · Schedule</span></div>
+  <div class="now-badge"><span class="dot"></span><span id="nowText">Loading time…</span></div>
+</div>
+
+<main>
+  <div class="eyebrow">Weekly timetable</div>
+  <h1>Spanish class schedule</h1>
+  <p class="muted">Which grade is in session, period by period. Today and the current period are highlighted automatically.</p>
+
+  <div class="card" style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr id="headerRow">
+          <th></th>
+          <th>Arrival</th><th>Period 1</th><th>Breakfast</th><th>Period 2</th><th>Period 3</th>
+          <th>Period 4</th><th>Fruit</th><th>Period 5</th><th>Period 6</th><th>Lunch</th>
+          <th>Period 7</th><th>Period 8</th>
+        </tr>
+        <tr class="times" id="timesRow">
+          <th></th>
+          <th>08.00–08.10</th><th>08.10–08.50</th><th>08.50–09.10</th><th>09.10–09.50</th><th>09.55–10.35</th>
+          <th>10.40–11.20</th><th>11.20–11.25</th><th>11.25–12.05</th><th>12.10–12.50</th><th>12.50–14.00</th>
+          <th>14.05–14.45</th><th>14.50–15.30</th>
+        </tr>
+      </thead>
+      <tbody id="scheduleBody"></tbody>
+    </table>
+    <div class="legend" id="legend"></div>
+  </div>
+</main>
+
+<script>
+const SCHEDULE = {
+  "Monday":    ["","","","","Year 3","Nursery","","","Year 2","","Year 1",""],
+  "Tuesday":   ["","","","Year 2","Year 5","","","","Year 4","","Year 3",""],
+  "Wednesday": ["","","","","Reception","","","Year 1","","","Reception","Nursery"],
+  "Thursday":  ["","","","","Year 5","","","","","","Year 2","Year 4"],
+  "Friday":    ["","","","Year 4","Year 3","Year 1","","","","","Year 5",""],
+};
+const PERIOD_TIMES = [
+  [480,490],[490,530],[530,550],[550,590],[595,635],
+  [640,680],[680,685],[685,725],[730,770],[770,840],
+  [845,885],[890,930],
+];
+const GRADE_COLORS = {
+  "Nursery":"#E3A62F", "Reception":"#1F6E64", "Year 1":"#7A4FBF", "Year 2":"#D64545",
+  "Year 3":"#2E7DB8", "Year 4":"#7A9A3C", "Year 5":"#B4517A",
+};
+const DAY_NAMES = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+function renderTable(currentDayName, currentColIdx){
+  document.getElementById('scheduleBody').innerHTML = Object.entries(SCHEDULE).map(([day, cells])=>{
+    const isToday = day===currentDayName;
+    const tds = cells.map((c,i)=>{
+      const isCurrentCol = i===currentColIdx && isToday;
+      const cls = (isCurrentCol ? 'current-col ' : '') + (!c ? 'empty' : '');
+      if(!c) return `<td class="${cls}">—</td>`;
+      const color = GRADE_COLORS[c] || '#8A8270';
+      return `<td class="${cls}"><span class="grade-chip ${isCurrentCol?'now':''}" style="background:${color};">${c}</span></td>`;
+    }).join('');
+    return `<tr class="${isToday?'current-day':''}"><th>${day}</th>${tds}</tr>`;
+  }).join('');
+
+  document.querySelectorAll('#headerRow th, #timesRow th').forEach((th,i)=>{
+    th.classList.toggle('current-col', i===currentColIdx+1);
+  });
+
+  document.getElementById('legend').innerHTML = Object.entries(GRADE_COLORS).map(([name,color])=>
+    `<span class="grade-chip" style="background:${color};">${name}</span>`).join('');
+}
+
+function updateNow(){
+  const now = new Date();
+  const dayName = DAY_NAMES[now.getDay()];
+  const minutesNow = now.getHours()*60 + now.getMinutes();
+  let colIdx = -1;
+  PERIOD_TIMES.forEach((range,i)=>{ if(minutesNow>=range[0] && minutesNow<range[1]) colIdx = i; });
+
+  const timeStr = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+  document.getElementById('nowText').textContent = `${dayName}, ${timeStr}`;
+
+  renderTable(dayName, colIdx);
+}
+
+updateNow();
+setInterval(updateNow, 30000);
+</script>
+</body>
+</html>

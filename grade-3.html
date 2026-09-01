@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Year 3 — Cuaderno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EEDF; --paper-soft:#FFFDF7; --ink:#1F3A5F; --ink-text:#2B2418;
+    --teal:#1F6E64; --marigold:#E3A62F; --violet:#7A4FBF; --coral:#D64545; --grade:#2E7DB8;
+    --border:#E7E0CB; --shadow:0 10px 30px rgba(31,58,95,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink-text); font-family:'Century Gothic','CenturyGothic',Jost,sans-serif;}
+  html.framed #standaloneTopbar{display:none;}
+  html.framed .menu-row{background:var(--paper); box-shadow:none; border-bottom:1px solid var(--border); position:static;}
+
+  .topbar{background:var(--ink); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand a{color:#9FB4C9; text-decoration:none; font-size:13px; font-weight:600; border:1.5px solid rgba(159,180,201,0.4); padding:5px 12px; border-radius:999px;}
+  .brand-title{color:#F5F1E4; font-size:19px; font-weight:800;}
+  .menu-row{padding:10px 32px;}
+  .menu{display:flex; gap:6px;}
+  .menu button{border:none; background:transparent; color:#55503F; padding:9px 18px; border-radius:999px; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;}
+  .menu button:hover{background:rgba(31,58,95,0.08); color:var(--ink);}
+  .menu button.active{background:var(--ink); color:#F5F1E4;}
+
+  main{max-width:1180px; margin:0 auto; padding:32px 32px 80px;}
+  .view{display:none;}
+  .view.active{display:block;}
+  .eyebrow{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:4px;}
+  .grade-badge{display:inline-block; background:var(--grade); color:#fff; padding:4px 12px; border-radius:999px; font-size:11.5px; font-weight:700; margin-bottom:8px;}
+  .page-title{font-size:30px; font-weight:800; color:var(--ink); margin:0 0 4px;}
+  .muted{color:#6B6350; font-size:14.5px; line-height:1.5;}
+  .card{background:var(--paper-soft); border:1px solid var(--border); border-radius:16px; padding:26px;}
+  .empty-state{text-align:center; padding:48px 24px; color:#6B6350;}
+  .coming-soon{background:#F0EDE1; border:1.5px dashed var(--border); border-radius:14px; padding:22px; font-size:14px; color:#6B6350; text-align:center;}
+
+  .add-row{display:flex; gap:10px; margin-bottom:16px;}
+  .text-input{flex:1; padding:11px 16px; border-radius:12px; border:1.5px solid var(--border); font-family:inherit; font-size:14px;}
+  .btn{display:inline-flex; align-items:center; gap:6px; border:none; border-radius:12px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit;}
+  .btn-primary{background:var(--ink); color:#F5F1E4;}
+  .btn-ghost{background:transparent; border:1.5px solid var(--border); color:#55503F;}
+  .pill-row{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:14px;}
+  .pill{border:none; padding:10px 18px; border-radius:14px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit; background:#EAE4D2; color:#3A3223;}
+  .pill.active{background:var(--ink); color:#F5F1E4;}
+  .week-jump{padding:8px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--paper-soft); font-family:inherit; font-size:13px;}
+  table.tracker-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.tracker-table th{text-align:center; font-size:10.5px; text-transform:uppercase; padding:8px; color:#8A8270; border-bottom:2px solid var(--border); font-weight:700;}
+  table.tracker-table td{padding:10px 8px; border-bottom:1px solid #EFEADC; text-align:center;}
+  .name-col{text-align:left !important;}
+  .status-stamp{width:34px; height:34px; border-radius:10px; border:none; cursor:pointer; font-weight:800; font-size:15px;}
+  .stamp{display:inline-flex; align-items:center; padding:5px 11px; border-radius:10px; font-size:11.5px; font-weight:700;}
+  .stamp-ink{background:var(--ink); color:#F5F1E4;}
+  .stamp-paper{background:#EAE4D2; color:#3A3223;}
+</style>
+</head>
+<body>
+<script>if (window.self !== window.top) { document.documentElement.classList.add('framed'); }</script>
+
+<div class="topbar" id="standaloneTopbar">
+  <div class="brand"><a href="index.html">← All grades</a><span class="brand-title">Cuaderno · Year 3</span></div>
+</div>
+<div class="topbar menu-row" id="menuRow">
+  <div class="menu" id="mainMenu">
+    <button data-view="weekly" class="active">Weekly Plans</button>
+    <button data-view="standards">Standards</button>
+    <button data-view="tracker">Tracker</button>
+  </div>
+</div>
+
+<main>
+
+  <section class="view active" id="view-weekly">
+    <div class="grade-badge">Year 3</div>
+    <h2 class="page-title">Weekly lesson plans</h2>
+    <p class="muted" style="margin-bottom:16px;">Coming soon — once written, each week's objectives, vocabulary, activities, and standards will appear here exactly like Reception's.</p>
+    <div class="coming-soon">📋 No weeks published yet for Year 3.</div>
+  </section>
+
+  <section class="view" id="view-standards">
+    <div class="grade-badge">Year 3</div>
+    <h2 class="page-title">Standards coverage</h2>
+    <p class="muted" style="margin-bottom:16px;">This will show every standard addressed across the term, and which weeks put it into practice — once weekly plans are written.</p>
+    <div class="coming-soon">🏛️ No standards tagged yet for Year 3.</div>
+  </section>
+
+  <section class="view" id="view-tracker">
+    <div style="margin-bottom:22px;">
+      <div class="grade-badge">Year 3</div>
+      <h2 class="page-title">Student progress tracker</h2>
+      <p class="muted">Rate each student weekly on the four core strands, N–B–D–P–A. Saved live to your Google Sheet.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="add-row">
+        <input class="text-input" id="newStudentInput" placeholder="Add a student's name…" />
+        <button class="btn btn-primary" id="addStudentBtn">+ Add</button>
+      </div>
+    </div>
+
+    <div class="pill-row">
+      <button class="pill active" id="tabWeekView" onclick="setTrackerTab('week')">This Week</button>
+      <button class="pill" id="tabTermView" onclick="setTrackerTab('term')">Term 1 Summary</button>
+      <select class="week-jump" id="trackerWeekSelect" style="margin-left:auto;"></select>
+    </div>
+
+    <div id="trackerStatus" class="muted" style="margin:6px 0 14px;"></div>
+    <div id="trackerWeekPanel"></div>
+    <div id="trackerTermPanel" style="display:none;"></div>
+
+    <div style="margin-top:16px;">
+      <button class="btn btn-ghost" id="resetTrackerBtn">Reset local student list</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+const TRACKER_PASSWORD = "CAMBIAME";
+let trackerUnlocked = false;
+
+document.getElementById('mainMenu').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-view]');
+  if(!btn) return;
+
+  if(btn.dataset.view === 'tracker' && !trackerUnlocked){
+    const entered = prompt('Esta sección requiere contraseña:');
+    if(entered === null) return;
+    if(entered !== TRACKER_PASSWORD){ alert('Contraseña incorrecta.'); return; }
+    trackerUnlocked = true;
+    document.getElementById('trackerWeekPanel').innerHTML = '<div class="card empty-state">Cargando calificaciones desde Google Sheets…</div>';
+    fetchRatings().then(renderTrackerActiveTab);
+  }
+
+  document.querySelectorAll('#mainMenu button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+btn.dataset.view).classList.add('active');
+});
+
+/* ============================================================
+   TRACKER CONFIG
+   ============================================================ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxW-DnFYFA6YFXL7jfEiv3STbWmTj3mflvufgYVaDcQP-j80rImoBR2YBz4ehbK7H0h/exec";
+const APPS_SCRIPT_SECRET = "APPLEtree";
+const GRADE_NAME = "Year 3";
+
+const TERMS = [
+  {id:1, name:"Term 1", startWeek:1, endWeek:16},
+];
+function getTermForWeek(weekId){ return TERMS.find(t => weekId>=t.startWeek && weekId<=t.endWeek) || null; }
+
+const STRANDS = ["Interpersonal","Interpretive","Presentational","Phonics"];
+
+const RATING_LEVELS = ["","N","B","D","P","A"];
+const RATING_META = {
+  "":{label:"Sin evaluar todavía", bg:"#F1EDDF", fg:"#C9C2AA"},
+  N:{label:"Not enough evidence", bg:"#E7E2D3", fg:"#6B6350"},
+  B:{label:"Beginner",            bg:"#FCEBC3", fg:"#8A6516"},
+  D:{label:"Developing",          bg:"#DCEFE9", fg:"#164E47"},
+  P:{label:"Proficient",          bg:"#D7E8FA", fg:"#1F4E8C"},
+  A:{label:"Advanced",            bg:"#E3D7F5", fg:"#4E2E85"},
+};
+
+const ROSTER_KEY = "cuaderno-roster-grade3";
+let students = [];
+let ratings = {};
+let trackerWeekId = 1;
+let trackerTab = 'week';
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function loadRoster(){ try{ const raw = localStorage.getItem(ROSTER_KEY); if(raw) students = JSON.parse(raw); }catch(e){ console.error(e); } }
+function saveRoster(){ try{ localStorage.setItem(ROSTER_KEY, JSON.stringify(students)); }catch(e){ console.error(e); } }
+function setStatus(msg, isError){ const el = document.getElementById('trackerStatus'); el.textContent = msg; el.style.color = isError ? 'var(--coral)' : '#6B6350'; }
+
+async function fetchRatings(){
+  setStatus('Loading ratings from Google Sheets…');
+  try{
+    const res = await fetch(`${APPS_SCRIPT_URL}?secret=${encodeURIComponent(APPS_SCRIPT_SECRET)}`);
+    const rows = await res.json();
+    if(rows.error){ setStatus('⚠️ ' + rows.error, true); return; }
+    ratings = {};
+    rows.filter(r=>r.Grade===GRADE_NAME).forEach(r=>{
+      ratings[r.StudentId] = ratings[r.StudentId] || {};
+      ratings[r.StudentId][r.Week] = ratings[r.StudentId][r.Week] || {};
+      ratings[r.StudentId][r.Week][r.StandardCode] = {rating:r.Rating, updatedAt:r.UpdatedAt};
+    });
+    setStatus('Connected — last loaded ' + new Date().toLocaleTimeString());
+  } catch(e){ console.error(e); setStatus('⚠️ Could not reach Google Sheets.', true); }
+}
+
+async function saveRating(studentId, studentName, week, standardCode, rating){
+  ratings[studentId] = ratings[studentId] || {};
+  ratings[studentId][week] = ratings[studentId][week] || {};
+  ratings[studentId][week][standardCode] = {rating, updatedAt:new Date().toISOString()};
+  renderTrackerWeekPanel();
+  const term = getTermForWeek(week);
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST', headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body: JSON.stringify({ secret: APPS_SCRIPT_SECRET, Grade: GRADE_NAME, StudentId: studentId, StudentName: studentName,
+        Week: week, Term: term ? term.name : '', StandardCode: standardCode, Rating: rating }),
+    });
+    const result = await res.json();
+    if(result.error){ setStatus('⚠️ Save failed: ' + result.error, true); return; }
+    setStatus('✅ Saved to Google Sheets — ' + new Date().toLocaleTimeString());
+  } catch(e){ console.error(e); setStatus('⚠️ Could not reach Google Sheets — open the console (F12) for details.', true); }
+}
+
+function cycleRating(studentId, studentName, week, standardCode){
+  const current = ratings[studentId]?.[week]?.[standardCode]?.rating ?? '';
+  const next = RATING_LEVELS[(RATING_LEVELS.indexOf(current)+1) % RATING_LEVELS.length];
+  saveRating(studentId, studentName, week, standardCode, next);
+}
+
+function addStudent(){
+  const input = document.getElementById('newStudentInput');
+  const name = input.value.trim();
+  if(!name) return;
+  students.push({id:uid(), name}); input.value=''; saveRoster(); renderTrackerActiveTab();
+}
+function removeStudent(id){ students = students.filter(s=>s.id!==id); saveRoster(); renderTrackerActiveTab(); }
+document.getElementById('addStudentBtn').addEventListener('click', addStudent);
+document.getElementById('newStudentInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addStudent(); });
+document.getElementById('resetTrackerBtn').addEventListener('click', ()=>{
+  if(confirm('This clears the local student list only (ratings already saved in Google Sheets are not affected). Continue?')){
+    students = []; saveRoster(); renderTrackerActiveTab();
+  }
+});
+
+function renderTrackerWeekSelect(){
+  const sel = document.getElementById('trackerWeekSelect');
+  let opts = '';
+  for(let w=1; w<=16; w++){ opts += `<option value="${w}" ${w===trackerWeekId?'selected':''}>Week ${String(w).padStart(2,'0')}</option>`; }
+  sel.innerHTML = opts;
+}
+document.getElementById('trackerWeekSelect').addEventListener('change', e=>{ trackerWeekId = parseInt(e.target.value); renderTrackerWeekPanel(); });
+
+function renderTrackerWeekPanel(){
+  const panel = document.getElementById('trackerWeekPanel');
+  if(students.length===0){ panel.innerHTML = `<div class="card empty-state">No students yet. Add your first student above.</div>`; return; }
+  panel.innerHTML = `<div class="card" style="overflow-x:auto;">
+    <table class="tracker-table">
+      <thead><tr><th class="name-col">Student</th>${STRANDS.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead>
+      <tbody>${students.map(s=>`
+        <tr>
+          <td class="name-col" style="font-weight:700; color:var(--ink);">${s.name}</td>
+          ${STRANDS.map(code=>{
+            const r = ratings[s.id]?.[trackerWeekId]?.[code]?.rating ?? '';
+            const meta = RATING_META[r];
+            return `<td><button class="status-stamp" style="background:${meta.bg}; color:${meta.fg};" title="${meta.label}" onclick="cycleRating('${s.id}','${s.name.replace(/'/g,"\\'")}',${trackerWeekId},'${code}')">${r || '—'}</button></td>`;
+          }).join('')}
+          <td><button class="btn btn-ghost" style="padding:6px 10px; font-size:12px;" onclick="removeStudent('${s.id}')">✕</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+function renderTrackerTermPanel(){
+  const panel = document.getElementById('trackerTermPanel');
+  const term = TERMS[0];
+  if(students.length===0){ panel.innerHTML = `<div class="card empty-state">No students yet.</div>`; return; }
+  panel.innerHTML = students.map(s=>`
+    <div class="card" style="margin-bottom:14px;">
+      <div style="font-weight:800; color:var(--ink); margin-bottom:10px;">${s.name}</div>
+      ${STRANDS.map(code=>{
+        const trail = [];
+        for(let w=term.startWeek; w<=term.endWeek; w++){
+          const r = ratings[s.id]?.[w]?.[code]?.rating;
+          trail.push(r ? `<span class="stamp" style="background:${RATING_META[r].bg}; color:${RATING_META[r].fg};">W${w}:${r}</span>` : `<span class="stamp stamp-paper">W${w}:—</span>`);
+        }
+        return `<div style="display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+          <span class="stamp stamp-ink" style="min-width:110px;">${code}</span>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">${trail.join(' ')}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function setTrackerTab(tab){
+  trackerTab = tab;
+  document.getElementById('tabWeekView').classList.toggle('active', tab==='week');
+  document.getElementById('tabTermView').classList.toggle('active', tab==='term');
+  document.getElementById('trackerWeekPanel').style.display = tab==='week' ? 'block' : 'none';
+  document.getElementById('trackerTermPanel').style.display = tab==='term' ? 'block' : 'none';
+  document.getElementById('trackerWeekSelect').style.display = tab==='week' ? '' : 'none';
+  if(tab==='term') renderTrackerTermPanel();
+}
+function renderTrackerActiveTab(){ renderTrackerWeekSelect(); renderTrackerWeekPanel(); if(trackerTab==='term') renderTrackerTermPanel(); }
+
+loadRoster();
+renderTrackerWeekSelect();
+renderTrackerWeekPanel();
+</script>
+</body>
+</html>

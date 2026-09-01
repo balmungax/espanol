@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Memoria de Números</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Century Gothic', 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #fddb92 0%, #d1fdff 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+      margin: 0;
+    }
+    .container {
+      max-width: 720px;
+      width: 100%;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(4px);
+      border-radius: 30px;
+      padding: 12px 10px 16px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+    h1 {
+      font-size: 1.8rem;
+      color: #2c3e50;
+      text-shadow: 2px 2px 0 #f1c40f;
+      margin-bottom: 0;
+      letter-spacing: 1px;
+    }
+    .sub {
+      font-size: 0.85rem;
+      margin-bottom: 10px;
+      color: #34495e;
+    }
+
+    /* --- 10 columnas fijas --- */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(10, 1fr);
+      gap: 6px;
+      max-width: 680px;
+      width: 100%;
+      margin: 0 auto 12px;
+    }
+
+    .card {
+      aspect-ratio: 3 / 4;
+      perspective: 600px;
+      cursor: pointer;
+      border-radius: 10px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12);
+      transition: transform 0.15s;
+    }
+    .card:hover:not(.matched) {
+      transform: scale(1.05);
+    }
+    .card-inner {
+      width: 100%;
+      height: 100%;
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+      transform-style: preserve-3d;
+      position: relative;
+      border-radius: 10px;
+    }
+    .card.flipped .card-inner {
+      transform: rotateY(180deg);
+    }
+    .card-front,
+    .card-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 2px;
+      text-align: center;
+      word-break: break-word;
+    }
+    .card-front {
+      transform: rotateY(180deg);
+      background: #fcf3e0;
+      color: #1e2b3a;
+      border: 3px solid #f39c12;
+    }
+    .card-back {
+      background: #2c3e50;
+      color: white;
+      font-size: 2rem;
+      border: 3px solid #1a2632;
+      background-image: radial-gradient(circle at 30% 30%, #3a506b, #1a2632);
+      box-shadow: inset 0 0 12px rgba(0, 0, 0, 0.3);
+    }
+
+    /* --- ACIERTO: resaltado dorado 2,5 s --- */
+    .card.found .card-inner {
+      box-shadow: 0 0 20px 8px #f1c40f;
+      transition: box-shadow 0.3s ease;
+    }
+    .card.found .card-front {
+      border-color: #27ae60;
+      background: #d4edda;
+      color: #1e5c3a;
+    }
+
+    /* --- DESVANECIMIENTO FINAL --- */
+    .card.matched {
+      pointer-events: none;
+      cursor: default;
+      box-shadow: none;
+    }
+    .card.matched .card-inner {
+      opacity: 0;
+      transform: scale(0.75);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .card.matched .card-front {
+      border-color: transparent;
+      background: transparent;
+    }
+
+    .info {
+      font-size: 1.1rem;
+      font-weight: bold;
+      background: #ffffffcc;
+      backdrop-filter: blur(4px);
+      padding: 6px 18px;
+      border-radius: 30px;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+      margin-bottom: 10px;
+      display: inline-block;
+    }
+    .info span {
+      color: #c0392b;
+    }
+    .btn-reset {
+      font-family: inherit;
+      font-size: 1.1rem;
+      padding: 8px 26px;
+      border: none;
+      border-radius: 40px;
+      background: #e67e22;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #b85e0e;
+      transition: all 0.1s ease;
+      margin-top: 0;
+    }
+    .btn-reset:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #b85e0e;
+    }
+    .btn-reset:hover {
+      background: #d35400;
+    }
+    .win-message {
+      font-size: 1.6rem;
+      margin-top: 8px;
+      color: #27ae60;
+      animation: pop 0.6s;
+    }
+    @keyframes pop {
+      0% {
+        transform: scale(0.5);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    /* --- RESPONSIVE: en móviles reducimos columnas para que se vea bien --- */
+    @media (max-width: 650px) {
+      .grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+      }
+      .card-front,
+      .card-back {
+        font-size: 0.85rem;
+      }
+      h1 {
+        font-size: 1.5rem;
+      }
+      .container {
+        padding: 10px 6px;
+        border-radius: 20px;
+      }
+    }
+    @media (max-width: 400px) {
+      .grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 4px;
+      }
+      .card-front,
+      .card-back {
+        font-size: 0.75rem;
+      }
+      .info {
+        font-size: 0.9rem;
+        padding: 4px 12px;
+      }
+      .btn-reset {
+        font-size: 0.9rem;
+        padding: 6px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🃏 Memoria</h1>
+    <div class="sub">Número ↔ Palabra (0–19)</div>
+
+    <div class="grid" id="grid"></div>
+
+    <div class="info">
+      👫 <span id="pairsFound">0</span> / <span id="totalPairs">20</span> parejas
+    </div>
+    <button class="btn-reset" id="resetBtn">🔄 Nuevo juego</button>
+    <div id="winMessage" class="win-message"></div>
+  </div>
+
+  <script>
+    // Números 0–19 → 20 parejas = 40 cartas (10×4)
+    const numbers = [
+      { numeral: 0, word: 'cero' },
+      { numeral: 1, word: 'uno' },
+      { numeral: 2, word: 'dos' },
+      { numeral: 3, word: 'tres' },
+      { numeral: 4, word: 'cuatro' },
+      { numeral: 5, word: 'cinco' },
+      { numeral: 6, word: 'seis' },
+      { numeral: 7, word: 'siete' },
+      { numeral: 8, word: 'ocho' },
+      { numeral: 9, word: 'nueve' },
+      { numeral: 10, word: 'diez' },
+      { numeral: 11, word: 'once' },
+      { numeral: 12, word: 'doce' },
+      { numeral: 13, word: 'trece' },
+      { numeral: 14, word: 'catorce' },
+      { numeral: 15, word: 'quince' },
+      { numeral: 16, word: 'dieciséis' },
+      { numeral: 17, word: 'diecisiete' },
+      { numeral: 18, word: 'dieciocho' },
+      { numeral: 19, word: 'diecinueve' }
+    ];
+
+    let cards = [];
+    let flippedIndices = [];
+    let matchedPairs = 0;
+    let lockBoard = false;
+    let timeoutId = null;
+
+    const grid = document.getElementById('grid');
+    const pairsFound = document.getElementById('pairsFound');
+    const totalPairs = document.getElementById('totalPairs');
+    const winMsg = document.getElementById('winMessage');
+
+    totalPairs.textContent = numbers.length;
+
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function buildDeck() {
+      const deck = [];
+      numbers.forEach((item, idx) => {
+        deck.push({ pairId: idx, type: 'numeral', display: item.numeral.toString() });
+        deck.push({ pairId: idx, type: 'word', display: item.word });
+      });
+      return shuffleArray(deck);
+    }
+
+    function render() {
+      grid.innerHTML = '';
+      cards.forEach((card, index) => {
+        const cardDiv = document.createElement('div');
+        cardDiv.className = 'card';
+        if (card.matched) cardDiv.classList.add('matched');
+        cardDiv.dataset.index = index;
+
+        const inner = document.createElement('div');
+        inner.className = 'card-inner';
+
+        const front = document.createElement('div');
+        front.className = 'card-front';
+        front.textContent = card.display;
+
+        const back = document.createElement('div');
+        back.className = 'card-back';
+        back.textContent = '?';
+
+        inner.appendChild(front);
+        inner.appendChild(back);
+        cardDiv.appendChild(inner);
+
+        cardDiv.addEventListener('click', () => flipCard(index));
+        grid.appendChild(cardDiv);
+      });
+      pairsFound.textContent = matchedPairs;
+      winMsg.textContent = '';
+    }
+
+    function flipCard(index) {
+      if (lockBoard) return;
+      const card = cards[index];
+      if (card.matched) return;
+      if (flippedIndices.includes(index)) return;
+
+      const cardEl = grid.children[index];
+      cardEl.classList.add('flipped');
+      flippedIndices.push(index);
+
+      if (flippedIndices.length === 2) {
+        lockBoard = true;
+        const idx1 = flippedIndices[0];
+        const idx2 = flippedIndices[1];
+        const card1 = cards[idx1];
+        const card2 = cards[idx2];
+
+        if (card1.pairId === card2.pairId) {
+          // Acierto
+          card1.matched = true;
+          card2.matched = true;
+          matchedPairs++;
+          pairsFound.textContent = matchedPairs;
+
+          const el1 = grid.children[idx1];
+          const el2 = grid.children[idx2];
+          el1.classList.add('found');
+          el2.classList.add('found');
+
+          flippedIndices = [];
+
+          // Esperar 2,5 s y luego desvanecer
+          timeoutId = setTimeout(() => {
+            el1.classList.add('matched');
+            el2.classList.add('matched');
+            el1.classList.remove('found');
+            el2.classList.remove('found');
+            lockBoard = false;
+            timeoutId = null;
+
+            if (matchedPairs === numbers.length) {
+              winMsg.textContent = '🎊 ¡Ganaste! 🎊';
+            }
+          }, 2500);
+
+        } else {
+          // No acierto
+          timeoutId = setTimeout(() => {
+            grid.children[idx1].classList.remove('flipped');
+            grid.children[idx2].classList.remove('flipped');
+            flippedIndices = [];
+            lockBoard = false;
+            timeoutId = null;
+          }, 800);
+        }
+      }
+    }
+
+    function resetGame() {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+      }
+      cards = buildDeck();
+      cards.forEach(c => c.matched = false);
+      flippedIndices = [];
+      matchedPairs = 0;
+      lockBoard = false;
+      render();
+      winMsg.textContent = '';
+    }
+
+    resetGame();
+    document.getElementById('resetBtn').addEventListener('click', resetGame);
+  </script>
+</body>
+</html>

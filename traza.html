@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Traza el Abecedario</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Century Gothic', 'Comic Sans MS', 'Comic Sans', 'CenturyGothic', sans-serif;
+            background-color: #F2EEDF;
+            color: #2B2418;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ===== MAIN CARD ===== */
+        .app {
+            max-width: 720px;
+            width: 100%;
+            background: #FFFDF7;
+            border-radius: 32px;
+            padding: 32px 28px 36px;
+            box-shadow: 0 12px 40px rgba(31, 58, 95, 0.14);
+            border: 1px solid #E7E0CB;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px 16px;
+            margin-bottom: 18px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1F3A5F;
+        }
+        .logo span {
+            font-size: 28px;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: #E7E0CB;
+            border-radius: 40px;
+            padding: 3px;
+            gap: 2px;
+        }
+        .toggle-btn {
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 6px 16px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            background: transparent;
+            color: #2B2418;
+            transition: all 0.25s;
+        }
+        .toggle-btn.active {
+            background: #1F6E64;
+            color: #F2EEDF;
+            box-shadow: 0 2px 8px rgba(31, 110, 100, 0.30);
+        }
+        .toggle-btn:not(.active):hover {
+            background: rgba(31, 110, 100, 0.10);
+        }
+
+        /* ===== INSTRUCTION ===== */
+        .instruction {
+            font-size: 16px;
+            font-weight: 400;
+            color: #2B2418;
+            background: #F2EEDF;
+            padding: 10px 18px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 18px;
+            border: 1px solid #E7E0CB;
+            text-align: center;
+            width: 100%;
+        }
+        .instruction strong {
+            color: #1F3A5F;
+        }
+        .instruction .hint-letter {
+            color: #1F6E64;
+            font-weight: 700;
+        }
+
+        /* ===== LETTER ROW (canvas en el centro) ===== */
+        .letter-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px 24px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 12px 0 8px;
+        }
+
+        .letter-box {
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #1F3A5F;
+            min-width: 64px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .arrow-symbol {
+            font-size: 28px;
+            color: #7A4FBF;
+            opacity: 0.5;
+            font-weight: 300;
+        }
+
+        /* ===== CANVAS (lugar del hueco) ===== */
+        .canvas-wrapper {
+            position: relative;
+            background: #FFFDF7;
+            border-radius: 20px;
+            border: 3px dashed #1F6E64;
+            overflow: hidden;
+            touch-action: none;
+            width: 200px;
+            height: 200px;
+            flex-shrink: 0;
+            box-shadow: inset 0 2px 8px rgba(43, 36, 24, 0.04);
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        #drawCanvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            cursor: crosshair;
+            touch-action: none;
+        }
+
+        /* ===== BOTONES ===== */
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 6px;
+            margin-bottom: 18px;
+        }
+
+        .btn {
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #F2EEDF;
+            color: #1F3A5F;
+            border: 1px solid #E7E0CB;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(31, 58, 95, 0.10);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: #1F6E64;
+            color: #F2EEDF;
+            border-color: #1F6E64;
+        }
+        .btn-primary:hover {
+            background: #185a52;
+            box-shadow: 0 4px 16px rgba(31, 110, 100, 0.30);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #1F3A5F;
+            border-color: #E7E0CB;
+        }
+        .btn-outline:hover {
+            background: #F2EEDF;
+            border-color: #1F3A5F;
+        }
+
+        /* ===== PROGRESS ===== */
+        .progress-bar {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-track {
+            flex: 1;
+            height: 6px;
+            background: #E7E0CB;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #1F6E64;
+            border-radius: 12px;
+            transition: width 0.4s ease;
+        }
+        .progress-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1F3A5F;
+            white-space: nowrap;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* ===== MENSAJE FINAL ===== */
+        .final-message {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F6E64;
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(31, 110, 100, 0.08);
+            border-radius: 16px;
+            border: 1px solid #1F6E64;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .canvas-wrapper {
+                width: 160px;
+                height: 160px;
+            }
+            .letter-box {
+                font-size: 44px;
+                min-width: 44px;
+            }
+            .letter-row {
+                gap: 8px 14px;
+            }
+            .arrow-symbol {
+                font-size: 20px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 8px 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .canvas-wrapper {
+                width: 130px;
+                height: 130px;
+            }
+            .letter-box {
+                font-size: 36px;
+                min-width: 36px;
+            }
+            .letter-row {
+                gap: 4px 10px;
+            }
+            .arrow-symbol {
+                font-size: 16px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 6px 16px;
+            }
+            .instruction {
+                font-size: 14px;
+                padding: 8px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" role="main" aria-label="Aplicación para trazar letras">
+
+        <!-- HEADER -->
+        <header class="header">
+            <div class="logo">
+                <span>✏️</span> Traza el Abecedario
+            </div>
+            <div class="toggle-group" role="group" aria-label="Tipo de letra">
+                <button class="toggle-btn active" data-mode="upper" aria-pressed="true">Mayúsculas</button>
+                <button class="toggle-btn" data-mode="lower" aria-pressed="false">Minúsculas</button>
+            </div>
+        </header>
+
+        <!-- INSTRUCTION (se actualiza con la letra a trazar) -->
+        <div class="instruction" id="instruction">
+            <strong>✍️</strong> Dibuja la letra que falta: <span class="hint-letter" id="hintLetter">A</span>
+        </div>
+
+        <!-- LETTER ROW con canvas en el centro -->
+        <div class="letter-row" id="letterRow" aria-label="Letras">
+            <span class="letter-box" id="leftLetter">F</span>
+            <span class="arrow-symbol">→</span>
+
+            <div class="canvas-wrapper" id="canvasWrapper">
+                <canvas id="drawCanvas" width="300" height="300" aria-label="Área para trazar la letra"></canvas>
+            </div>
+
+            <span class="arrow-symbol">→</span>
+            <span class="letter-box" id="rightLetter">H</span>
+        </div>
+
+        <!-- BOTONES: Limpiar y Siguiente -->
+        <div class="action-row">
+            <button class="btn btn-outline" id="clearBtn">🧹 Limpiar</button>
+            <button class="btn btn-primary" id="nextBtn">➡️ Siguiente</button>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span style="font-size:13px; color:#1F3A5F; font-weight:600;">Progreso</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width:0%;"></div>
+            </div>
+            <span class="progress-label" id="progressLabel">0 / 24</span>
+        </div>
+
+        <!-- Contenedor para mensaje final (se muestra al completar) -->
+        <div id="finalMessage" style="display:none;"></div>
+
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA
+        // ============================================================
+
+        const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const lowerAlphabet = ALPHABET.map(ch => ch.toLowerCase());
+
+        function buildLetterPairs(letters) {
+            const pairs = [];
+            for (let i = 1; i < letters.length - 1; i++) {
+                pairs.push({
+                    left: letters[i - 1],
+                    blank: letters[i],
+                    right: letters[i + 1],
+                    index: i,
+                });
+            }
+            return pairs;
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+
+        let currentMode = 'upper';
+        let currentIndex = 0;
+        let pairs = [];
+        let completed = []; // booleano para cada letra
+
+        // DOM refs
+        const canvas = document.getElementById('drawCanvas');
+        const ctx = canvas.getContext('2d');
+        const canvasWrapper = document.getElementById('canvasWrapper');
+        const leftLetterEl = document.getElementById('leftLetter');
+        const rightLetterEl = document.getElementById('rightLetter');
+        const hintLetter = document.getElementById('hintLetter');
+        const instructionEl = document.getElementById('instruction');
+        const progressFill = document.getElementById('progressFill');
+        const progressLabel = document.getElementById('progressLabel');
+        const clearBtn = document.getElementById('clearBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const finalMessageDiv = document.getElementById('finalMessage');
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+
+        // ============================================================
+        //  CANVAS DRAWING (sin verificación)
+        // ============================================================
+
+        let isDrawing = false;
+        let lastX = 0,
+            lastY = 0;
+
+        function getCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+                e.preventDefault();
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return {
+                x: (clientX - rect.left) * scaleX,
+                y: (clientY - rect.top) * scaleY,
+            };
+        }
+
+        function startDraw(e) {
+            e.preventDefault();
+            const { x, y } = getCoords(e);
+            isDrawing = true;
+            lastX = x;
+            lastY = y;
+            ctx.beginPath();
+            ctx.arc(x, y, 5, 0, Math.PI * 2);
+            ctx.fillStyle = '#1F3A5F';
+            ctx.fill();
+        }
+
+        function draw(e) {
+            e.preventDefault();
+            if (!isDrawing) return;
+            const { x, y } = getCoords(e);
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(x, y);
+            ctx.strokeStyle = '#1F3A5F';
+            ctx.lineWidth = 12;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.stroke();
+            lastX = x;
+            lastY = y;
+        }
+
+        function endDraw(e) {
+            e.preventDefault();
+            isDrawing = false;
+        }
+
+        canvas.addEventListener('mousedown', startDraw);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', endDraw);
+        canvas.addEventListener('mouseleave', endDraw);
+        canvas.addEventListener('touchstart', startDraw, { passive: false });
+        canvas.addEventListener('touchmove', draw, { passive: false });
+        canvas.addEventListener('touchend', endDraw, { passive: false });
+        canvas.addEventListener('touchcancel', endDraw, { passive: false });
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
+
+        // ============================================================
+        //  CLEAR
+        // ============================================================
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // ============================================================
+        //  UI UPDATE
+        // ============================================================
+
+        function updateProgress() {
+            const total = pairs.length;
+            const done = completed.filter(v => v === true).length;
+            const pct = total > 0 ? (done / total) * 100 : 0;
+            progressFill.style.width = pct + '%';
+            progressLabel.textContent = done + ' / ' + total;
+
+            // Si todos completados, mostrar mensaje final
+            if (done === total && total > 0) {
+                finalMessageDiv.style.display = 'block';
+                finalMessageDiv.className = 'final-message';
+                finalMessageDiv.textContent = '🎉 ¡Felicidades! Has completado todo el abecedario.';
+                nextBtn.disabled = true;
+            } else {
+                finalMessageDiv.style.display = 'none';
+                nextBtn.disabled = false;
+            }
+        }
+
+        function renderLetterPair() {
+            const pair = pairs[currentIndex];
+            if (!pair) return;
+            leftLetterEl.textContent = pair.left;
+            rightLetterEl.textContent = pair.right;
+            hintLetter.textContent = pair.blank;
+            // Limpiar canvas al cambiar de letra
+            clearCanvas();
+            // Quitar cualquier borde decorativo
+            canvasWrapper.style.borderColor = '#1F6E64';
+            canvasWrapper.style.background = '#FFFDF7';
+            updateProgress();
+        }
+
+        // ============================================================
+        //  SIGUIENTE (marca como completada y avanza)
+        // ============================================================
+
+        function handleNext() {
+            if (nextBtn.disabled) return;
+
+            // Marcar la actual como completada (el usuario decide que está bien)
+            completed[currentIndex] = true;
+
+            // Buscar siguiente no completada
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= pairs.length) {
+                // Buscar la primera no completada (wrap)
+                const firstIncomplete = completed.findIndex(v => v === false);
+                if (firstIncomplete === -1) {
+                    // Todas completadas
+                    updateProgress();
+                    return;
+                }
+                nextIndex = firstIncomplete;
+            } else {
+                // Si la siguiente ya está completada, saltar
+                while (nextIndex < pairs.length && completed[nextIndex] === true) {
+                    nextIndex++;
+                }
+                if (nextIndex >= pairs.length) {
+                    const firstIncomplete = completed.findIndex(v => v === false);
+                    if (firstIncomplete === -1) {
+                        updateProgress();
+                        return;
+                    }
+                    nextIndex = firstIncomplete;
+                }
+            }
+
+            currentIndex = nextIndex;
+            renderLetterPair();
+            // Asegurar que el botón siguiente esté habilitado
+            nextBtn.disabled = false;
+        }
+
+        // ============================================================
+        //  MODE TOGGLE + SHUFFLE
+        // ============================================================
+
+        function setMode(mode) {
+            if (mode === currentMode) return;
+            currentMode = mode;
+            const basePairs = mode === 'upper' ? buildLetterPairs(ALPHABET) : buildLetterPairs(lowerAlphabet);
+            pairs = shuffleArray([...basePairs]);
+            completed = new Array(pairs.length).fill(false);
+            currentIndex = 0;
+            toggleBtns.forEach(btn => {
+                const isActive = btn.dataset.mode === mode;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            renderLetterPair();
+            updateProgress();
+            nextBtn.disabled = false;
+            // Ocultar mensaje final si estaba visible
+            finalMessageDiv.style.display = 'none';
+        }
+
+        // ============================================================
+        //  EVENT BINDINGS
+        // ============================================================
+
+        clearBtn.addEventListener('click', clearCanvas);
+        nextBtn.addEventListener('click', handleNext);
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => setMode(btn.dataset.mode));
+        });
+
+        // Atajo de teclado: N para siguiente, C para limpiar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'n' || e.key === 'N') {
+                if (!nextBtn.disabled) handleNext();
+            }
+            if (e.key === 'c' || e.key === 'C') clearCanvas();
+        });
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+
+        const initialPairs = buildLetterPairs(ALPHABET);
+        pairs = shuffleArray([...initialPairs]);
+        completed = new Array(pairs.length).fill(false);
+        currentIndex = 0;
+        renderLetterPair();
+        updateProgress();
+        nextBtn.disabled = false;
+        finalMessageDiv.style.display = 'none';
+    </script>
+
+</body>
+</html>

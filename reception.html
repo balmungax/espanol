@@ -1,0 +1,964 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reception — Cuaderno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EEDF; --paper-soft:#FFFDF7; --ink:#1F3A5F; --ink-text:#2B2418;
+    --teal:#1F6E64; --marigold:#E3A62F; --coral:#D64545; --violet:#7A4FBF;
+    --border:#E7E0CB; --shadow: 0 10px 30px rgba(31,58,95,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--paper); color:var(--ink-text);
+    font-family:'Century Gothic','CenturyGothic',Jost,sans-serif;
+  }
+  h1,h2,h3,h4{font-family:'Century Gothic','CenturyGothic',Jost,sans-serif; margin:0;}
+
+  /* ---------- Top bar ---------- */
+  .topbar{
+    background:var(--ink); padding:16px 32px; display:flex; align-items:center;
+    justify-content:space-between; flex-wrap:wrap; gap:14px; position:sticky; top:0; z-index:20;
+    box-shadow:0 4px 20px rgba(0,0,0,0.15);
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand a{color:#9FB4C9; text-decoration:none; font-size:13px; font-weight:600;
+    border:1.5px solid rgba(159,180,201,0.4); padding:5px 12px; border-radius:999px;}
+  .brand a:hover{color:#fff; border-color:#fff;}
+  .brand-title{color:#F5F1E4; font-size:19px; font-weight:800;}
+  .brand-title span{color:var(--marigold);}
+
+  .menu{display:flex; gap:6px; background:rgba(255,255,255,0.08); padding:5px; border-radius:999px;}
+  .menu button{
+    border:none; background:transparent; color:#C9D6E2; padding:9px 18px; border-radius:999px;
+    font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:all .15s ease;
+  }
+  .menu button.active{background:var(--marigold); color:#3A2C05;}
+  .menu button:not(.active):hover{background:rgba(255,255,255,0.1); color:#fff;}
+
+  main{max-width:1180px; margin:0 auto; padding:36px 32px 80px;}
+  .view{display:none;}
+  .view.active{display:block; animation:fadeIn .25s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .eyebrow{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:4px;}
+  .page-title{font-size:30px; font-weight:800; color:var(--ink); margin:0 0 4px;}
+  .muted{color:#6B6350; font-size:14.5px; line-height:1.55;}
+
+  .card{background:var(--paper-soft); border:1px solid var(--border); border-radius:20px; padding:26px; box-shadow:var(--shadow);}
+
+  /* ---------- Pills / tabs ---------- */
+  .pill-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:22px;}
+  .pill{
+    border:none; padding:10px 18px; border-radius:14px; font-weight:700; font-size:14px;
+    cursor:pointer; font-family:inherit; transition:transform .12s ease, box-shadow .12s ease;
+    background:#EAE4D2; color:#3A3223;
+  }
+  .pill:hover{transform:translateY(-2px);}
+  .pill.active{background:var(--ink); color:#F5F1E4; box-shadow:var(--shadow);}
+  .pill .num{opacity:.6; font-size:11px; margin-right:6px;}
+
+  .day-pill{padding:8px 18px; border-radius:999px; border:2px solid transparent; font-weight:700; font-size:13.5px; cursor:pointer; font-family:inherit; background:#F0EDE1; color:#5C5540;}
+  .day-pill.active{border-color:var(--teal); background:#DCEFE9; color:#164E47;}
+
+  .unit-bar{display:flex; justify-content:space-between; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px;}
+  .unit-tabs{display:flex; gap:8px; flex-wrap:wrap;}
+  .unit-tab{
+    padding:8px 16px; border-radius:10px; border:1.5px solid var(--border); background:var(--paper-soft);
+    color:#55503F; font-weight:700; font-size:13px; cursor:pointer; font-family:inherit;
+  }
+  .unit-tab.active{background:var(--ink); color:#F5F1E4; border-color:var(--ink);}
+  .week-jump{
+    padding:8px 14px; border-radius:10px; border:1.5px solid var(--border); background:var(--paper-soft);
+    color:#3A3223; font-weight:600; font-size:13px; font-family:inherit; cursor:pointer;
+  }
+
+  /* ---------- Stamps / badges ---------- */
+  .stamp{display:inline-flex; align-items:center; padding:5px 11px; border-radius:10px; font-size:11.5px; font-weight:700; letter-spacing:.02em; transform:rotate(-1deg); white-space:nowrap;}
+  .stamp-ink{background:var(--ink); color:#F5F1E4;}
+  .stamp-teal{background:var(--teal); color:#EAF6F2;}
+  .stamp-marigold{background:var(--marigold); color:#3A2C05;}
+  .stamp-paper{background:#EAE4D2; color:#3A3223;}
+
+  .section-label{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#55503F; margin-bottom:10px; display:block;}
+
+  .obj-list{display:flex; flex-direction:column; gap:10px; list-style:none; padding:0; margin:0;}
+  .obj-list li{padding-left:14px; border-left:3px solid var(--marigold);}
+  .obj-title{display:block; font-weight:700; font-size:14px; color:var(--ink);}
+  .obj-crit{display:block; font-size:12.5px; color:#766F5B; margin-top:2px;}
+
+  .standard-row{display:flex; gap:10px; align-items:flex-start; margin-bottom:10px;}
+  .standard-app{font-size:13px; color:#4A4433; line-height:1.4; padding-top:3px;}
+
+  table.data-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.data-table th{text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.05em; color:#8A8270; padding:6px 8px; border-bottom:1px solid var(--border); font-weight:700;}
+  table.data-table td{padding:7px 8px; border-bottom:1px solid #EFEADC; vertical-align:top;}
+  .es-word{font-weight:700; color:var(--ink);}
+  .type-cell{color:#8A8270; font-size:12px;}
+
+  .meta-chips{display:flex; flex-wrap:wrap; gap:8px; margin:10px 0 4px;}
+  .meta-chip{display:flex; align-items:center; gap:6px; background:#F0EDE1; border-radius:10px; padding:7px 12px; font-size:12.5px; color:#55503F; font-weight:600;}
+
+  .activity-list{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:12px; counter-reset:activity;}
+  .activity-list li{counter-increment:activity; padding-left:32px; position:relative;}
+  .activity-list li::before{content:counter(activity); position:absolute; left:0; top:1px; width:22px; height:22px; border-radius:50%; background:var(--teal); color:#EAF6F2; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;}
+  .activity-head{display:flex; justify-content:space-between; gap:8px;}
+  .activity-name{font-weight:700; font-size:13.5px; color:var(--ink);}
+  .activity-time{font-size:11px; color:#8A8270; flex-shrink:0; font-weight:700;}
+  .activity-desc{font-size:12.5px; color:#55503F; margin:3px 0 0; line-height:1.5;}
+
+  .assess-row{display:flex; gap:10px; align-items:flex-start; margin-bottom:8px;}
+  .assess-obs{font-size:13px;} .assess-crit{font-size:12px; color:#8A8270; margin-top:1px;}
+
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  .grid-lg2{display:grid; grid-template-columns:1fr 1fr; gap:22px;}
+  @media (max-width:820px){.grid2,.grid-lg2{grid-template-columns:1fr;}}
+
+  /* Standards view */
+  .std-grid{display:grid; grid-template-columns:1fr 1fr; gap:16px;}
+  @media (max-width:820px){.std-grid{grid-template-columns:1fr;}}
+  .std-name{font-size:16px; font-weight:800; color:var(--ink); margin:6px 0 6px;}
+  .std-desc{font-size:13px; color:#55503F; line-height:1.5;}
+  .coverage{font-size:11px; color:#8A8270; font-weight:700;}
+  .week-chip{font-size:11.5px; font-weight:700; padding:4px 10px; border-radius:999px; border:1.5px solid transparent; font-family:inherit;}
+
+  /* Tracker */
+  .add-row{display:flex; gap:10px; margin-bottom:20px;}
+  .text-input{flex:1; padding:11px 16px; border-radius:12px; border:1.5px solid var(--border); font-family:inherit; font-size:14px; background:#fff;}
+  .text-input:focus{outline:none; border-color:var(--teal);}
+  .btn{display:inline-flex; align-items:center; gap:6px; border:none; border-radius:12px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit;}
+  .btn-primary{background:var(--ink); color:#F5F1E4;}
+  .btn-ghost{background:transparent; border:1.5px solid var(--border); color:#55503F;}
+  .btn-danger{background:var(--coral); color:#fff;}
+  table.tracker-table{width:100%; border-collapse:collapse; font-size:13.5px;}
+  table.tracker-table th{text-align:center; font-size:10.5px; text-transform:uppercase; padding:8px; color:#8A8270; border-bottom:2px solid var(--border); font-weight:700;}
+  table.tracker-table td{padding:10px 8px; border-bottom:1px solid #EFEADC; text-align:center;}
+  .name-col{text-align:left !important;}
+  .status-stamp{width:34px; height:34px; border-radius:10px; border:none; cursor:pointer; font-weight:800; font-size:15px;}
+  .overall-cell{display:flex; align-items:center; gap:8px; min-width:100px;}
+  .overall-bar{flex:1; height:7px; border-radius:999px; background:#E7E2D3; overflow:hidden;}
+  .overall-fill{height:100%; background:var(--marigold);}
+  .empty-state{text-align:center; padding:48px 24px; color:#6B6350;}
+
+  /* ---------- Tools ---------- */
+  .tool-tabs{display:flex; gap:8px; margin-bottom:22px;}
+  .tool-tab{padding:10px 20px; border-radius:14px; border:none; font-weight:700; font-size:14px; cursor:pointer; background:#EAE4D2; color:#3A3223; font-family:inherit;}
+
+  .menu-row{padding:10px 32px;}
+  /* When this page is loaded inside the shell's iframe, hide the duplicate
+     brand bar (the shell already shows brand/tools) and lighten the menu row
+     so it reads as page-local navigation, not a second app header. */
+  html.framed #standaloneTopbar{display:none;}
+  html.framed .menu-row{background:var(--paper); box-shadow:none; border-bottom:1px solid var(--border); position:static;}
+  html.framed .menu button{color:#55503F;}
+  html.framed .menu button:hover{background:rgba(31,58,95,0.08); color:var(--ink);}
+  html.framed .menu button.active{background:var(--ink); color:#F5F1E4;}
+</style>
+</head>
+<body>
+<script>
+  if (window.self !== window.top) { document.documentElement.classList.add('framed'); }
+</script>
+
+<div class="topbar" id="standaloneTopbar">
+  <div class="brand">
+    <a href="index.html">← All grades</a>
+    <span class="brand-title">Cuaderno · <span>Reception</span></span>
+  </div>
+</div>
+<div class="topbar menu-row" id="menuRow">
+  <div class="menu" id="mainMenu">
+    <button data-view="weekly" class="active">Weekly Plans</button>
+    <button data-view="standards">Standards</button>
+    <button data-view="tracker">Tracker</button>
+  </div>
+</div>
+
+<main>
+
+  <!-- WEEKLY VIEW -->
+  <section class="view active" id="view-weekly">
+    <div class="unit-bar">
+      <div class="unit-tabs" id="unitTabs"></div>
+      <select class="week-jump" id="weekJump"></select>
+    </div>
+    <div class="pill-row" id="weekTabs"></div>
+    <div class="card" id="weekOverview" style="margin-bottom:22px;"></div>
+    <div class="pill-row" id="dayTabs"></div>
+    <div class="card" id="dayDetail"></div>
+  </section>
+
+  <!-- STANDARDS VIEW -->
+  <section class="view" id="view-standards">
+    <div style="margin-bottom:22px;">
+      <div class="eyebrow">Program coverage</div>
+      <h2 class="page-title">Standards addressed, K</h2>
+      <p class="muted">Every standard tagged across Weeks 1–4, and which weeks put it into practice. Click a week chip to jump there.</p>
+    </div>
+    <div class="std-grid" id="standardsGrid"></div>
+  </section>
+
+  <!-- TRACKER VIEW -->
+  <section class="view" id="view-tracker">
+    <div style="margin-bottom:22px;">
+      <div class="eyebrow">Reception roster</div>
+      <h2 class="page-title">Student progress tracker</h2>
+      <p class="muted">Rate each student against this week's standards, N–B–D–P–A. Saved live to your Google Sheet.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div class="add-row">
+        <input class="text-input" id="newStudentInput" placeholder="Add a student's name…" />
+        <button class="btn btn-primary" id="addStudentBtn">+ Add</button>
+      </div>
+    </div>
+
+    <div class="pill-row" style="align-items:center;">
+      <button class="pill active" id="tabWeekView" onclick="setTrackerTab('week')">This Week</button>
+      <button class="pill" id="tabTermView" onclick="setTrackerTab('term')">Term 1 Summary</button>
+      <select class="week-jump" id="trackerWeekSelect" style="margin-left:auto;"></select>
+    </div>
+
+    <div id="trackerStatus" class="muted" style="margin:6px 0 14px;"></div>
+    <div id="trackerWeekPanel"></div>
+    <div id="trackerTermPanel" style="display:none;"></div>
+
+    <div style="margin-top:16px;">
+      <button class="btn btn-ghost" id="resetTrackerBtn">Reset local student list</button>
+    </div>
+  </section>
+
+</main>
+
+<script>
+/* ============================================================
+   DATA
+   ============================================================ */
+const WEEKS = [
+  { id:1, title:"¡Hola!", topicEn:"Greetings and Introductions", unit:"Unit 1: ¡Hola!",
+    proficiency:"Novice Low → Novice Low", cefr:"A1.1", focus:"Oral language development through listening and speaking",
+    objectives:[
+      {text:"Greet others", criteria:"Say Hola and respond to Hola with a wave or verbal response"},
+      {text:"Say goodbye", criteria:"Say Adiós appropriately when leaving"},
+      {text:"Use time-of-day greetings", criteria:"Distinguish between Buenos días, Buenas tardes, and Buenas noches"},
+      {text:"Introduce themselves", criteria:"Say Me llamo [Name] when asked ¿Cómo te llamas?"},
+      {text:"Use courtesy expressions", criteria:"Say Gracias and Por favor in context"},
+      {text:"Understand basic questions", criteria:"Respond to Sí and No questions"},
+    ],
+    standards:[
+      {code:"ACTFL 1.1", application:"Students greet the teacher and peers, respond to ¿Cómo te llamas? with Me llamo..."},
+      {code:"ACTFL 1.2", application:"Students listen to and understand the teacher's greetings and the question ¿Cómo te llamas?"},
+      {code:"ACTFL 1.3", application:"Students introduce themselves to the class saying Me llamo..."},
+      {code:"ACTFL 2.1", application:"Students learn about greeting customs in Spanish-speaking countries (beso vs. handshake)"},
+      {code:"PCIC 1.1", application:"Students identify themselves: Yo soy... / Me llamo..."},
+      {code:"PCIC 1.2", application:"Students ask and answer ¿Cómo te llamas?"},
+      {code:"PCIC Socializing", application:"Students use Hola, Adiós, Buenos días, Buenas tardes, Buenas noches"},
+    ],
+    days:[
+      {day:"Monday", title:"¡Hola! (Hello!)", objective:"Students will recognize and respond to the greeting Hola and understand the concept of greeting in Spanish.",
+        standards:"ACTFL 1.1, 1.2; PCIC Functions (Socializing)", phonics:"Phonological Awareness: Rhyming words awareness", materials:"Puppet, soft ball, Hola song audio",
+        vocabulary:[["Hola","Hello","Greeting"],["Adiós","Goodbye","Farewell"],["Sí","Yes","Response"],["No","No","Response"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Teacher stands at the door, smiles, waves, and says ¡Hola! to each student as they enter."],
+          ["Introduction to Hola","5 min","Teacher shows a picture or puppet and says Hola while waving. Students share what they think it means."],
+          ["Hola Song","5 min","Teacher plays/sings a simple Hola song. Students wave when they hear Hola."],
+          ["TPR: Wave for Hola","5 min","Teacher says Hola and waves. Students repeat: Hola + wave. Practice 3-4 times."],
+          ["Hola Ball Toss","8 min","Teacher tosses a soft ball to a student, says Hola. Student says Hola and tosses it back."],
+          ["Adiós Introduction","5 min","Teacher says Adiós and waves goodbye. Students repeat to the puppet."],
+          ["Phonics: Rhyming Words","5 min","Teacher says pairs of words; students clap when they hear words that rhyme."],
+          ["Wrap-Up: Goodbye Routine","2 min","Teacher says Adiós to each student as they leave."],
+        ],
+        assessment:[["Listening","Student responds to Hola with a wave or smile","Responds non-verbally to greeting"],["Speaking","Student says Hola when prompted","Produces the word with prompting"]]},
+      {day:"Tuesday", title:"¡Buenos días! (Good Morning!)", objective:"Students will distinguish between greetings for different times of day.",
+        standards:"ACTFL 1.1, 1.2, 2.1; PCIC Functions (Socializing)", phonics:"Phonological Awareness: Syllable counting", materials:"Picture cards (sun, sunset, moon/stars), Hola song audio",
+        vocabulary:[["Buenos días","Good morning","Greeting"],["Buenas tardes","Good afternoon","Greeting"],["Buenas noches","Good evening / Good night","Greeting"],["Hola","Hello","Review"],["Adiós","Goodbye","Review"]],
+        activities:[
+          ["Morning Greeting Routine","3 min","Review Hola and Adiós from Day 1."],
+          ["Introduction to Time of Day","5 min","Teacher shows three pictures: sun, sunset, moon/stars."],
+          ["Present Buenos días","5 min","Teacher points to the sun picture and says Buenos días. Students repeat 3 times."],
+          ["Present Buenas tardes","5 min","Teacher points to the sunset picture and says Buenas tardes. Students repeat 3 times."],
+          ["Present Buenas noches","5 min","Teacher points to the moon/stars picture and says Buenas noches softly. Students repeat 3 times."],
+          ["Matching Game","5 min","Teacher shows a picture; students say the correct greeting."],
+          ["Phonics: Syllable Counting","5 min","Teacher claps syllables in words: Ho-la (2), Bue-nos dí-as (3)."],
+          ["Greeting Relay","5 min","First student to say the correct greeting for a picture gets a point."],
+          ["Wrap-Up","2 min","Review all greetings. Say Adiós."],
+        ],
+        assessment:[["Listening","Points to correct picture when a greeting is said","2/3 times correct"],["Speaking","Says the correct greeting when shown a picture","With prompting"]]},
+      {day:"Wednesday", title:"¿Cómo te llamas?", objective:"Students will ask and answer ¿Cómo te llamas? using Me llamo...",
+        standards:"ACTFL 1.1, 1.2, 1.3; PCIC Functions 1.1, 1.2", phonics:"Syllables with m: ma, me, mi, mo, mu", materials:"Puppet, name tags, letter card m",
+        vocabulary:[["¿Cómo te llamas?","What's your name?","Question"],["Me llamo...","My name is...","Response"],["Yo soy...","I am...","Response"],["Hola / Adiós","Hello / Goodbye","Review"]],
+        activities:[
+          ["Morning Greeting Routine","3 min","Review Hola, Buenos días, Buenas tardes, Buenas noches, Adiós."],
+          ["Introduce the Puppet","3 min","Puppet: Hola, me llamo Paco. Teacher asks: ¿Cómo te llamas?"],
+          ["Model the Question","5 min","Teacher models ¿Cómo te llamas? and Me llamo [Teacher's name], 3 times."],
+          ["TPR: Point to Self","3 min","Teacher says Me llamo... and points to self. Students copy with their own name."],
+          ["Practice as a Group","5 min","Whole class responds in unison: Me llamo [Name]."],
+          ["Partner Practice","8 min","Student A asks ¿Cómo te llamas? Student B responds. Then switch."],
+          ["Phonics: Syllables with m","5 min","ma, me, mi, mo, mu — students repeat."],
+          ["Me llamo Name Song","5 min","Students sing with their own names."],
+          ["Wrap-Up","3 min","Review question and answer. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says Me llamo [Name] when asked","With or without prompting"],["Listening","Understands ¿Cómo te llamas?","Responds appropriately"]]},
+      {day:"Thursday", title:"Review and Practice", objective:"Students will review and practice all greetings and introductions from the week.",
+        standards:"ACTFL 1.1, 1.2, 1.3; PCIC Functions (Socializing)", phonics:"Syllables with p: pa, pe, pi, po, pu", materials:"Greeting picture cards, letter card p, memory game cards",
+        vocabulary:[["Hola / Adiós","Hello / Goodbye","Review"],["Buenos días / tardes / noches","Time-of-day greetings","Review"],["¿Cómo te llamas? / Me llamo...","Name question/response","Review"],["Gracias","Thank you","New"],["Por favor","Please","New"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Full greeting routine with the puppet."],
+          ["Gracias and Por favor Intro","5 min","Teacher models gestures for Por favor and Gracias."],
+          ["Greeting Circle","8 min","Ball passed around circle; receiving student says Hola, me llamo [Name]."],
+          ["Memory Game: Matching","8 min","Match greeting picture cards face-down (e.g. sun + Buenos días)."],
+          ["Phonics: Syllables with p","5 min","pa, pe, pi, po, pu — students repeat."],
+          ["Saludos Song","5 min","Song including all the greetings learned, with gestures."],
+          ["Introduction to Sí and No","5 min","Teacher asks true/false name questions; students answer Sí/No."],
+          ["Wrap-Up: Goodbye Routine","4 min","Review all greetings. Say Adiós and Gracias."],
+        ],
+        assessment:[["Speaking","Greets and introduces self independently","Hola, me llamo [Name] unprompted"],["Speaking","Uses Adiós and Gracias appropriately","Correct courtesy use"],["Listening","Responds to Sí/No questions","2/3 correct"]]},
+    ]},
+
+  { id:2, title:"¿Cómo estás?", topicEn:"Emotions, Feelings, and Review of Greetings", unit:"Unit 1: ¡Hola! (Continued)",
+    proficiency:"Novice Low → Novice Low", cefr:"A1.1", focus:"Oral language development, expressing feelings",
+    objectives:[
+      {text:"Express feelings", criteria:"Say Bien, Mal, or Así-así when asked ¿Cómo estás?"},
+      {text:"Ask about feelings", criteria:"Ask ¿Cómo estás? to a peer"},
+      {text:"Review greetings", criteria:"Use all greetings from Week 1 independently"},
+      {text:"Respond to questions", criteria:"Answer ¿Cómo estás? appropriately"},
+    ],
+    standards:[
+      {code:"ACTFL 1.1", application:"Students ask and answer ¿Cómo estás?"},
+      {code:"ACTFL 1.2", application:"Students understand emotions vocabulary"},
+      {code:"ACTFL 1.3", application:"Students express how they feel"},
+      {code:"PCIC Describing", application:"Students express Bien and Mal"},
+    ],
+    days:[
+      {day:"Monday", title:"¿Cómo estás? (How Are You?)", objective:"Students will ask and answer ¿Cómo estás? using Bien and Mal.",
+        standards:"ACTFL 1.1, 1.2; PCIC Functions (Describing states)", phonics:"Vowels: a, e, i, o, u", materials:"Emotion faces, letter cards a-e-i-o-u",
+        vocabulary:[["¿Cómo estás?","How are you?","Question"],["Bien","Good / Well","Response"],["Mal","Bad / Not well","Response"],["Así-así","So-so","Response"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Review greetings from Week 1."],
+          ["Introduce Emotions","5 min","Smiley/frowny faces; Bien (thumbs up), Mal (thumbs down)."],
+          ["Present ¿Cómo estás?","5 min","Teacher models: Hola. ¿Cómo estás? — Bien, gracias."],
+          ["TPR: Thumbs Up/Down","3 min","Students copy Bien/Mal gestures."],
+          ["Practice as a Group","5 min","Whole class responds: Bien or Mal."],
+          ["Partner Practice","8 min","Students ask/answer ¿Cómo estás? in pairs."],
+          ["Phonics: Vowels","5 min","a, e, i, o, u — students repeat."],
+          ["¿Cómo estás? Song","5 min","Students sing along."],
+          ["Wrap-Up","2 min","Review. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says Bien or Mal when asked","With or without prompting"],["Listening","Understands ¿Cómo estás?","Responds appropriately"]]},
+      {day:"Tuesday", title:"Emotions Practice", objective:"Students will express a wider range of emotions in Spanish.",
+        standards:"ACTFL 1.1, 1.2; PCIC Functions (Describing states)", phonics:"Vowels: a, e, i, o, u (continued)", materials:"Emotion flashcards, drawing materials",
+        vocabulary:[["Así-así","So-so","New"],["Triste","Sad","New"],["Feliz","Happy","New"],["Enojado","Angry","New"],["Cansado","Tired","New"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Full greeting routine with ¿Cómo estás?"],
+          ["Introduce Así-así","3 min","So-so hand-wave gesture."],
+          ["Introduce More Emotions","5 min","Triste, Feliz, Enojado, Cansado flashcards."],
+          ["Emotion Charades","8 min","Students act out the shown emotion."],
+          ["Draw Your Emotions","5 min","Students draw a face; teacher asks ¿Cómo estás?"],
+          ["Emotion Sorting","5 min","Point to the correct flashcard when named."],
+          ["Phonics: Vowel Practice","5 min","Review a, e, i, o, u."],
+          ["Emociones Song","5 min","Sing along and show the emotion."],
+          ["Wrap-Up","2 min","Review. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says the emotion word when shown a picture","With prompting"],["Listening","Acts out the correct emotion when named","Non-verbal, correct"]]},
+      {day:"Wednesday", title:"Review All Greetings and Emotions", objective:"Students will review and practice all greetings and emotions learned.",
+        standards:"ACTFL 1.1, 1.2, 1.3; PCIC Functions (Socializing, Describing)", phonics:"Syllables with m (Review)", materials:"Emotion flashcards, greeting picture cards, ball",
+        vocabulary:[["All vocabulary from Weeks 1–2","—","Review"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Full routine with ¿Cómo estás?"],
+          ["Greeting Review Game","8 min","Around the World — say the correct greeting for a picture."],
+          ["Emotion Review Game","8 min","Emotion bingo."],
+          ["Dialogue Practice","8 min","Hola. ¿Cómo estás? — Bien, gracias. — Adiós, practiced with partners."],
+          ["Phonics: Syllables with m","5 min","ma, me, mi, mo, mu with mamá, papá."],
+          ["Saludos y Emociones Song","5 min","Song combining greetings and emotions."],
+          ["Wrap-Up","4 min","Review all vocabulary. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says greeting and emotion without prompting","Independent"],["Speaking","Performs full dialogue","2–3 exchanges"]]},
+      {day:"Thursday", title:"Assessment Week 1–2", objective:"To assess student progress on Weeks 1–2 goals.",
+        standards:"ACTFL 1.1, 1.2, 1.3; PCIC All previous", phonics:"Syllables with p (Review)", materials:"Assessment checklist, picture cards, puppet",
+        vocabulary:[["All vocabulary from Weeks 1–2","—","Assessment"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Review all vocabulary."],
+          ["Group Practice","5 min","Practice assessment questions as a group."],
+          ["Individual Check-Ins","20 min","¿Cómo te llamas?, ¿Cómo estás?, time-of-day greeting — teacher records responses."],
+          ["Phonics Check","5 min","Letters a, e, i, o, u, m, p."],
+          ["Self-Assessment Drawing","5 min","Students draw themselves and write Me llamo [Name]."],
+          ["Wrap-Up","5 min","Positive feedback. Say Adiós."],
+        ],
+        assessment:[["Speaking","Greets and introduces self","Independent"],["Speaking","Expresses feeling","Bien / Mal / Así-así"],["Speaking","Uses time-of-day greeting","Appropriate greeting"],["Phonics","Identifies vowels","3/5 correct"],["Phonics","Identifies m/p sounds","Correct"]]},
+    ]},
+
+  { id:3, title:"Emociones y Necesidades", topicEn:"Emotions, Feelings, and Expressing Needs", unit:"Unit 1: ¡Hola! (Continued)",
+    proficiency:"Novice Low → Novice Low", cefr:"A1.1", focus:"Oral language development, expressing feelings and needs",
+    objectives:[
+      {text:"Express feelings", criteria:"Use Triste, Feliz, Enojado, Cansado to describe how they feel"},
+      {text:"Ask about feelings", criteria:"Ask ¿Cómo estás? to a peer"},
+      {text:"Express needs", criteria:"Say Tengo hambre and Tengo sed"},
+      {text:"Review all greetings", criteria:"Use all greetings from Weeks 1–2 independently"},
+    ],
+    standards:[
+      {code:"ACTFL 1.1", application:"Students ask and answer ¿Cómo estás? and express needs"},
+      {code:"ACTFL 1.2", application:"Students understand emotions and needs vocabulary"},
+      {code:"ACTFL 1.3", application:"Students express how they feel and what they need"},
+      {code:"PCIC Describing", application:"Students express emotions and physical needs"},
+    ],
+    days:[
+      {day:"Monday", title:"More Emotions", objective:"Students will express a wider range of emotions in Spanish.",
+        standards:"ACTFL 1.1, 1.2; PCIC Functions (Describing states)", phonics:"Syllables with l: la, le, li, lo, lu", materials:"Emotion flashcards, mirror, drawing materials, letter card l",
+        vocabulary:[["Triste","Sad","Emotion"],["Feliz","Happy","Emotion"],["Enojado","Angry","Emotion"],["Cansado","Tired","Emotion"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Review greetings and ¿Cómo estás?"],
+          ["Introduce Emotions","5 min","Triste, Feliz, Enojado, Cansado flashcards."],
+          ["TPR: Act Out Emotions","5 min","Students act out the named emotion."],
+          ["Mirror Game","5 min","Students make faces showing emotions in a mirror."],
+          ["Practice as a Group","5 min","Teacher asks ¿Cómo estás?, students respond with an emotion."],
+          ["Partner Practice","8 min","Students ask/answer with emotions in pairs."],
+          ["Phonics: Syllables with l","5 min","la, le, li, lo, lu."],
+          ["Wrap-Up","2 min","Review emotions. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says emotion word when shown a picture","With prompting"],["Listening","Acts out the correct emotion when named","Correct, non-verbal"]]},
+      {day:"Tuesday", title:"Expressing Needs", objective:"Students will express basic needs: Tengo hambre and Tengo sed.",
+        standards:"ACTFL 1.1, 1.2; PCIC Functions (Describing physical states)", phonics:"Syllables with s: sa, se, si, so, su", materials:"Picture cards (food, water), letter card s",
+        vocabulary:[["Tengo hambre","I'm hungry","Need"],["Tengo sed","I'm thirsty","Need"],["¿Tienes hambre?","Are you hungry?","Question"],["¿Tienes sed?","Are you thirsty?","Question"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Greeting routine with ¿Cómo estás?"],
+          ["Introduce Tengo hambre","5 min","Picture of food; teacher rubs stomach."],
+          ["Introduce Tengo sed","5 min","Picture of water; teacher points to mouth."],
+          ["TPR: Hunger and Thirst","5 min","Students copy the gestures."],
+          ["Practice as a Group","5 min","¿Tienes hambre? — Sí / No."],
+          ["Partner Practice","8 min","Students ask/answer in pairs."],
+          ["Phonics: Syllables with s","5 min","sa, se, si, so, su."],
+          ["Tengo hambre Song","5 min","Students sing along."],
+          ["Wrap-Up","2 min","Review. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says Tengo hambre/sed when shown a picture","With prompting"],["Listening","Understands ¿Tienes hambre?","Responds appropriately"]]},
+      {day:"Wednesday", title:"Review Emotions and Needs", objective:"Students will review emotions and needs vocabulary.",
+        standards:"ACTFL 1.1, 1.2; PCIC Functions (Describing states)", phonics:"Syllables with n: na, ne, ni, no, nu", materials:"Emotion flashcards, need picture cards, letter card n",
+        vocabulary:[["Triste / Feliz / Enojado / Cansado","Emotions","Review"],["Tengo hambre / sed","Needs","Review"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","With emotions."],
+          ["Emotion Charades","8 min","Act out shown emotion."],
+          ["Tengo hambre Practice","5 min","Say it when shown food picture."],
+          ["Tengo sed Practice","5 min","Say it when shown water picture."],
+          ["Simon Says (Emotions)","8 min","Simón dice... [emotion]."],
+          ["Phonics: Syllables with n","5 min","na, ne, ni, no, nu."],
+          ["Emociones y Necesidades Game","5 min","Show correct gesture when named."],
+          ["Wrap-Up","4 min","Review all vocabulary. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says emotion or need without prompting","Independent"],["Listening","Acts out the correct emotion or need","Correct"]]},
+      {day:"Thursday", title:"Review and Practice", objective:"Students will review and practice all emotions and needs from the week.",
+        standards:"ACTFL 1.1, 1.2, 1.3; PCIC All previous", phonics:"Syllables with d: da, de, di, do, du", materials:"All flashcards, dice, board game template",
+        vocabulary:[["All vocabulary from Week 3","—","Review"]],
+        activities:[
+          ["Morning Greeting Routine","5 min","Full routine with ¿Cómo estás? and emotions."],
+          ["Emotion Board Game","10 min","Roll dice, say the landed emotion."],
+          ["Needs Practice","5 min","Say what's needed when shown a picture."],
+          ["Dialogue Practice","8 min","Hola. ¿Cómo estás? — [Emotion]. — ¿Tienes hambre? — Sí/No. — Adiós."],
+          ["Phonics: Syllables with d","5 min","da, de, di, do, du."],
+          ["Todo sobre mí Drawing","5 min","Draw self and label with emotions."],
+          ["Wrap-Up","2 min","Review vocabulary. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says emotions/needs independently","Unprompted"],["Speaking","Performs full dialogue","3–4 exchanges"]]},
+    ]},
+
+  { id:4, title:"El Cuerpo", topicEn:"Body Parts: Head and Face", unit:"Unit 2: El Cuerpo",
+    proficiency:"Novice Low → Novice Mid", cefr:"A1.1", focus:"Oral language development, TPR, vocabulary acquisition",
+    objectives:[
+      {text:"Identify head and face parts", criteria:"Point to la cabeza, los hombros, las rodillas, los pies when named"},
+      {text:"Name head and face parts", criteria:"Say la cabeza, los ojos, la nariz, la boca, las orejas when shown"},
+      {text:"Follow commands", criteria:"Respond to Toca... (Touch...) commands correctly"},
+      {text:"Sing a body parts song", criteria:"Participate in Cabeza, hombros, rodillas, pies"},
+    ],
+    standards:[
+      {code:"ACTFL 1.1", application:"Students follow and give commands"},
+      {code:"ACTFL 1.2", application:"Students understand body part vocabulary"},
+      {code:"ACTFL 1.3", application:"Students name body parts"},
+      {code:"PCIC Nociones", application:"Students learn and identify body parts"},
+    ],
+    days:[
+      {day:"Monday", title:"La Cabeza (The Head)", objective:"Students will identify head and shoulder parts.",
+        standards:"ACTFL 1.1, 1.2; PCIC Nociones Generales (Entity — Body)", phonics:"Syllables with f: fa, fe, fi, fo, fu", materials:"Body part flashcards, song, letter card f",
+        vocabulary:[["La cabeza","The head","Body part"],["Los hombros","The shoulders","Body part"],["Las rodillas","The knees","Body part"],["Los pies","The feet","Body part"],["Toca...","Touch...","Command"]],
+        activities:[
+          ["Morning Greeting Routine","3 min","¿Cómo estás?"],
+          ["Introduce Body Parts","5 min","cabeza, hombros, rodillas, pies flashcards."],
+          ["Cabeza-hombros-rodillas-pies Song","5 min","Touch each body part while singing."],
+          ["TPR: Touch Body Parts","5 min","Toca la cabeza — students touch head, all 4 parts."],
+          ["Simon Says (Body Parts)","8 min","Simón dice... Toca la cabeza."],
+          ["Practice as a Group","5 min","Point to a body part; students name it."],
+          ["Phonics: Syllables with f","5 min","fa, fe, fi, fo, fu."],
+          ["Body Part Drawing","5 min","Draw a person and label body parts."],
+          ["Wrap-Up","4 min","Sing again. Say Adiós."],
+        ],
+        assessment:[["Listening","Points to correct body part when named","3/4 correct"],["Speaking","Says body part when shown a picture","With prompting"],["Speaking","Participates in song","Does the actions"]]},
+      {day:"Tuesday", title:"La Cara (The Face)", objective:"Students will identify face parts.",
+        standards:"ACTFL 1.1, 1.2; PCIC Nociones Generales (Entity — Body)", phonics:"Syllables with r: ra, re, ri, ro, ru", materials:"Face part flashcards, mirror, letter card r",
+        vocabulary:[["Los ojos","The eyes","Face part"],["La nariz","The nose","Face part"],["La boca","The mouth","Face part"],["Las orejas","The ears","Face part"]],
+        activities:[
+          ["Morning Greeting Routine","3 min","¿Cómo estás?"],
+          ["Review Cabeza Parts","3 min","Sing the song."],
+          ["Introduce Face Parts","5 min","ojos, nariz, boca, orejas flashcards."],
+          ["TPR: Touch Face Parts","5 min","Toca los ojos — all 4 parts."],
+          ["Mirror Game","5 min","Toca la nariz — point in a mirror."],
+          ["Simon Says (Face Parts)","8 min","Simón dice... Toca la boca."],
+          ["Practice as a Group","5 min","Point to a face part; students name it."],
+          ["Phonics: Syllables with r","5 min","ra, re, ri, ro, ru."],
+          ["Wrap-Up","4 min","Sing the song. Say Adiós."],
+        ],
+        assessment:[["Listening","Points to correct face part when named","3/4 correct"],["Speaking","Says face part when shown a picture","With prompting"]]},
+      {day:"Wednesday", title:"Review Body and Face Parts", objective:"Students will review all body and face parts learned.",
+        standards:"ACTFL 1.1, 1.2; PCIC Nociones Generales (Entity — Body)", phonics:"Syllables with b: ba, be, bi, bo, bu", materials:"All flashcards, body outline poster, letter card b",
+        vocabulary:[["La cabeza / hombros / rodillas / pies","Body parts","Review"],["Ojos / nariz / boca / orejas","Face parts","Review"]],
+        activities:[
+          ["Morning Greeting Routine","3 min","¿Cómo estás?"],
+          ["Sing Cabeza, hombros...","5 min","Full song with all body parts."],
+          ["Body Labeling Activity","8 min","Point to body parts on a poster as named."],
+          ["Simon Says with All Parts","8 min","Toca... with all body and face parts."],
+          ["Partner Practice","5 min","Say a part; partner points to it."],
+          ["Body Bingo","5 min","Mark called body parts on a bingo card."],
+          ["Phonics: Syllables with b","5 min","ba, be, bi, bo, bu."],
+          ["Wrap-Up","4 min","Sing the song. Say Adiós."],
+        ],
+        assessment:[["Speaking","Says body part without prompting","Independent"],["Listening","Follows Simon Says commands","5+ correct"]]},
+      {day:"Thursday", title:"Assessment Week 4", objective:"To assess student progress on Week 4 goals.",
+        standards:"ACTFL 1.1, 1.2, 1.3; PCIC Nociones Generales", phonics:"Syllables with c: ca, co, cu", materials:"Assessment checklist, body part flashcards, body outline",
+        vocabulary:[["All body and face vocabulary from Week 4","—","Assessment"]],
+        activities:[
+          ["Morning Greeting Routine","3 min","¿Cómo estás?"],
+          ["Group Practice","5 min","Sing the song, practice all body parts."],
+          ["Individual Check-Ins","20 min","¿Qué es? for a body part; Toca... commands."],
+          ["Phonics Check","5 min","Letters m, p, l, s, n, t, d, f, r, b."],
+          ["Body Part Drawing","5 min","Draw and label a person."],
+          ["Wrap-Up","7 min","Sing the song. Positive feedback. Say Adiós."],
+        ],
+        assessment:[["Speaking","Names body parts when shown","6/8 independent"],["Listening","Follows commands","5/8 correct"],["Phonics","Identifies letters","5+ correct"]]},
+    ]},
+];
+
+const STANDARDS_MASTER = [
+  {code:"ACTFL 1.1", name:"Interpersonal Communication", desc:"Learners interact and negotiate meaning in spoken conversations to share information, reactions, feelings, and opinions.", weeks:[1,2,3,4]},
+  {code:"ACTFL 1.2", name:"Interpretive Communication", desc:"Learners understand, interpret, and analyze what is heard, read, or viewed.", weeks:[1,2,3,4]},
+  {code:"ACTFL 1.3", name:"Presentational Communication", desc:"Learners present information, concepts, and ideas to inform, explain, persuade, and narrate.", weeks:[1,2,3,4]},
+  {code:"ACTFL 2.1", name:"Relating Cultural Practices to Perspectives", desc:"Learners investigate, explain, and reflect on the relationship between practices and perspectives of the cultures studied.", weeks:[1]},
+  {code:"PCIC 1.1", name:"Dar y pedir información — Identificar", desc:"Students identify themselves using basic self-identification formulas.", weeks:[1]},
+  {code:"PCIC 1.2", name:"Pedir información — Persona", desc:"Students ask and answer basic questions about a person's identity.", weeks:[1]},
+  {code:"PCIC Socializing", name:"Fórmulas de cortesía", desc:"Establece contactos sociales básicos utilizando las fórmulas de cortesía más sencillas y cotidianas relativas a saludos, despedidas y presentaciones.", weeks:[1,2]},
+  {code:"PCIC Describing", name:"Describing physical & emotional states", desc:"Students describe how they feel and express basic physical needs.", weeks:[2,3]},
+  {code:"PCIC Nociones", name:"Nociones Generales — Entity: Body", desc:"Students learn and identify body and face vocabulary.", weeks:[4]},
+];
+
+/* ============================================================
+   TRACKER CONFIG — Google Sheets connection
+   Paste your own Apps Script Web app URL and secret below.
+   ============================================================ */
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxW-DnFYFA6YFXL7jfEiv3STbWmTj3mflvufgYVaDcQP-j80rImoBR2YBz4ehbK7H0h/exec";
+const APPS_SCRIPT_SECRET = "APPLEtree";
+const GRADE_NAME = "Reception";
+
+// Term boundaries — only Term 1 is confirmed so far. Add Term 2/3/4 the same way once dates are known.
+const TERMS = [
+  {id:1, name:"Term 1", startWeek:1, endWeek:16},
+];
+function getTermForWeek(weekId){
+  return TERMS.find(t => weekId>=t.startWeek && weekId<=t.endWeek) || null;
+}
+
+const RATING_LEVELS = ["","N","B","D","P","A"]; // "" = not yet rated at all (blank), distinct from a deliberate "N"
+const RATING_META = {
+  "":{label:"Sin evaluar todavía", bg:"#F1EDDF", fg:"#C9C2AA"},
+  N:{label:"Not enough evidence", bg:"#E7E2D3", fg:"#6B6350"},
+  B:{label:"Beginner",            bg:"#FCEBC3", fg:"#8A6516"},
+  D:{label:"Developing",          bg:"#DCEFE9", fg:"#164E47"},
+  P:{label:"Proficient",          bg:"#D7E8FA", fg:"#1F4E8C"},
+  A:{label:"Advanced",            bg:"#E3D7F5", fg:"#4E2E85"},
+};
+
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let currentWeekId = 1, currentDayIdx = 0;
+
+// Derive the list of units (in order) from WEEKS, so this scales automatically
+// as more weeks/units are added — no manual list to keep in sync.
+function getUnits(){
+  const units = [];
+  WEEKS.forEach(w=>{
+    let u = units.find(x=>x.name===w.unit);
+    if(!u){ u = {name:w.unit, weekIds:[]}; units.push(u); }
+    u.weekIds.push(w.id);
+  });
+  return units;
+}
+function unitOf(weekId){ return getUnits().find(u=>u.weekIds.includes(weekId)); }
+let currentUnitName = unitOf(currentWeekId).name;
+
+/* ============================================================
+   TRACKER ACCESS — simple password gate
+   NOTE: this is a light deterrent, not real security. Anyone who
+   views this file's source can read the password below. It's meant
+   to keep curious students out during class, not to protect
+   sensitive data from a determined adult. Change it to anything you like.
+   ============================================================ */
+const TRACKER_PASSWORD = "CAMBIAME";
+let trackerUnlocked = false;
+
+/* ============================================================
+   MENU NAV
+   ============================================================ */
+document.getElementById('mainMenu').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-view]');
+  if(!btn) return;
+
+  if(btn.dataset.view === 'tracker' && !trackerUnlocked){
+    const entered = prompt('Esta sección requiere contraseña:');
+    if(entered === null) return; // cancelled — stay put
+    if(entered !== TRACKER_PASSWORD){ alert('Contraseña incorrecta.'); return; }
+    trackerUnlocked = true;
+    document.getElementById('trackerWeekPanel').innerHTML = '<div class="card empty-state">Cargando calificaciones desde Google Sheets…</div>';
+    fetchRatings().then(renderTrackerActiveTab);
+  }
+
+  document.querySelectorAll('#mainMenu button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+btn.dataset.view).classList.add('active');
+});
+
+/* ============================================================
+   WEEKLY VIEW
+   ============================================================ */
+function renderUnitTabs(){
+  const units = getUnits();
+  document.getElementById('unitTabs').innerHTML = units.map(u=>`
+    <button class="unit-tab ${u.name===currentUnitName?'active':''}" onclick="selectUnit('${u.name.replace(/'/g,"\\'")}')">${u.name}</button>
+  `).join('');
+}
+function selectUnit(name){
+  currentUnitName = name;
+  const unit = getUnits().find(u=>u.name===name);
+  selectWeek(unit.weekIds[0]);
+}
+function renderWeekTabs(){
+  const unit = getUnits().find(u=>u.name===currentUnitName);
+  document.getElementById('weekTabs').innerHTML = unit.weekIds.map(id=>{
+    const w = WEEKS.find(x=>x.id===id);
+    return `<button class="pill ${id===currentWeekId?'active':''}" onclick="selectWeek(${id})">
+      <span class="num">${String(id).padStart(2,'0')}</span>${w.title}
+    </button>`;
+  }).join('');
+  renderUnitTabs();
+}
+function renderWeekJump(){
+  const sel = document.getElementById('weekJump');
+  sel.innerHTML = WEEKS.map(w=>`<option value="${w.id}" ${w.id===currentWeekId?'selected':''}>Week ${String(w.id).padStart(2,'0')} — ${w.title}</option>`).join('');
+}
+document.getElementById('weekJump').addEventListener('change', e=>{ selectWeek(parseInt(e.target.value)); });
+
+function selectWeek(id){
+  currentWeekId=id;
+  currentDayIdx=0;
+  currentUnitName = unitOf(id).name;
+  renderWeekTabs(); renderWeekOverview(); renderDayTabs(); renderDayDetail(); renderWeekJump();
+}
+
+function renderWeekOverview(){
+  const w = WEEKS.find(x=>x.id===currentWeekId);
+  document.getElementById('weekOverview').innerHTML = `
+    <div style="display:flex; flex-wrap:wrap; justify-content:space-between; gap:14px; margin-bottom:14px;">
+      <div>
+        <div class="eyebrow">${w.unit}</div>
+        <h2 class="page-title">${w.title}</h2>
+        <p class="muted">${w.topicEn}</p>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <span class="stamp stamp-teal">${w.cefr}</span>
+        <span class="stamp stamp-paper">${w.proficiency}</span>
+      </div>
+    </div>
+    <div class="grid2">
+      <div>
+        <span class="section-label">Weekly objectives</span>
+        <ul class="obj-list">${w.objectives.map(o=>`<li><span class="obj-title">${o.text}</span><span class="obj-crit">${o.criteria}</span></li>`).join('')}</ul>
+      </div>
+      <div>
+        <span class="section-label">Standards addressed this week</span>
+        ${w.standards.map(s=>`<div class="standard-row"><span class="stamp stamp-ink">${s.code}</span><div class="standard-app">${s.application}</div></div>`).join('')}
+      </div>
+    </div>`;
+}
+function renderDayTabs(){
+  const w = WEEKS.find(x=>x.id===currentWeekId);
+  document.getElementById('dayTabs').innerHTML = w.days.map((d,i)=>`
+    <button class="day-pill ${i===currentDayIdx?'active':''}" onclick="selectDay(${i})">${d.day}</button>`).join('');
+}
+function selectDay(i){ currentDayIdx=i; renderDayTabs(); renderDayDetail(); }
+function renderDayDetail(){
+  const w = WEEKS.find(x=>x.id===currentWeekId);
+  const d = w.days[currentDayIdx];
+  document.getElementById('dayDetail').innerHTML = `
+    <div class="eyebrow">${d.day}</div>
+    <h3 style="font-size:22px; font-weight:800; color:var(--ink); margin:2px 0 8px;">${d.title}</h3>
+    <p class="muted" style="margin-bottom:12px;">${d.objective}</p>
+    <div class="meta-chips">
+      <div class="meta-chip">🏛️ ${d.standards}</div>
+      <div class="meta-chip">🔊 ${d.phonics}</div>
+      <div class="meta-chip">📦 ${d.materials}</div>
+    </div>
+    <div class="grid-lg2" style="margin-top:18px;">
+      <div>
+        <span class="section-label">Vocabulary</span>
+        <table class="data-table"><thead><tr><th>Español</th><th>English</th><th>Type</th></tr></thead>
+          <tbody>${d.vocabulary.map(v=>`<tr><td class="es-word">${v[0]}</td><td>${v[1]}</td><td class="type-cell">${v[2]}</td></tr>`).join('')}</tbody>
+        </table>
+        <div style="margin-top:20px;">
+          <span class="section-label">Daily assessment</span>
+          ${d.assessment.map(a=>`<div class="assess-row"><span class="stamp stamp-marigold">${a[0]}</span><div><div class="assess-obs">${a[1]}</div><div class="assess-crit">${a[2]}</div></div></div>`).join('')}
+        </div>
+      </div>
+      <div>
+        <span class="section-label">Activities</span>
+        <ol class="activity-list">${d.activities.map(a=>`<li><div class="activity-head"><span class="activity-name">${a[0]}</span><span class="activity-time">${a[1]}</span></div><p class="activity-desc">${a[2]}</p></li>`).join('')}</ol>
+      </div>
+    </div>`;
+}
+
+/* ============================================================
+   STANDARDS VIEW
+   ============================================================ */
+function renderStandards(){
+  document.getElementById('standardsGrid').innerHTML = STANDARDS_MASTER.map(s=>`
+    <div class="card">
+      <div style="display:flex; justify-content:space-between; gap:10px;">
+        <span class="stamp stamp-ink" style="font-size:13px; padding:6px 12px;">${s.code}</span>
+        <span class="coverage">${s.weeks.length}/4 weeks</span>
+      </div>
+      <div class="std-name">${s.name}</div>
+      <div class="std-desc">${s.desc}</div>
+      <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+        ${WEEKS.map(w=>{
+          const active = s.weeks.includes(w.id);
+          return `<button class="week-chip" ${active?`onclick="jumpToWeek(${w.id})"`:'disabled'}
+            style="background:${active?'#DCEFE9':'#F0EDE1'}; color:${active?'#164E47':'#B4AD98'}; border-color:${active?'var(--teal)':'transparent'}; cursor:${active?'pointer':'default'};">W${w.id}</button>`;
+        }).join('')}
+      </div>
+    </div>`).join('');
+}
+function jumpToWeek(id){
+  selectWeek(id);
+  document.querySelectorAll('#mainMenu button').forEach(b=>b.classList.remove('active'));
+  document.querySelector('#mainMenu button[data-view="weekly"]').classList.add('active');
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-weekly').classList.add('active');
+}
+
+/* ============================================================
+   TRACKER — roster (local) + ratings (Google Sheets)
+   ============================================================ */
+const ROSTER_KEY = "cuaderno-roster-reception"; // just the list of student names/ids, kept local
+let students = [];       // [{id, name}]
+let ratings = {};        // ratings[studentId][week][standardCode] = {rating, updatedAt}
+let trackerWeekId = currentWeekId;
+let trackerTab = 'week';
+
+function uid(){ return Math.random().toString(36).slice(2,10); }
+
+function loadRoster(){
+  try{ const raw = localStorage.getItem(ROSTER_KEY); if(raw) students = JSON.parse(raw); }
+  catch(e){ console.error('Could not load roster', e); }
+}
+function saveRoster(){
+  try{ localStorage.setItem(ROSTER_KEY, JSON.stringify(students)); }
+  catch(e){ console.error('Could not save roster', e); }
+}
+
+function setStatus(msg, isError){
+  const el = document.getElementById('trackerStatus');
+  el.textContent = msg;
+  el.style.color = isError ? 'var(--coral)' : '#6B6350';
+}
+
+async function fetchRatings(){
+  if(APPS_SCRIPT_URL.includes('PASTE_YOUR')){
+    setStatus('⚠️ Not connected yet — paste your Apps Script URL and secret into the code (APPS_SCRIPT_URL / APPS_SCRIPT_SECRET) to enable saving.', true);
+    return;
+  }
+  setStatus('Loading ratings from Google Sheets…');
+  try{
+    const res = await fetch(`${APPS_SCRIPT_URL}?secret=${encodeURIComponent(APPS_SCRIPT_SECRET)}`);
+    const rows = await res.json();
+    if(rows.error){ setStatus('⚠️ ' + rows.error, true); return; }
+    ratings = {};
+    rows.filter(r=>r.Grade===GRADE_NAME).forEach(r=>{
+      ratings[r.StudentId] = ratings[r.StudentId] || {};
+      ratings[r.StudentId][r.Week] = ratings[r.StudentId][r.Week] || {};
+      ratings[r.StudentId][r.Week][r.StandardCode] = {rating:r.Rating, updatedAt:r.UpdatedAt};
+    });
+    setStatus('Connected — last loaded ' + new Date().toLocaleTimeString());
+  } catch(e){
+    console.error(e);
+    setStatus('⚠️ Could not reach Google Sheets. Check your internet connection and the Apps Script URL.', true);
+  }
+}
+
+async function saveRating(studentId, studentName, week, standardCode, rating){
+  // update local cache immediately so the UI feels instant
+  ratings[studentId] = ratings[studentId] || {};
+  ratings[studentId][week] = ratings[studentId][week] || {};
+  ratings[studentId][week][standardCode] = {rating, updatedAt:new Date().toISOString()};
+  renderTrackerWeekPanel();
+
+  if(APPS_SCRIPT_URL.includes('PASTE_YOUR')) return; // not connected — local only for now
+
+  const term = getTermForWeek(week);
+  try{
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'}, // avoids CORS preflight with Apps Script
+      body: JSON.stringify({
+        secret: APPS_SCRIPT_SECRET,
+        Grade: GRADE_NAME,
+        StudentId: studentId,
+        StudentName: studentName,
+        Week: week,
+        Term: term ? term.name : '',
+        StandardCode: standardCode,
+        Rating: rating,
+      }),
+    });
+    const result = await res.json();
+    if(result.error){
+      setStatus('⚠️ Save failed: ' + result.error + ' — check your APPS_SCRIPT_SECRET matches the Apps Script exactly.', true);
+      return;
+    }
+    setStatus('✅ Saved to Google Sheets — ' + new Date().toLocaleTimeString());
+  } catch(e){
+    console.error(e);
+    setStatus('⚠️ Could not reach Google Sheets at all — open the browser console (F12) for the exact error.', true);
+  }
+}
+
+function cycleRating(studentId, studentName, week, standardCode){
+  const current = ratings[studentId]?.[week]?.[standardCode]?.rating ?? '';
+  const next = RATING_LEVELS[(RATING_LEVELS.indexOf(current)+1) % RATING_LEVELS.length];
+  saveRating(studentId, studentName, week, standardCode, next);
+}
+
+function addStudent(){
+  const input = document.getElementById('newStudentInput');
+  const name = input.value.trim();
+  if(!name) return;
+  students.push({id:uid(), name});
+  input.value='';
+  saveRoster();
+  renderTrackerActiveTab();
+}
+function removeStudent(id){
+  students = students.filter(s=>s.id!==id);
+  saveRoster();
+  renderTrackerActiveTab();
+}
+document.getElementById('addStudentBtn').addEventListener('click', addStudent);
+document.getElementById('newStudentInput').addEventListener('keydown', e=>{ if(e.key==='Enter') addStudent(); });
+document.getElementById('resetTrackerBtn').addEventListener('click', ()=>{
+  if(confirm('This clears the local student list only (ratings already saved in Google Sheets are not affected). Continue?')){
+    students = [];
+    saveRoster();
+    renderTrackerActiveTab();
+  }
+});
+
+/* ---------- Week tab: rate students against THIS week's standards ---------- */
+function renderTrackerWeekSelect(){
+  const sel = document.getElementById('trackerWeekSelect');
+  sel.innerHTML = WEEKS.map(w=>`<option value="${w.id}" ${w.id===trackerWeekId?'selected':''}>Week ${String(w.id).padStart(2,'0')} — ${w.title}</option>`).join('');
+}
+document.getElementById('trackerWeekSelect').addEventListener('change', e=>{
+  trackerWeekId = parseInt(e.target.value);
+  renderTrackerWeekPanel();
+});
+
+function renderTrackerWeekPanel(){
+  const panel = document.getElementById('trackerWeekPanel');
+  const week = WEEKS.find(w=>w.id===trackerWeekId);
+  const stdCodes = week.standards.map(s=>s.code);
+
+  if(students.length===0){
+    panel.innerHTML = `<div class="card empty-state">No students yet. Add your first student above.</div>`;
+    return;
+  }
+
+  panel.innerHTML = `<div class="card" style="overflow-x:auto;">
+    <table class="tracker-table">
+      <thead><tr><th class="name-col">Student</th>${stdCodes.map(c=>`<th>${c}</th>`).join('')}<th></th></tr></thead>
+      <tbody>${students.map(s=>`
+        <tr>
+          <td class="name-col" style="font-weight:700; color:var(--ink);">${s.name}</td>
+          ${stdCodes.map(code=>{
+            const r = ratings[s.id]?.[trackerWeekId]?.[code]?.rating ?? '';
+            const meta = RATING_META[r];
+            return `<td><button class="status-stamp" style="background:${meta.bg}; color:${meta.fg}; font-weight:800;" title="${meta.label}" onclick="cycleRating('${s.id}','${s.name.replace(/'/g,"\\'")}',${trackerWeekId},'${code}')">${r || '—'}</button></td>`;
+          }).join('')}
+          <td><button class="btn btn-ghost" style="padding:6px 10px; font-size:12px;" onclick="removeStudent('${s.id}')">✕</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table></div>`;
+}
+
+/* ---------- Term Summary tab: progression per standard across Term 1 ---------- */
+function renderTrackerTermPanel(){
+  const panel = document.getElementById('trackerTermPanel');
+  const term = TERMS[0]; // Term 1 for now
+  if(students.length===0){
+    panel.innerHTML = `<div class="card empty-state">No students yet.</div>`;
+    return;
+  }
+  panel.innerHTML = students.map(s=>`
+    <div class="card" style="margin-bottom:14px;">
+      <div style="font-weight:800; color:var(--ink); margin-bottom:10px;">${s.name}</div>
+      ${STANDARDS_MASTER.map(std=>{
+        const weeksInTerm = std.weeks.filter(w=>w>=term.startWeek && w<=term.endWeek);
+        if(weeksInTerm.length===0) return '';
+        const trail = weeksInTerm.map(w=>{
+          const r = ratings[s.id]?.[w]?.[std.code]?.rating;
+          return r ? `<span class="stamp" style="background:${RATING_META[r].bg}; color:${RATING_META[r].fg}; font-weight:800;">W${w}:${r}</span>` : `<span class="stamp stamp-paper">W${w}:—</span>`;
+        }).join(' ');
+        return `<div style="display:flex; gap:10px; align-items:center; margin-bottom:8px; flex-wrap:wrap;">
+          <span class="stamp stamp-ink" style="min-width:120px;">${std.code}</span>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">${trail}</div>
+        </div>`;
+      }).join('')}
+    </div>
+  `).join('');
+}
+
+function setTrackerTab(tab){
+  trackerTab = tab;
+  document.getElementById('tabWeekView').classList.toggle('active', tab==='week');
+  document.getElementById('tabTermView').classList.toggle('active', tab==='term');
+  document.getElementById('trackerWeekPanel').style.display = tab==='week' ? 'block' : 'none';
+  document.getElementById('trackerTermPanel').style.display = tab==='term' ? 'block' : 'none';
+  document.querySelector('#trackerWeekSelect').style.display = tab==='week' ? '' : 'none';
+  if(tab==='term') renderTrackerTermPanel();
+}
+
+function renderTrackerActiveTab(){
+  renderTrackerWeekSelect();
+  renderTrackerWeekPanel();
+  if(trackerTab==='term') renderTrackerTermPanel();
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+loadRoster();
+renderWeekTabs(); renderWeekOverview(); renderDayTabs(); renderDayDetail(); renderWeekJump();
+renderStandards();
+renderTrackerWeekSelect();
+renderTrackerWeekPanel();
+</script>
+</body>
+</html>

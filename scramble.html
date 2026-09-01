@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ordena el Número</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: 'Century Gothic', 'Segoe UI', sans-serif;
+      background: linear-gradient(145deg, #f9e7b3 0%, #f5d0a9 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 8px;
+      margin: 0;
+    }
+    .game-box {
+      background: #ffffffdd;
+      backdrop-filter: blur(6px);
+      border-radius: 40px 40px 30px 30px;
+      padding: 18px 16px 22px;
+      max-width: 520px;
+      width: 100%;
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      border: 3px solid #ffb347;
+    }
+    h1 {
+      font-size: 2rem;
+      color: #c44536;
+      margin-bottom: 2px;
+      text-shadow: 2px 2px 0 #f9d56e;
+    }
+    .sub {
+      font-size: 0.9rem;
+      color: #5d4037;
+      margin-bottom: 10px;
+    }
+    .mode-buttons {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .mode-btn {
+      font-family: inherit;
+      font-size: 0.85rem;
+      padding: 6px 14px;
+      border: none;
+      border-radius: 30px;
+      background: #e0d6c0;
+      color: #3e2c1b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 3px 0 #b09b84;
+      font-weight: bold;
+    }
+    .mode-btn.active {
+      background: #ffb347;
+      box-shadow: 0 3px 0 #e08e2b;
+      transform: translateY(-2px);
+      color: #2d1f0f;
+    }
+    .mode-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #b09b84;
+    }
+    .question-area {
+      background: #ffefd5;
+      border-radius: 40px;
+      padding: 14px 10px;
+      margin-bottom: 12px;
+      border: 2px dashed #c44536;
+    }
+    #question {
+      font-size: 3.6rem;
+      font-weight: bold;
+      color: #2d1f0f;
+      letter-spacing: 4px;
+      word-break: break-all;
+      line-height: 1.2;
+    }
+    .hint {
+      font-size: 0.9rem;
+      color: #7f5539;
+      margin-top: 2px;
+    }
+    .input-area {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 8px 0 6px;
+    }
+    #answerInput {
+      font-family: inherit;
+      font-size: 1.6rem;
+      padding: 6px 14px;
+      border: 3px solid #c44536;
+      border-radius: 40px;
+      width: 170px;
+      text-align: center;
+      background: #fffaf0;
+      outline: none;
+      transition: border 0.3s;
+      color: #2d1f0f;
+      caret-color: transparent;
+    }
+    #answerInput:focus {
+      border-color: #ffb347;
+      box-shadow: 0 0 0 4px #ffb34780;
+    }
+    .btn-check {
+      font-family: inherit;
+      font-size: 1.4rem;
+      padding: 6px 20px;
+      border: none;
+      border-radius: 40px;
+      background: #4caf50;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 0 #2e7d32;
+      transition: all 0.1s ease;
+    }
+    .btn-check:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #2e7d32;
+    }
+    .feedback {
+      font-size: 1.4rem;
+      min-height: 44px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      margin: 4px 0 6px;
+    }
+    .feedback span {
+      line-height: 1.3;
+    }
+    .score-board {
+      background: #fce4c8;
+      border-radius: 30px;
+      padding: 6px 16px;
+      display: inline-block;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: #3e2c1b;
+      margin: 2px 0 10px;
+      border: 2px solid #b07d5e;
+    }
+    .score-board span {
+      color: #c44536;
+    }
+
+    /* --- TECLADO VIRTUAL COMPACTO --- */
+    .keyboard {
+      margin-top: 10px;
+      background: #e8dccc;
+      padding: 8px 6px;
+      border-radius: 30px;
+      box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.1);
+    }
+    .key-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+    .key-row:last-child {
+      margin-bottom: 0;
+    }
+    .key {
+      font-family: inherit;
+      font-size: 1.2rem;
+      font-weight: bold;
+      min-width: 34px;
+      height: 40px;
+      border: none;
+      border-radius: 12px;
+      background: #fcf7f0;
+      color: #2d1f0f;
+      box-shadow: 0 3px 0 #b3a392;
+      cursor: pointer;
+      transition: all 0.05s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 4px;
+      flex: 0 1 auto;
+    }
+    .key:active {
+      transform: translateY(3px);
+      box-shadow: 0 1px 0 #b3a392;
+    }
+    .key-wide {
+      min-width: 52px;
+      font-size: 1rem;
+      background: #f5d0a9;
+      color: #3e2c1b;
+    }
+    .key-accent {
+      background: #ffd966;
+    }
+    .key-clear {
+      background: #f4a261;
+      color: #2d1f0f;
+    }
+    .key-clear:active {
+      background: #e07c3e;
+    }
+
+    @media (max-width: 500px) {
+      .game-box {
+        padding: 12px 10px;
+        border-radius: 30px;
+      }
+      h1 {
+        font-size: 1.6rem;
+      }
+      #question {
+        font-size: 2.8rem;
+      }
+      #answerInput {
+        width: 140px;
+        font-size: 1.3rem;
+        padding: 4px 10px;
+      }
+      .key {
+        min-width: 28px;
+        height: 34px;
+        font-size: 1rem;
+      }
+      .key-wide {
+        min-width: 44px;
+        font-size: 0.85rem;
+      }
+      .feedback {
+        font-size: 1.2rem;
+        min-height: 38px;
+      }
+    }
+    @media (max-width: 380px) {
+      .key {
+        min-width: 24px;
+        height: 30px;
+        font-size: 0.85rem;
+      }
+      .key-wide {
+        min-width: 36px;
+        font-size: 0.75rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-box">
+    <h1>🔢 Ordena</h1>
+    <div class="sub">Escribe el número en español</div>
+
+    <div class="mode-buttons">
+      <button id="modeNumeral" class="mode-btn active">🔢 Número → Palabra</button>
+      <button id="modeScrambled" class="mode-btn">🔀 Letras revueltas</button>
+    </div>
+
+    <div class="question-area">
+      <div id="question">7</div>
+      <div class="hint" id="hintText">¿Qué número es?</div>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="answerInput" autofocus readonly />
+      <button class="btn-check" id="submitBtn">✅ Comprobar</button>
+    </div>
+
+    <div class="feedback">
+      <span id="feedbackEmoji">🤔</span>
+      <span id="feedbackText">¡Adivina!</span>
+    </div>
+
+    <div class="score-board">
+      ⭐ <span id="score">0</span> / <span id="total">0</span>
+    </div>
+
+    <!-- TECLADO VIRTUAL COMPACTO -->
+    <div class="keyboard" id="virtualKeyboard">
+      <div class="key-row">
+        <button class="key" data-value="q">q</button>
+        <button class="key" data-value="w">w</button>
+        <button class="key" data-value="e">e</button>
+        <button class="key" data-value="r">r</button>
+        <button class="key" data-value="t">t</button>
+        <button class="key" data-value="y">y</button>
+        <button class="key" data-value="u">u</button>
+        <button class="key" data-value="i">i</button>
+        <button class="key" data-value="o">o</button>
+        <button class="key" data-value="p">p</button>
+      </div>
+      <div class="key-row">
+        <button class="key" data-value="a">a</button>
+        <button class="key" data-value="s">s</button>
+        <button class="key" data-value="d">d</button>
+        <button class="key" data-value="f">f</button>
+        <button class="key" data-value="g">g</button>
+        <button class="key" data-value="h">h</button>
+        <button class="key" data-value="j">j</button>
+        <button class="key" data-value="k">k</button>
+        <button class="key" data-value="l">l</button>
+        <button class="key key-accent" data-value="ñ">ñ</button>
+      </div>
+      <div class="key-row">
+        <button class="key" data-value="z">z</button>
+        <button class="key" data-value="x">x</button>
+        <button class="key" data-value="c">c</button>
+        <button class="key" data-value="v">v</button>
+        <button class="key" data-value="b">b</button>
+        <button class="key" data-value="n">n</button>
+        <button class="key" data-value="m">m</button>
+        <button class="key key-accent" data-value="á">á</button>
+        <button class="key key-accent" data-value="é">é</button>
+        <button class="key key-accent" data-value="í">í</button>
+        <button class="key key-accent" data-value="ó">ó</button>
+        <button class="key key-accent" data-value="ú">ú</button>
+      </div>
+      <div class="key-row">
+        <button class="key key-wide" data-value="borrar">⌫ Borrar</button>
+        <button class="key key-wide key-clear" data-value="limpiar">✖ Limpiar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Números 0–20
+    const numbers = [
+      { numeral: 0, word: 'cero' },
+      { numeral: 1, word: 'uno' },
+      { numeral: 2, word: 'dos' },
+      { numeral: 3, word: 'tres' },
+      { numeral: 4, word: 'cuatro' },
+      { numeral: 5, word: 'cinco' },
+      { numeral: 6, word: 'seis' },
+      { numeral: 7, word: 'siete' },
+      { numeral: 8, word: 'ocho' },
+      { numeral: 9, word: 'nueve' },
+      { numeral: 10, word: 'diez' },
+      { numeral: 11, word: 'once' },
+      { numeral: 12, word: 'doce' },
+      { numeral: 13, word: 'trece' },
+      { numeral: 14, word: 'catorce' },
+      { numeral: 15, word: 'quince' },
+      { numeral: 16, word: 'dieciséis' },
+      { numeral: 17, word: 'diecisiete' },
+      { numeral: 18, word: 'dieciocho' },
+      { numeral: 19, word: 'diecinueve' },
+      { numeral: 20, word: 'veinte' }
+    ];
+
+    let currentMode = 'numeral';
+    let currentItem = null;
+    let score = 0;
+    let total = 0;
+    let isLocked = false;
+
+    const questionEl = document.getElementById('question');
+    const hintText = document.getElementById('hintText');
+    const inputEl = document.getElementById('answerInput');
+    const feedbackEmoji = document.getElementById('feedbackEmoji');
+    const feedbackText = document.getElementById('feedbackText');
+    const scoreSpan = document.getElementById('score');
+    const totalSpan = document.getElementById('total');
+
+    function shuffleString(str) {
+      let arr = str.split('');
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      let shuffled = arr.join('');
+      if (shuffled === str && str.length > 1) {
+        [arr[0], arr[1]] = [arr[1], arr[0]];
+        shuffled = arr.join('');
+      }
+      return shuffled;
+    }
+
+    function pickRandom() {
+      const idx = Math.floor(Math.random() * numbers.length);
+      return { ...numbers[idx], index: idx };
+    }
+
+    function updateQuestion() {
+      currentItem = pickRandom();
+      if (currentMode === 'numeral') {
+        questionEl.textContent = currentItem.numeral;
+        hintText.textContent = '¿Qué número es?';
+      } else {
+        const scrambled = shuffleString(currentItem.word);
+        questionEl.textContent = scrambled;
+        hintText.textContent = 'Ordena las letras';
+      }
+      feedbackEmoji.textContent = '🤔';
+      feedbackText.textContent = '¡Adivina!';
+      inputEl.value = '';
+      isLocked = false;
+      inputEl.focus();
+    }
+
+    function checkAnswer() {
+      if (isLocked) return;
+      const userAnswer = inputEl.value.trim().toLowerCase();
+      if (!userAnswer) {
+        feedbackEmoji.textContent = '👀';
+        feedbackText.textContent = 'Escribe algo con el teclado';
+        return;
+      }
+      total++;
+      const correct = currentItem.word;
+      if (userAnswer === correct) {
+        score++;
+        feedbackEmoji.textContent = '🎉';
+        feedbackText.textContent = '¡Correcto!';
+      } else {
+        feedbackEmoji.textContent = '😅';
+        feedbackText.textContent = `¡Uy! Era "${correct}"`;
+      }
+      scoreSpan.textContent = score;
+      totalSpan.textContent = total;
+      isLocked = true;
+      setTimeout(updateQuestion, 1600);
+    }
+
+    // Teclado virtual
+    document.querySelectorAll('.key').forEach(key => {
+      key.addEventListener('click', () => {
+        const val = key.dataset.value;
+        if (val === 'borrar') {
+          inputEl.value = inputEl.value.slice(0, -1);
+        } else if (val === 'limpiar') {
+          inputEl.value = '';
+        } else {
+          inputEl.value += val;
+        }
+        inputEl.focus();
+      });
+    });
+
+    document.getElementById('submitBtn').addEventListener('click', checkAnswer);
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') checkAnswer();
+    });
+
+    document.getElementById('modeNumeral').addEventListener('click', function () {
+      if (currentMode === 'numeral') return;
+      currentMode = 'numeral';
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      updateQuestion();
+    });
+    document.getElementById('modeScrambled').addEventListener('click', function () {
+      if (currentMode === 'scrambled') return;
+      currentMode = 'scrambled';
+      document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      updateQuestion();
+    });
+
+    updateQuestion();
+  </script>
+</body>
+</html>

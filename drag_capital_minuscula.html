@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Arrastra la letra</title>
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Century Gothic', 'Comic Sans MS', 'Comic Sans', 'CenturyGothic', sans-serif;
+            background-color: #F2EEDF;
+            color: #2B2418;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ===== MAIN CARD ===== */
+        .app {
+            max-width: 720px;
+            width: 100%;
+            background: #FFFDF7;
+            border-radius: 32px;
+            padding: 32px 28px 36px;
+            box-shadow: 0 12px 40px rgba(31, 58, 95, 0.14);
+            border: 1px solid #E7E0CB;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px 16px;
+            margin-bottom: 18px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 22px;
+            font-weight: 700;
+            color: #1F3A5F;
+        }
+        .logo span {
+            font-size: 28px;
+        }
+
+        .toggle-group {
+            display: flex;
+            background: #E7E0CB;
+            border-radius: 40px;
+            padding: 3px;
+            gap: 2px;
+        }
+        .toggle-btn {
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 14px;
+            padding: 6px 16px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            background: transparent;
+            color: #2B2418;
+            transition: all 0.25s;
+        }
+        .toggle-btn.active {
+            background: #1F6E64;
+            color: #F2EEDF;
+            box-shadow: 0 2px 8px rgba(31, 110, 100, 0.30);
+        }
+        .toggle-btn:not(.active):hover {
+            background: rgba(31, 110, 100, 0.10);
+        }
+
+        /* ===== INSTRUCTION ===== */
+        .instruction {
+            font-size: 16px;
+            font-weight: 400;
+            color: #2B2418;
+            background: #F2EEDF;
+            padding: 10px 18px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-bottom: 18px;
+            border: 1px solid #E7E0CB;
+            text-align: center;
+            width: 100%;
+        }
+        .instruction strong {
+            color: #1F3A5F;
+        }
+        .instruction .hint-letter {
+            color: #1F6E64;
+            font-weight: 700;
+        }
+
+        /* ===== LETTER ROW (drop zone en el centro) ===== */
+        .letter-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px 24px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+            padding: 12px 0 8px;
+        }
+
+        .letter-box {
+            font-size: 64px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #1F3A5F;
+            min-width: 64px;
+            text-align: center;
+            letter-spacing: 2px;
+        }
+
+        .arrow-symbol {
+            font-size: 28px;
+            color: #7A4FBF;
+            opacity: 0.5;
+            font-weight: 300;
+        }
+
+        /* ===== DROP ZONE ===== */
+        .drop-zone {
+            width: 100px;
+            height: 100px;
+            border: 4px dashed #1F6E64;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+            font-weight: 700;
+            color: #1F6E64;
+            background: #FFFDF7;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            position: relative;
+        }
+        .drop-zone.dragover {
+            border-color: #E3A62F;
+            background: rgba(227, 166, 47, 0.10);
+            transform: scale(1.05);
+        }
+        .drop-zone.correct {
+            border-color: #1F6E64;
+            background: rgba(31, 110, 100, 0.12);
+            color: #1F6E64;
+        }
+        .drop-zone.incorrect {
+            border-color: #D64545;
+            background: rgba(214, 69, 69, 0.10);
+            color: #D64545;
+            animation: shake 0.4s ease;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        .drop-zone .placeholder {
+            font-size: 24px;
+            color: #7A4FBF;
+            opacity: 0.5;
+        }
+
+        /* ===== DRAGGABLE OPTIONS ===== */
+        .options-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px 30px;
+            margin: 20px 0 24px;
+            padding: 16px;
+            background: #F2EEDF;
+            border-radius: 24px;
+            border: 1px solid #E7E0CB;
+            min-height: 80px;
+        }
+        .option-letter {
+            font-size: 56px;
+            font-weight: 700;
+            color: #1F3A5F;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #FFFDF7;
+            border-radius: 16px;
+            border: 2px solid #E7E0CB;
+            cursor: grab;
+            transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+            touch-action: none;
+        }
+        .option-letter:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(31, 58, 95, 0.10);
+        }
+        .option-letter:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+        }
+        .option-letter.dragging {
+            opacity: 0.4;
+        }
+        .option-letter.used {
+            opacity: 0.2;
+            pointer-events: none;
+            transform: scale(0.8);
+        }
+
+        /* ===== BOTONES ===== */
+        .action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 6px;
+            margin-bottom: 18px;
+        }
+
+        .btn {
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 15px;
+            padding: 10px 28px;
+            border: none;
+            border-radius: 40px;
+            cursor: pointer;
+            transition: all 0.2s;
+            letter-spacing: 0.4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #F2EEDF;
+            color: #1F3A5F;
+            border: 1px solid #E7E0CB;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 14px rgba(31, 58, 95, 0.10);
+        }
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .btn-primary {
+            background: #1F6E64;
+            color: #F2EEDF;
+            border-color: #1F6E64;
+        }
+        .btn-primary:hover {
+            background: #185a52;
+            box-shadow: 0 4px 16px rgba(31, 110, 100, 0.30);
+        }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #1F3A5F;
+            border-color: #E7E0CB;
+        }
+        .btn-outline:hover {
+            background: #F2EEDF;
+            border-color: #1F3A5F;
+        }
+
+        /* ===== PROGRESS ===== */
+        .progress-bar {
+            margin-top: 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .progress-track {
+            flex: 1;
+            height: 6px;
+            background: #E7E0CB;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: #1F6E64;
+            border-radius: 12px;
+            transition: width 0.4s ease;
+        }
+        .progress-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #1F3A5F;
+            white-space: nowrap;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        /* ===== MENSAJE FINAL ===== */
+        .final-message {
+            text-align: center;
+            font-size: 20px;
+            font-weight: 700;
+            color: #1F6E64;
+            margin-top: 10px;
+            padding: 12px;
+            background: rgba(31, 110, 100, 0.08);
+            border-radius: 16px;
+            border: 1px solid #1F6E64;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 600px) {
+            .drop-zone {
+                width: 80px;
+                height: 80px;
+                font-size: 48px;
+            }
+            .letter-box {
+                font-size: 44px;
+                min-width: 44px;
+            }
+            .letter-row {
+                gap: 8px 14px;
+            }
+            .arrow-symbol {
+                font-size: 20px;
+            }
+            .option-letter {
+                font-size: 40px;
+                width: 64px;
+                height: 64px;
+            }
+            .options-container {
+                gap: 14px 20px;
+                padding: 12px;
+            }
+            .btn {
+                font-size: 13px;
+                padding: 8px 20px;
+            }
+        }
+        @media (max-width: 480px) {
+            .drop-zone {
+                width: 64px;
+                height: 64px;
+                font-size: 36px;
+            }
+            .letter-box {
+                font-size: 36px;
+                min-width: 36px;
+            }
+            .letter-row {
+                gap: 4px 10px;
+            }
+            .arrow-symbol {
+                font-size: 16px;
+            }
+            .option-letter {
+                font-size: 32px;
+                width: 52px;
+                height: 52px;
+            }
+            .options-container {
+                gap: 10px 14px;
+                padding: 10px;
+            }
+            .btn {
+                font-size: 12px;
+                padding: 6px 16px;
+            }
+            .instruction {
+                font-size: 14px;
+                padding: 8px 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app" role="main" aria-label="Aplicación de arrastrar letras">
+
+        <!-- HEADER -->
+        <header class="header">
+            <div class="logo">
+                <span>✏️</span> Arrastra la letra
+            </div>
+            <div class="toggle-group" role="group" aria-label="Tipo de letra">
+                <button class="toggle-btn active" data-mode="upper" aria-pressed="true">Mayúsculas</button>
+                <button class="toggle-btn" data-mode="lower" aria-pressed="false">Minúsculas</button>
+            </div>
+        </header>
+
+        <!-- INSTRUCTION -->
+        <div class="instruction" id="instruction">
+            <strong>✋</strong> Arrastra la letra que falta al recuadro: <span class="hint-letter" id="hintLetter">A</span>
+        </div>
+
+        <!-- LETTER ROW con drop zone -->
+        <div class="letter-row" id="letterRow" aria-label="Letras">
+            <span class="letter-box" id="leftLetter">F</span>
+            <span class="arrow-symbol">→</span>
+
+            <div class="drop-zone" id="dropZone">
+                <span class="placeholder">?</span>
+            </div>
+
+            <span class="arrow-symbol">→</span>
+            <span class="letter-box" id="rightLetter">H</span>
+        </div>
+
+        <!-- OPCIONES (draggable) -->
+        <div class="options-container" id="optionsContainer">
+            <!-- Se genera por JS -->
+        </div>
+
+        <!-- BOTONES -->
+        <div class="action-row">
+            <button class="btn btn-outline" id="clearBtn">🧹 Limpiar</button>
+            <button class="btn btn-primary" id="nextBtn" disabled>➡️ Siguiente</button>
+        </div>
+
+        <!-- PROGRESS -->
+        <div class="progress-bar">
+            <span style="font-size:13px; color:#1F3A5F; font-weight:600;">Progreso</span>
+            <div class="progress-track">
+                <div class="progress-fill" id="progressFill" style="width:0%;"></div>
+            </div>
+            <span class="progress-label" id="progressLabel">0 / 24</span>
+        </div>
+
+        <!-- Mensaje final -->
+        <div id="finalMessage" style="display:none;"></div>
+
+    </div>
+
+    <script>
+        // ============================================================
+        //  DATA
+        // ============================================================
+
+        const ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
+        const lowerAlphabet = ALPHABET.map(ch => ch.toLowerCase());
+
+        function buildLetterPairs(letters) {
+            const pairs = [];
+            for (let i = 1; i < letters.length - 1; i++) {
+                pairs.push({
+                    left: letters[i - 1],
+                    blank: letters[i],
+                    right: letters[i + 1],
+                    index: i,
+                });
+            }
+            return pairs;
+        }
+
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ============================================================
+        //  STATE
+        // ============================================================
+
+        let currentMode = 'upper';
+        let currentIndex = 0;
+        let pairs = [];
+        let completed = [];
+        let isCorrect = false;
+        let currentLetter = '';
+
+        // DOM refs
+        const dropZone = document.getElementById('dropZone');
+        const leftLetterEl = document.getElementById('leftLetter');
+        const rightLetterEl = document.getElementById('rightLetter');
+        const hintLetter = document.getElementById('hintLetter');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const progressFill = document.getElementById('progressFill');
+        const progressLabel = document.getElementById('progressLabel');
+        const clearBtn = document.getElementById('clearBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const finalMessageDiv = document.getElementById('finalMessage');
+        const toggleBtns = document.querySelectorAll('.toggle-btn');
+
+        let dragData = null; // para el elemento que se arrastra
+
+        // ============================================================
+        //  GENERAR OPCIONES
+        // ============================================================
+
+        function generateOptions(correctLetter, alphabetSet) {
+            // Tomar letras aleatorias, excluyendo la correcta, y añadir 3 distractores
+            let pool = alphabetSet.filter(ch => ch !== correctLetter);
+            // Mezclar y tomar 3
+            const shuffled = shuffleArray([...pool]);
+            const distractors = shuffled.slice(0, 3);
+            // Mezclar todas (correcta + 3 distractores)
+            let options = [correctLetter, ...distractors];
+            // Si hay menos de 3 distractores (por ejemplo, en modo minúsculas con menos letras), rellenar con repeticiones
+            while (options.length < 4) {
+                options.push(correctLetter); // no importa, luego se mezcla
+            }
+            return shuffleArray(options);
+        }
+
+        // ============================================================
+        //  RENDER
+        // ============================================================
+
+        function renderLetterPair() {
+            const pair = pairs[currentIndex];
+            if (!pair) return;
+            currentLetter = pair.blank;
+            leftLetterEl.textContent = pair.left;
+            rightLetterEl.textContent = pair.right;
+            hintLetter.textContent = pair.blank;
+
+            // Resetear drop zone
+            dropZone.innerHTML = '<span class="placeholder">?</span>';
+            dropZone.className = 'drop-zone';
+            dropZone.style.borderColor = '#1F6E64';
+            dropZone.style.background = '#FFFDF7';
+
+            // Generar opciones
+            const alphabetSet = currentMode === 'upper' ? ALPHABET : lowerAlphabet;
+            const options = generateOptions(pair.blank, alphabetSet);
+            optionsContainer.innerHTML = '';
+            options.forEach(letter => {
+                const div = document.createElement('div');
+                div.className = 'option-letter';
+                div.textContent = letter;
+                div.setAttribute('draggable', 'true');
+                div.dataset.letter = letter;
+                // Eventos drag
+                div.addEventListener('dragstart', onDragStart);
+                div.addEventListener('dragend', onDragEnd);
+                // Eventos touch
+                div.addEventListener('touchstart', onTouchStart, { passive: true });
+                div.addEventListener('touchmove', onTouchMove, { passive: false });
+                div.addEventListener('touchend', onTouchEnd, { passive: false });
+                optionsContainer.appendChild(div);
+            });
+
+            // Habilitar drop zone
+            dropZone.addEventListener('dragover', onDragOver);
+            dropZone.addEventListener('dragenter', onDragEnter);
+            dropZone.addEventListener('dragleave', onDragLeave);
+            dropZone.addEventListener('drop', onDrop);
+
+            // Deshabilitar siguiente
+            nextBtn.disabled = true;
+            isCorrect = false;
+
+            updateProgress();
+            finalMessageDiv.style.display = 'none';
+        }
+
+        // ============================================================
+        //  DRAG & DROP (Mouse)
+        // ============================================================
+
+        function onDragStart(e) {
+            dragData = this;
+            this.classList.add('dragging');
+            e.dataTransfer.setData('text/plain', this.dataset.letter);
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function onDragEnd(e) {
+            this.classList.remove('dragging');
+            // Si no se soltó en drop zone, no pasa nada
+        }
+
+        function onDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            dropZone.classList.add('dragover');
+        }
+
+        function onDragEnter(e) {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        }
+
+        function onDragLeave(e) {
+            dropZone.classList.remove('dragover');
+        }
+
+        function onDrop(e) {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const letter = e.dataTransfer.getData('text/plain');
+            handleDrop(letter, e.target);
+        }
+
+        // ============================================================
+        //  TOUCH EVENTS (Mobile)
+        // ============================================================
+
+        let touchElement = null;
+        let touchClone = null;
+
+        function onTouchStart(e) {
+            const touch = e.touches[0];
+            touchElement = this;
+            const rect = this.getBoundingClientRect();
+            // Crear un clon para seguir al dedo
+            touchClone = this.cloneNode(true);
+            touchClone.style.position = 'fixed';
+            touchClone.style.pointerEvents = 'none';
+            touchClone.style.zIndex = '1000';
+            touchClone.style.width = rect.width + 'px';
+            touchClone.style.height = rect.height + 'px';
+            touchClone.style.left = (touch.clientX - rect.width/2) + 'px';
+            touchClone.style.top = (touch.clientY - rect.height/2) + 'px';
+            touchClone.style.opacity = '0.8';
+            touchClone.style.transform = 'scale(1.1)';
+            document.body.appendChild(touchClone);
+            this.classList.add('dragging');
+        }
+
+        function onTouchMove(e) {
+            e.preventDefault();
+            if (!touchClone) return;
+            const touch = e.touches[0];
+            touchClone.style.left = (touch.clientX - touchClone.offsetWidth/2) + 'px';
+            touchClone.style.top = (touch.clientY - touchClone.offsetHeight/2) + 'px';
+
+            // Detectar colisión con drop zone
+            const dropRect = dropZone.getBoundingClientRect();
+            const touchX = touch.clientX;
+            const touchY = touch.clientY;
+            const isOver = touchX >= dropRect.left && touchX <= dropRect.right &&
+                           touchY >= dropRect.top && touchY <= dropRect.bottom;
+            dropZone.classList.toggle('dragover', isOver);
+        }
+
+        function onTouchEnd(e) {
+            if (touchClone) {
+                document.body.removeChild(touchClone);
+                touchClone = null;
+            }
+            if (touchElement) {
+                touchElement.classList.remove('dragging');
+                // Verificar si el dedo está sobre el drop zone
+                const touch = e.changedTouches[0];
+                const dropRect = dropZone.getBoundingClientRect();
+                const isOver = touch.clientX >= dropRect.left && touch.clientX <= dropRect.right &&
+                               touch.clientY >= dropRect.top && touch.clientY <= dropRect.bottom;
+                dropZone.classList.remove('dragover');
+                if (isOver) {
+                    const letter = touchElement.dataset.letter;
+                    handleDrop(letter, dropZone);
+                }
+                touchElement = null;
+            }
+        }
+
+        // ============================================================
+        //  HANDLE DROP
+        // ============================================================
+
+        function handleDrop(letter, target) {
+            if (isCorrect) return; // ya está correcto
+            const pair = pairs[currentIndex];
+            if (!pair) return;
+
+            // Verificar si la letra coincide
+            if (letter === pair.blank) {
+                // Correcto
+                isCorrect = true;
+                dropZone.innerHTML = letter;
+                dropZone.className = 'drop-zone correct';
+                dropZone.style.borderColor = '#1F6E64';
+                dropZone.style.background = 'rgba(31, 110, 100, 0.12)';
+                // Marcar opción usada
+                document.querySelectorAll('.option-letter').forEach(el => {
+                    if (el.dataset.letter === letter) {
+                        el.classList.add('used');
+                    }
+                });
+                // Marcar completada
+                completed[currentIndex] = true;
+                updateProgress();
+                // Habilitar siguiente
+                nextBtn.disabled = false;
+                // Desactivar drag de todas las opciones
+                document.querySelectorAll('.option-letter').forEach(el => {
+                    el.setAttribute('draggable', 'false');
+                    el.style.cursor = 'default';
+                });
+                // Mostrar mensaje de éxito sutil (opcional)
+            } else {
+                // Incorrecto
+                dropZone.className = 'drop-zone incorrect';
+                dropZone.style.borderColor = '#D64545';
+                dropZone.style.background = 'rgba(214, 69, 69, 0.10)';
+                // Volver a estado normal después de 0.6s
+                setTimeout(() => {
+                    dropZone.className = 'drop-zone';
+                    dropZone.style.borderColor = '#1F6E64';
+                    dropZone.style.background = '#FFFDF7';
+                }, 600);
+                // La opción incorrecta no se elimina, el usuario puede intentar otra
+            }
+        }
+
+        // ============================================================
+        //  LIMPIAR (resetear el drop zone y desbloquear)
+        // ============================================================
+
+        function resetCurrent() {
+            if (isCorrect) {
+                // Si ya es correcto, no se puede limpiar para no perder progreso
+                return;
+            }
+            // Reiniciar drop zone
+            dropZone.innerHTML = '<span class="placeholder">?</span>';
+            dropZone.className = 'drop-zone';
+            dropZone.style.borderColor = '#1F6E64';
+            dropZone.style.background = '#FFFDF7';
+            // Reactivar opciones
+            document.querySelectorAll('.option-letter').forEach(el => {
+                el.classList.remove('used');
+                el.setAttribute('draggable', 'true');
+                el.style.cursor = 'grab';
+            });
+            // Deshabilitar siguiente
+            nextBtn.disabled = true;
+            isCorrect = false;
+            // Reasignar drag events (por si se perdieron)
+            document.querySelectorAll('.option-letter').forEach(el => {
+                el.removeEventListener('dragstart', onDragStart);
+                el.removeEventListener('dragend', onDragEnd);
+                el.addEventListener('dragstart', onDragStart);
+                el.addEventListener('dragend', onDragEnd);
+            });
+        }
+
+        // ============================================================
+        //  SIGUIENTE
+        // ============================================================
+
+        function handleNext() {
+            if (nextBtn.disabled) return;
+            // Buscar siguiente no completada
+            let nextIndex = currentIndex + 1;
+            if (nextIndex >= pairs.length) {
+                const firstIncomplete = completed.findIndex(v => v === false);
+                if (firstIncomplete === -1) {
+                    // Todas completadas
+                    showFinalMessage();
+                    return;
+                }
+                nextIndex = firstIncomplete;
+            } else {
+                while (nextIndex < pairs.length && completed[nextIndex] === true) {
+                    nextIndex++;
+                }
+                if (nextIndex >= pairs.length) {
+                    const firstIncomplete = completed.findIndex(v => v === false);
+                    if (firstIncomplete === -1) {
+                        showFinalMessage();
+                        return;
+                    }
+                    nextIndex = firstIncomplete;
+                }
+            }
+            currentIndex = nextIndex;
+            renderLetterPair();
+            // Asegurar que el botón siguiente esté deshabilitado
+            nextBtn.disabled = true;
+        }
+
+        function showFinalMessage() {
+            finalMessageDiv.style.display = 'block';
+            finalMessageDiv.className = 'final-message';
+            finalMessageDiv.textContent = '🎉 ¡Felicidades! Has completado todo el abecedario.';
+            nextBtn.disabled = true;
+        }
+
+        // ============================================================
+        //  PROGRESS
+        // ============================================================
+
+        function updateProgress() {
+            const total = pairs.length;
+            const done = completed.filter(v => v === true).length;
+            const pct = total > 0 ? (done / total) * 100 : 0;
+            progressFill.style.width = pct + '%';
+            progressLabel.textContent = done + ' / ' + total;
+        }
+
+        // ============================================================
+        //  MODE TOGGLE
+        // ============================================================
+
+        function setMode(mode) {
+            if (mode === currentMode) return;
+            currentMode = mode;
+            const basePairs = mode === 'upper' ? buildLetterPairs(ALPHABET) : buildLetterPairs(lowerAlphabet);
+            pairs = shuffleArray([...basePairs]);
+            completed = new Array(pairs.length).fill(false);
+            currentIndex = 0;
+            toggleBtns.forEach(btn => {
+                const isActive = btn.dataset.mode === mode;
+                btn.classList.toggle('active', isActive);
+                btn.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+            renderLetterPair();
+            updateProgress();
+            nextBtn.disabled = true;
+            finalMessageDiv.style.display = 'none';
+        }
+
+        // ============================================================
+        //  EVENT BINDINGS
+        // ============================================================
+
+        clearBtn.addEventListener('click', resetCurrent);
+        nextBtn.addEventListener('click', handleNext);
+
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', () => setMode(btn.dataset.mode));
+        });
+
+        // Atajos de teclado: N para siguiente, C para limpiar
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'n' || e.key === 'N') {
+                if (!nextBtn.disabled) handleNext();
+            }
+            if (e.key === 'c' || e.key === 'C') resetCurrent();
+        });
+
+        // ============================================================
+        //  INIT
+        // ============================================================
+
+        const initialPairs = buildLetterPairs(ALPHABET);
+        pairs = shuffleArray([...initialPairs]);
+        completed = new Array(pairs.length).fill(false);
+        currentIndex = 0;
+        renderLetterPair();
+        updateProgress();
+        nextBtn.disabled = true;
+        finalMessageDiv.style.display = 'none';
+    </script>
+
+</body>
+</html>

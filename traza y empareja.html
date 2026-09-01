@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Traza y Empareja</title>
+    <style>
+        /* ── Reset y base ── */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', 'Helvetica Neue', Arial, sans-serif;
+            background: #F2EEDF;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            margin: 0;
+            touch-action: manipulation;
+        }
+
+        .game-container {
+            background: #FFFDF7;
+            border-radius: 48px 48px 32px 32px;
+            box-shadow: 0 12px 40px rgba(31, 58, 95, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
+            padding: 32px 28px 40px;
+            max-width: 850px;
+            width: 100%;
+            border: 2px solid #E7E0CB;
+            position: relative;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: #E3A62F;
+            color: #2B2418;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 4px 16px;
+            border-radius: 40px;
+            margin-bottom: 6px;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1F3A5F;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin: 0;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .header h1 span {
+            color: #1F6E64;
+        }
+
+        .header .sub {
+            font-size: 1rem;
+            color: #2B2418;
+            opacity: 0.7;
+            margin-top: 2px;
+            font-weight: 400;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .instructions {
+            background: #F2EEDF;
+            border-radius: 60px;
+            padding: 10px 20px;
+            margin: 12px 0 22px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: #1F3A5F;
+            border: 1px solid #E7E0CB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .instructions .icon { font-size: 1.2rem; }
+        .instructions .step {
+            background: #FFFDF7;
+            padding: 2px 12px;
+            border-radius: 30px;
+            border: 1px solid #E7E0CB;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #1F6E64;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .score-row {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .score-row .stat {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #1F3A5F;
+            background: #F2EEDF;
+            padding: 4px 24px;
+            border-radius: 40px;
+            border: 1px solid #E7E0CB;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .score-row .stat span {
+            color: #1F6E64;
+            font-weight: 700;
+        }
+
+        .letters-grid {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 18px;
+            margin: 10px 0 24px;
+            padding: 12px 0;
+            flex-wrap: wrap;
+            min-height: 150px;
+        }
+
+        .letter-card {
+            width: 100px;
+            height: 120px;
+            border-radius: 28px;
+            background: #FFFDF7;
+            border: 3px solid #E7E0CB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3.6rem;
+            font-weight: 700;
+            color: #2B2418;
+            cursor: pointer;
+            transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
+                border-color 0.25s ease,
+                box-shadow 0.3s ease,
+                background 0.25s ease;
+            box-shadow: 0 4px 0 #E7E0CB, 0 6px 16px rgba(31, 58, 95, 0.06);
+            touch-action: manipulation;
+            position: relative;
+            flex-shrink: 0;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .letter-card:active {
+            transform: scale(0.94);
+        }
+
+        .letter-card.traced {
+            border-color: #7A4FBF;
+            background: #f6f0ff;
+            box-shadow: 0 0 0 4px rgba(122, 79, 191, 0.20), 0 4px 0 #7A4FBF;
+        }
+
+        .letter-card.matched {
+            border-color: #1F6E64;
+            background: #e0f5f0;
+            box-shadow: 0 0 0 6px rgba(31, 110, 100, 0.25), 0 4px 0 #1F6E64;
+            cursor: default;
+            pointer-events: none;
+        }
+
+        .letter-card .check-mark {
+            position: absolute;
+            top: 6px;
+            right: 8px;
+            font-size: 1.2rem;
+            color: #7A4FBF;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .letter-card.traced .check-mark {
+            opacity: 1;
+        }
+
+        .feedback-area {
+            text-align: center;
+            min-height: 52px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 4px 0 12px;
+        }
+
+        .feedback-area .msg {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1F3A5F;
+            padding: 6px 24px;
+            border-radius: 40px;
+            background: #F2EEDF;
+            border: 1px solid #E7E0CB;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .feedback-area .msg.success {
+            background: #e8f5f2;
+            border-color: #1F6E64;
+            color: #1F6E64;
+        }
+
+        .feedback-area .msg.error {
+            background: #fdeaea;
+            border-color: #D64545;
+            color: #D64545;
+        }
+
+        .feedback-area .msg .emoji {
+            font-size: 1.4rem;
+        }
+
+        .btn-row {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .btn {
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+            font-weight: 700;
+            font-size: 1rem;
+            padding: 14px 36px;
+            border-radius: 60px;
+            border: none;
+            background: #1F3A5F;
+            color: #fff;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+            box-shadow: 0 4px 0 #12243b, 0 4px 16px rgba(31, 58, 95, 0.20);
+            touch-action: manipulation;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            letter-spacing: 0.02em;
+        }
+
+        .btn:active { transform: scale(0.94); }
+        .btn:disabled {
+            opacity: 0.4;
+            transform: scale(0.96);
+            pointer-events: none;
+            filter: grayscale(0.3);
+        }
+
+        .btn-gold {
+            background: #E3A62F;
+            color: #2B2418;
+            box-shadow: 0 4px 0 #b8831f, 0 4px 16px rgba(227, 166, 47, 0.30);
+        }
+        .btn-gold:active { background: #b8831f; }
+
+        .btn .icon { font-size: 1.2rem; }
+
+        /* ── Modal de trazado ── */
+        .trace-modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(6px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .trace-modal.active { display: flex; }
+
+        .trace-modal-content {
+            background: #FFFDF7;
+            border-radius: 48px;
+            padding: 24px 24px 32px;
+            max-width: 560px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border: 2px solid #E7E0CB;
+            position: relative;
+        }
+
+        .trace-modal-content .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .trace-modal-content .modal-header h2 {
+            font-size: 1.3rem;
+            color: #1F3A5F;
+            font-weight: 700;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .trace-modal-content .modal-header .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.6rem;
+            color: #1F3A5F;
+            cursor: pointer;
+            padding: 4px 12px;
+            border-radius: 30px;
+            background: #F2EEDF;
+            border: 1px solid #E7E0CB;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .trace-canvas-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #FFFDF7;
+            border-radius: 24px;
+            border: 2px solid #E7E0CB;
+            touch-action: none;
+            overflow: hidden;
+        }
+
+        #traceCanvasModal {
+            width: 100%;
+            height: 100%;
+            display: block;
+            touch-action: none;
+            cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='26' viewBox='0 0 20 26'%3E%3Cpath d='M2 24 L8 18 L14 24 L8 26 Z' fill='%231F6E64'/%3E%3Cpath d='M6 14 L14 6 L20 12 L12 20 Z' fill='%231F6E64' opacity='0.6'/%3E%3Cpath d='M14 6 L20 2 L22 4 L16 10 Z' fill='%231F3A5F'/%3E%3C/svg%3E") 10 4, auto;
+        }
+
+        .trace-modal-content .trace-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 16px;
+            gap: 12px;
+        }
+
+        .trace-modal-content .trace-actions .btn {
+            font-size: 0.9rem;
+            padding: 10px 28px;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .trace-modal-content .trace-status {
+            text-align: center;
+            margin-top: 6px;
+            font-size: 0.9rem;
+            color: #1F6E64;
+            font-weight: 600;
+            min-height: 1.5em;
+            font-family: 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif;
+        }
+
+        .confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+
+        .confetti-piece {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            opacity: 0;
+            animation: confettiFall linear forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { opacity: 1; transform: translateY(-10px) rotate(0deg) scale(1); }
+            100% { opacity: 0; transform: translateY(110vh) rotate(720deg) scale(0.3); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 700px) {
+            .game-container { padding: 20px 14px 28px; border-radius: 32px; }
+            .header h1 { font-size: 1.6rem; }
+            .letter-card { width: 78px; height: 96px; font-size: 2.8rem; border-radius: 20px; }
+            .letters-grid { gap: 12px; min-height: 120px; }
+            .instructions { font-size: 0.8rem; padding: 8px 14px; }
+            .btn { font-size: 0.85rem; padding: 12px 24px; }
+            .score-row .stat { font-size: 0.75rem; padding: 3px 16px; }
+            .feedback-area .msg { font-size: 0.95rem; padding: 4px 16px; }
+            .trace-modal-content { padding: 16px; }
+        }
+
+        @media (max-width: 480px) {
+            .letter-card { width: 60px; height: 76px; font-size: 2.2rem; border-radius: 14px; }
+            .letters-grid { gap: 6px; min-height: 90px; }
+            .header h1 { font-size: 1.2rem; }
+            .game-container { padding: 10px 6px 16px; }
+        }
+
+        @media (min-width: 768px) {
+            .letter-card { width: 110px; height: 130px; font-size: 4rem; border-radius: 30px; }
+            .letters-grid { gap: 22px; min-height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container" role="main" aria-label="Traza y empareja las letras">
+    <div class="header">
+        <div class="badge">✏️ Lectoescritura • Trazo</div>
+        <h1>Traza y <span>Empareja</span></h1>
+        <div class="sub">Pulsa una letra, trázala y busca su pareja</div>
+    </div>
+
+    <div class="instructions">
+        <span class="icon">🖐️</span>
+        <span>Pulsa una letra, <span class="step">repásala</span> con el dedo y luego busca su pareja</span>
+    </div>
+
+    <div class="score-row">
+        <div class="stat">⭐ Puntuación <span id="scoreDisplay">0</span></div>
+    </div>
+
+    <div class="letters-grid" id="lettersGrid"></div>
+
+    <div class="feedback-area" id="feedbackArea">
+        <div class="msg" id="feedbackMsg">
+            <span class="emoji">💡</span> Pulsa una letra para empezar
+        </div>
+    </div>
+
+    <div class="btn-row">
+        <button class="btn btn-gold" id="nextBtn" disabled>
+            <span class="icon">➡️</span> Siguiente
+        </button>
+    </div>
+</div>
+
+<!-- Modal de trazado -->
+<div class="trace-modal" id="traceModal">
+    <div class="trace-modal-content">
+        <div class="modal-header">
+            <h2 id="modalLetterTitle">Traza la letra</h2>
+            <button class="close-btn" id="closeModalBtn">✕</button>
+        </div>
+        <div class="trace-canvas-wrapper">
+            <canvas id="traceCanvasModal"></canvas>
+        </div>
+        <div class="trace-status" id="traceStatus">🖍️ Desliza el dedo sobre la letra</div>
+        <div class="trace-actions">
+            <button class="btn" id="doneTraceBtn" style="background:#1F6E64;box-shadow:0 4px 0 #145048;">Hecho ✓</button>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor de confeti -->
+<div class="confetti-container" id="confettiContainer"></div>
+
+<script>
+    (function() {
+        'use strict';
+
+        // ─── Referencias DOM ──────────────────────────────────────────
+        const grid = document.getElementById('lettersGrid');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const feedbackMsg = document.getElementById('feedbackMsg');
+        const nextBtn = document.getElementById('nextBtn');
+
+        const modal = document.getElementById('traceModal');
+        const modalCanvas = document.getElementById('traceCanvasModal');
+        const modalCtx = modalCanvas.getContext('2d');
+        const modalTitle = document.getElementById('modalLetterTitle');
+        const traceStatus = document.getElementById('traceStatus');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const doneTraceBtn = document.getElementById('doneTraceBtn');
+
+        const confettiContainer = document.getElementById('confettiContainer');
+
+        // ─── Estado del juego ──────────────────────────────────────────
+        let letters = [];
+        let pairIndices = [];
+        let oddIndices = [];
+        let tracedIndices = new Set();
+        let matchedPair = null;
+        let score = 0;
+        let isLocked = false;
+        let currentTraceIndex = null;
+        let lastPairChar = null;
+
+        // ─── Helpers ──────────────────────────────────────────────────
+        function getRandomLetter(exclude = []) {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let available = chars.split('').filter(c => !exclude.includes(c));
+            if (available.length === 0) return 'A';
+            return available[Math.floor(Math.random() * available.length)];
+        }
+
+        function shuffle(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+
+        // ─── Generar conjunto (evitando repetición consecutiva) ─────
+        function generateLetterSet() {
+            let pairChar;
+            let attempts = 0;
+            do {
+                pairChar = getRandomLetter();
+                attempts++;
+            } while (pairChar === lastPairChar && attempts < 20);
+            lastPairChar = pairChar;
+
+            let odds = [];
+            while (odds.length < 3) {
+                const o = getRandomLetter([pairChar, ...odds]);
+                odds.push(o);
+            }
+
+            const items = [
+                { char: pairChar.toUpperCase(), isPair: true },
+                { char: pairChar.toLowerCase(), isPair: true },
+            ];
+            odds.forEach((o) => {
+                const isUpper = Math.random() < 0.5;
+                items.push({
+                    char: isUpper ? o.toUpperCase() : o.toLowerCase(),
+                    isPair: false,
+                });
+            });
+            shuffle(items);
+
+            const pairIdx = [];
+            const oddIdx = [];
+            items.forEach((item, i) => {
+                if (item.isPair) pairIdx.push(i);
+                else oddIdx.push(i);
+            });
+
+            return { items, pairIndices: pairIdx, oddIndices: oddIdx };
+        }
+
+        // ─── Renderizar tarjetas ──────────────────────────────────────
+        function renderLetters() {
+            grid.innerHTML = '';
+            letters.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.className = 'letter-card';
+                card.dataset.index = index;
+                card.setAttribute('role', 'button');
+                card.setAttribute('aria-label', `Letra ${item.char}`);
+
+                const charSpan = document.createElement('span');
+                charSpan.textContent = item.char;
+                card.appendChild(charSpan);
+
+                const check = document.createElement('span');
+                check.className = 'check-mark';
+                check.textContent = '✓';
+                card.appendChild(check);
+
+                card.addEventListener('click', () => onCardClick(index));
+
+                grid.appendChild(card);
+            });
+
+            updateCardsState();
+            updateFeedback('💡 Pulsa una letra para trazarla', '');
+            nextBtn.disabled = true;
+        }
+
+        function updateCardsState() {
+            const cards = grid.querySelectorAll('.letter-card');
+            cards.forEach((card, i) => {
+                card.classList.remove('traced', 'matched');
+                if (matchedPair && (i === matchedPair.idx1 || i === matchedPair.idx2)) {
+                    card.classList.add('matched');
+                } else if (tracedIndices.has(i)) {
+                    card.classList.add('traced');
+                }
+            });
+        }
+
+        function updateFeedback(text, type) {
+            const msg = feedbackMsg;
+            const emoji = msg.querySelector('.emoji');
+            const textNode = msg.childNodes[msg.childNodes.length - 1];
+            msg.className = 'msg';
+            if (type) msg.classList.add(type);
+            if (emoji) {
+                const parts = text.match(/^([\u{1F000}-\u{1FFFF}]|[\u2600-\u27BF]|[\u{2700}-\u{27BF}]|[⭐💡👏🎉✨❌💪🌟])?\s*(.*)$/u);
+                if (parts) {
+                    emoji.textContent = parts[1] || '💡';
+                    textNode.textContent = parts[2] || text;
+                } else {
+                    emoji.textContent = '💡';
+                    textNode.textContent = text;
+                }
+            } else {
+                msg.textContent = text;
+            }
+        }
+
+        function updateScore() {
+            scoreDisplay.textContent = score;
+        }
+
+        // ─── Lógica del juego ─────────────────────────────────────────
+        function onCardClick(index) {
+            if (isLocked) return;
+            if (matchedPair) return;
+
+            const card = grid.querySelector(`.letter-card[data-index="${index}"]`);
+            if (!card) return;
+
+            if (tracedIndices.has(index) || card.classList.contains('matched')) {
+                updateFeedback('💡 Esta letra ya está trazada o emparejada', '');
+                return;
+            }
+
+            openTraceModal(index);
+        }
+
+        // ─── Modal de trazado ─────────────────────────────────────────
+        function openTraceModal(index) {
+            currentTraceIndex = index;
+            const letter = letters[index];
+            modalTitle.textContent = `Traza la letra "${letter.char}"`;
+            traceStatus.textContent = '🖍️ Desliza el dedo sobre la letra';
+
+            resizeModalCanvas();
+            drawGuideLetter(letter.char);
+            modalCanvas.dataset.drawn = 'false';
+            modalCanvas._lastX = null;
+            modalCanvas._lastY = null;
+
+            modal.classList.add('active');
+            modalCanvas.focus();
+        }
+
+        function resizeModalCanvas() {
+            const rect = modalCanvas.parentElement.getBoundingClientRect();
+            // Usamos el tamaño exacto en píxeles para precisión 1:1
+            modalCanvas.width = rect.width;
+            modalCanvas.height = rect.height;
+            modalCanvas.style.width = rect.width + 'px';
+            modalCanvas.style.height = rect.height + 'px';
+        }
+
+        function drawGuideLetter(char) {
+            const w = modalCanvas.width;
+            const h = modalCanvas.height;
+            modalCtx.clearRect(0, 0, w, h);
+
+            modalCtx.fillStyle = '#FFFDF7';
+            modalCtx.fillRect(0, 0, w, h);
+
+            const size = Math.min(w, h) * 0.45;
+            modalCtx.textAlign = 'center';
+            modalCtx.textBaseline = 'middle';
+            modalCtx.font = `bold ${size}px 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif`;
+            modalCtx.fillStyle = 'rgba(31, 58, 95, 0.10)';
+            modalCtx.strokeStyle = 'rgba(31, 58, 95, 0.20)';
+            modalCtx.lineWidth = 3;
+            modalCtx.setLineDash([8, 12]);
+            modalCtx.strokeText(char, w/2, h/2);
+            modalCtx.setLineDash([]);
+            modalCtx.fillStyle = 'rgba(31, 58, 95, 0.04)';
+            modalCtx.fillText(char, w/2, h/2);
+
+            modalCtx.fillStyle = 'rgba(31, 58, 95, 0.25)';
+            modalCtx.font = `14px 'Century Gothic', 'CenturyGothic', 'Apple Gothic', sans-serif`;
+            modalCtx.fillText('Repasa la letra con el dedo', w/2, h - 20);
+        }
+
+        // ─── Eventos de trazado con punteros (precisos) ──────────────
+        function getCanvasCoords(e) {
+            const rect = modalCanvas.getBoundingClientRect();
+            let clientX, clientY;
+            if (e.touches) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else if (e.changedTouches) {
+                clientX = e.changedTouches[0].clientX;
+                clientY = e.changedTouches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            return {
+                x: (clientX - rect.left) * (modalCanvas.width / rect.width),
+                y: (clientY - rect.top) * (modalCanvas.height / rect.height)
+            };
+        }
+
+        function onTraceStart(e) {
+            e.preventDefault();
+            const { x, y } = getCanvasCoords(e);
+            modalCanvas._lastX = x;
+            modalCanvas._lastY = y;
+            modalCtx.beginPath();
+            modalCtx.moveTo(x, y);
+            modalCanvas.dataset.drawn = 'true';
+            traceStatus.textContent = '✏️ Sigue trazando...';
+        }
+
+        function onTraceMove(e) {
+            e.preventDefault();
+            const { x, y } = getCanvasCoords(e);
+
+            if (modalCanvas._lastX === null || modalCanvas._lastY === null) {
+                modalCanvas._lastX = x;
+                modalCanvas._lastY = y;
+                modalCtx.beginPath();
+                modalCtx.moveTo(x, y);
+                return;
+            }
+
+            modalCtx.globalCompositeOperation = 'source-over';
+            modalCtx.lineWidth = 4;
+            modalCtx.lineCap = 'round';
+            modalCtx.lineJoin = 'round';
+            modalCtx.strokeStyle = '#1F6E64';
+            modalCtx.shadowColor = 'rgba(31, 110, 100, 0.12)';
+            modalCtx.shadowBlur = 3;
+
+            modalCtx.beginPath();
+            modalCtx.moveTo(modalCanvas._lastX, modalCanvas._lastY);
+            modalCtx.lineTo(x, y);
+            modalCtx.stroke();
+
+            modalCanvas._lastX = x;
+            modalCanvas._lastY = y;
+
+            modalCanvas.dataset.drawn = 'true';
+            traceStatus.textContent = '✏️ Sigue trazando...';
+        }
+
+        function onTraceEnd(e) {
+            e.preventDefault();
+            modalCanvas._lastX = null;
+            modalCanvas._lastY = null;
+            if (modalCanvas.dataset.drawn === 'true') {
+                traceStatus.textContent = '✅ ¡Bien! Pulsa "Hecho" para guardar';
+            } else {
+                traceStatus.textContent = '🖍️ Desliza el dedo sobre la letra';
+            }
+        }
+
+        // ─── Cerrar modal y guardar trazado ─────────────────────────
+        function closeTraceModal(save = true) {
+            if (save && modalCanvas.dataset.drawn === 'true') {
+                if (currentTraceIndex !== null && !tracedIndices.has(currentTraceIndex) && !matchedPair) {
+                    tracedIndices.add(currentTraceIndex);
+                    updateCardsState();
+                    updateFeedback(`✅ Has trazado la letra "${letters[currentTraceIndex].char}"`, 'success');
+                    checkPairTraced();
+                }
+            } else {
+                if (currentTraceIndex !== null) {
+                    updateFeedback('💡 No has trazado nada, vuelve a intentarlo', 'error');
+                }
+            }
+            modal.classList.remove('active');
+            currentTraceIndex = null;
+            modalCtx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+            modalCanvas._lastX = null;
+            modalCanvas._lastY = null;
+            modalCanvas.dataset.drawn = 'false';
+            traceStatus.textContent = '🖍️ Desliza el dedo sobre la letra';
+        }
+
+        // ─── Verificar pareja trazada ──────────────────────────────
+        function checkPairTraced() {
+            if (matchedPair) return;
+            const [idx1, idx2] = pairIndices;
+            if (tracedIndices.has(idx1) && tracedIndices.has(idx2)) {
+                matchedPair = { idx1, idx2 };
+                const cards = grid.querySelectorAll('.letter-card');
+                cards[idx1].classList.add('matched');
+                cards[idx2].classList.add('matched');
+                cards[idx1].classList.remove('traced');
+                cards[idx2].classList.remove('traced');
+
+                const l1 = letters[idx1];
+                const l2 = letters[idx2];
+                updateFeedback(`🎉 ¡Excelente! Has emparejado "${l1.char}" y "${l2.char}"`, 'success');
+                score += 10;
+                updateScore();
+                spawnConfetti(40);
+                nextBtn.disabled = false;
+
+                setTimeout(() => {
+                    const allCards = grid.querySelectorAll('.letter-card');
+                    oddIndices.forEach(i => {
+                        if (i < allCards.length) {
+                            allCards[i].style.borderColor = '#E3A62F';
+                            allCards[i].style.background = '#fff9ea';
+                        }
+                    });
+                    const oddLetters = oddIndices.map(i => letters[i].char).join('", "');
+                    updateFeedback(`🎉 ¡Pareja encontrada! Las letras intrusas son: "${oddLetters}"`, 'success');
+                }, 600);
+            }
+        }
+
+        // ─── Siguiente ronda ──────────────────────────────────────────
+        function nextRound() {
+            if (isLocked) return;
+            if (!matchedPair) return;
+
+            matchedPair = null;
+            tracedIndices = new Set();
+            const data = generateLetterSet();
+            letters = data.items;
+            pairIndices = data.pairIndices;
+            oddIndices = data.oddIndices;
+            renderLetters();
+            updateScore();
+            nextBtn.disabled = true;
+            document.querySelectorAll('.letter-card').forEach(c => {
+                c.style.borderColor = '';
+                c.style.background = '';
+            });
+            updateFeedback('💡 Pulsa una letra para trazarla', '');
+        }
+
+        // ─── Confeti ──────────────────────────────────────────────────
+        function spawnConfetti(count = 30) {
+            const colors = ['#E3A62F', '#7A4FBF', '#1F6E64', '#D64545', '#1F3A5F', '#FF6B6B', '#4ECDC4', '#F2EEDF'];
+            for (let i = 0; i < count; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece';
+                const size = 6 + Math.random() * 10;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const left = Math.random() * 100;
+                const delay = Math.random() * 0.8;
+                const duration = 1.2 + Math.random() * 1.2;
+                const shape = Math.random() > 0.5 ? '50%' : '2px';
+                piece.style.cssText = `
+                    left: ${left}%;
+                    width: ${size}px;
+                    height: ${size * (0.6 + Math.random() * 0.8)}px;
+                    background: ${color};
+                    border-radius: ${shape};
+                    animation-delay: ${delay}s;
+                    animation-duration: ${duration}s;
+                    transform: rotate(${Math.random() * 360}deg);
+                `;
+                confettiContainer.appendChild(piece);
+                setTimeout(() => piece.remove(), (delay + duration) * 1000 + 200);
+            }
+        }
+
+        // ─── Event listeners ──────────────────────────────────────────
+
+        // Eventos táctiles y de ratón para el canvas
+        modalCanvas.addEventListener('touchstart', onTraceStart, { passive: false });
+        modalCanvas.addEventListener('touchmove', onTraceMove, { passive: false });
+        modalCanvas.addEventListener('touchend', onTraceEnd, { passive: false });
+        modalCanvas.addEventListener('touchcancel', onTraceEnd, { passive: false });
+
+        modalCanvas.addEventListener('mousedown', onTraceStart);
+        modalCanvas.addEventListener('mousemove', (e) => {
+            if (e.buttons === 1) onTraceMove(e);
+        });
+        modalCanvas.addEventListener('mouseup', onTraceEnd);
+        modalCanvas.addEventListener('mouseleave', onTraceEnd);
+
+        closeModalBtn.addEventListener('click', () => closeTraceModal(false));
+        doneTraceBtn.addEventListener('click', () => {
+            if (modalCanvas.dataset.drawn === 'true') {
+                closeTraceModal(true);
+            } else {
+                traceStatus.textContent = '⚠️ Debes trazar la letra antes de guardar';
+                setTimeout(() => {
+                    traceStatus.textContent = '🖍️ Desliza el dedo sobre la letra';
+                }, 1500);
+            }
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeTraceModal(false);
+        });
+
+        nextBtn.addEventListener('click', nextRound);
+
+        // ─── Inicializar ──────────────────────────────────────────────
+        function init() {
+            const data = generateLetterSet();
+            letters = data.items;
+            pairIndices = data.pairIndices;
+            oddIndices = data.oddIndices;
+            renderLetters();
+            updateScore();
+            nextBtn.disabled = true;
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+
+        // ─── Redimensionar canvas del modal ──────────────────────────
+        const resizeObserver = new ResizeObserver(() => {
+            if (modal.classList.contains('active')) {
+                resizeModalCanvas();
+                if (currentTraceIndex !== null) {
+                    drawGuideLetter(letters[currentTraceIndex].char);
+                }
+            }
+        });
+        resizeObserver.observe(modalCanvas.parentElement);
+
+        window.addEventListener('orientationchange', () => {
+            setTimeout(() => {
+                if (modal.classList.contains('active')) {
+                    resizeModalCanvas();
+                    if (currentTraceIndex !== null) {
+                        drawGuideLetter(letters[currentTraceIndex].char);
+                    }
+                }
+            }, 400);
+        });
+
+        // También al redimensionar la ventana
+        window.addEventListener('resize', () => {
+            if (modal.classList.contains('active')) {
+                resizeModalCanvas();
+                if (currentTraceIndex !== null) {
+                    drawGuideLetter(letters[currentTraceIndex].char);
+                }
+            }
+        });
+
+    })();
+</script>
+
+</body>
+</html>

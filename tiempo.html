@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tiempo — Cuaderno</title>
+    <style>
+        :root {
+            --bg: #F2EEDF;
+            --board-bg: #FFFDF7;
+            --board-shadow: 0 8px 30px rgba(31, 58, 95, 0.12);
+            --primary: #1F6E64;
+            --primary-light: #DCEFE9;
+            --success: #34a853;
+            --success-light: #e6f4ea;
+            --danger: #D64545;
+            --danger-light: #FCE8E8;
+            --warning: #E3A62F;
+            --warning-light: #FCEBC3;
+            --teal: #1F6E64;
+            --teal-light: #DCEFE9;
+            --pink: #B4517A;
+            --pink-light: #F6E4EC;
+            --orange: #E3A62F;
+            --orange-light: #FCEBC3;
+            --gray: #6B6350;
+            --gray-light: #F0EDE1;
+            --ink: #1F3A5F;
+            --card-radius: 16px;
+            --slot-radius: 14px;
+            --font-family: 'Century Gothic', 'CenturyGothic', 'Jost', 'AppleGothic', sans-serif;
+            --season-primavera: linear-gradient(135deg, #12b5a5, #4db6ac);
+            --season-verano: linear-gradient(135deg, #4caf50, #81c784);
+            --season-otono: linear-gradient(135deg, #ffb74d, #ffcc80);
+            --season-invierno: linear-gradient(135deg, #42a5f5, #80bfff);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg);
+            min-height: 100vh;
+            min-height: 100dvh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            touch-action: none;
+            -webkit-touch-callout: none;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            height: 100dvh;
+        }
+
+        /* ── UTILITY ── */
+        .hidden { display: none !important; }
+
+        /* ── INTRO QUESTION SCREENS ── */
+        .question-screen {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 28px;
+            padding: 20px;
+        }
+        .question-text {
+            font-size: clamp(1.4rem, 4vw, 2.2rem);
+            font-weight: 800;
+            color: var(--ink);
+            text-align: center;
+        }
+        .answer-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            max-width: 900px;
+        }
+        .answer-btn {
+            border: none;
+            color: #fff;
+            font-family: var(--font-family);
+            font-weight: 700;
+            font-size: clamp(0.95rem, 2vw, 1.2rem);
+            padding: 14px 24px;
+            border-radius: 14px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(31, 58, 95, 0.18);
+            transition: transform 0.15s ease;
+        }
+        .answer-btn:hover { transform: translateY(-3px) scale(1.03); }
+        .answer-btn.correct { animation: pop 0.4s ease; box-shadow: 0 0 0 4px var(--success) inset; }
+        .answer-btn.wrong { animation: shake 0.4s ease; }
+
+        /* ── MAIN LAYOUT (two columns) ── */
+        .main-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 12px;
+            overflow: hidden;
+            min-height: 0;
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ── LEFT COLUMN (Palette) ── */
+        .palette {
+            flex: 1.2;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow: hidden;
+            padding: 14px;
+            min-height: 0;
+            flex-shrink: 1;
+            background: var(--board-bg);
+            border-radius: var(--card-radius);
+            box-shadow: 0 4px 15px rgba(31, 58, 95, 0.08);
+            border: 2px solid #E7E0CB;
+        }
+
+        .palette-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            flex-shrink: 0;
+        }
+        .tab-btn {
+            border: none;
+            background: #F0EDE1;
+            color: #6B6350;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-family: var(--font-family);
+            font-weight: 700;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+        .tab-btn:hover { background: var(--teal-light); color: var(--ink); }
+        .tab-btn.active { background: var(--ink); color: #fff; }
+
+        .palette-content {
+            position: relative;
+        }
+        .palette-section {
+            display: none;
+            background: #FBF8EF;
+            border-radius: 12px;
+            padding: 18px;
+            border: 2px solid #E7E0CB;
+            flex-direction: column;
+        }
+        .palette-section.active { display: flex; }
+        .palette-section-title {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .palette-items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* ── RIGHT COLUMN (Board) ── */
+        .board {
+            flex: 1;
+            background: var(--board-bg);
+            border-radius: var(--card-radius);
+            box-shadow: var(--board-shadow);
+            padding: 10px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-shrink: 0;
+            border: 3px solid #E7E0CB;
+            overflow: hidden;
+            justify-content: center;
+        }
+        .board-row {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px 12px;
+            justify-content: center;
+            background: #FBF8EF;
+            border-radius: 12px;
+            padding: 14px;
+            border: 2px dashed #D8D2BE;
+        }
+        .board-row .sentence-part {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        .board-row .sentence-part.light {
+            color: #8A8270;
+            font-weight: 500;
+        }
+
+        /* ── DROP SLOTS ── */
+        .drop-slot {
+            min-width: 66px;
+            min-height: 52px;
+            border-radius: 12px;
+            background: #fff;
+            border: 2px dashed #C9C2AA;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.05rem;
+            color: #A39C86;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+            cursor: pointer;
+            padding: 4px 10px;
+        }
+        .drop-slot:hover {
+            border-color: #8A8270;
+            background: #FBF8EF;
+        }
+        .drop-slot.filled {
+            border-style: solid;
+            border-width: 3px;
+            color: #fff;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .drop-slot .slot-placeholder {
+            pointer-events: none;
+            opacity: 0.7;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .drop-slot .slot-content {
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .drop-slot .remove-hint {
+            position: absolute;
+            top: 2px;
+            right: 6px;
+            font-size: 0.7rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            color: rgba(255, 255, 255, 0.85);
+            pointer-events: none;
+            font-weight: 400;
+        }
+        .drop-slot.filled:hover .remove-hint {
+            opacity: 1;
+        }
+        .drop-slot.highlight {
+            border-color: var(--primary);
+            background: var(--primary-light);
+            box-shadow: 0 0 20px rgba(31, 110, 100, 0.3);
+            transform: scale(1.03);
+        }
+        .drop-slot.reject {
+            border-color: var(--danger);
+            background: var(--danger-light);
+            animation: shake 0.4s ease;
+        }
+        .drop-slot.accepted {
+            border-color: var(--success);
+            background: var(--success-light);
+            animation: pop 0.4s ease;
+        }
+        .drop-slot.day-filled { background: #7A4FBF; border-color: #5f3a99; }
+        .drop-slot.number-filled { background: var(--warning); border-color: #b8860f; color: #3A2C05; }
+        .drop-slot.month-filled { background: #B4517A; border-color: #8f3c60; color: #fff; }
+        .drop-slot.weather-filled { background: var(--teal); border-color: #164e47; color: #fff; }
+        .drop-slot.season-filled { background: #D64545; border-color: #ab3535; color: #fff; }
+
+        /* ── SOURCE CARDS ── */
+        .source-card {
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            cursor: grab;
+            transition: all 0.25s ease;
+            box-shadow: 0 3px 10px rgba(31, 58, 95, 0.15);
+            border: 2px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            position: relative;
+            letter-spacing: 0.3px;
+            touch-action: none;
+            -webkit-touch-callout: none;
+        }
+        .source-card:hover {
+            transform: translateY(-3px) scale(1.04);
+            box-shadow: 0 6px 20px rgba(31, 58, 95, 0.22);
+            border-color: rgba(255, 255, 255, 0.6);
+        }
+        .source-card:active {
+            cursor: grabbing;
+            transform: scale(0.95);
+            box-shadow: 0 2px 8px rgba(31, 58, 95, 0.18);
+        }
+        .source-card.dragging {
+            opacity: 0.4;
+            transform: scale(0.9);
+            cursor: grabbing;
+        }
+
+        /* Day cards — one color per weekday, matching the Cuaderno grade palette */
+        .source-card[data-type="day"] { color: #fff; }
+        .source-card[data-type="day"]:nth-child(1) { background: linear-gradient(135deg, #4285f4, #5a9bf6); } /* Lunes */
+        .source-card[data-type="day"]:nth-child(2) { background: linear-gradient(135deg, #ea4335, #f0695c); } /* Martes */
+        .source-card[data-type="day"]:nth-child(3) { background: linear-gradient(135deg, #fbbc04, #fcc934); color:#333; } /* Miércoles */
+        .source-card[data-type="day"]:nth-child(4) { background: linear-gradient(135deg, #34a853, #4cbb6e); } /* Jueves */
+        .source-card[data-type="day"]:nth-child(5) { background: linear-gradient(135deg, #9334e6, #a55ef0); } /* Viernes */
+        .source-card[data-type="day"]:nth-child(6) { background: linear-gradient(135deg, #f57c00, #f79a3e); } /* Sábado */
+        .source-card[data-type="day"]:nth-child(7) { background: linear-gradient(135deg, #12b5a5, #3ecfc2); } /* Domingo */
+
+        /* Number cards */
+        .source-card[data-type="number"] {
+            background: var(--warning);
+            color: #3A2C05;
+            font-size: clamp(1.1rem, 3vw, 1.6rem);
+            min-width: 48px;
+            justify-content: center;
+            padding: 8px 16px;
+        }
+
+        /* Month cards – colored by season */
+        .source-card[data-type="month"] { color: #fff; }
+        .source-card[data-type="month"][data-label="Diciembre"],
+        .source-card[data-type="month"][data-label="Enero"],
+        .source-card[data-type="month"][data-label="Febrero"] {
+            background: var(--season-invierno);
+        }
+        .source-card[data-type="month"][data-label="Marzo"],
+        .source-card[data-type="month"][data-label="Abril"],
+        .source-card[data-type="month"][data-label="Mayo"] {
+            background: var(--season-primavera);
+        }
+        .source-card[data-type="month"][data-label="Junio"],
+        .source-card[data-type="month"][data-label="Julio"],
+        .source-card[data-type="month"][data-label="Agosto"] {
+            background: var(--season-verano);
+        }
+        .source-card[data-type="month"][data-label="Septiembre"],
+        .source-card[data-type="month"][data-label="Octubre"],
+        .source-card[data-type="month"][data-label="Noviembre"] {
+            background: var(--season-otono);
+            color: #333;
+        }
+
+        /* Season cards */
+        .source-card[data-type="season"] { color: #fff; }
+        .source-card[data-type="season"][data-label="Primavera"] { background: var(--season-primavera); }
+        .source-card[data-type="season"][data-label="Verano"] { background: var(--season-verano); }
+        .source-card[data-type="season"][data-label="Otoño"] { background: var(--season-otono); color:#333; }
+        .source-card[data-type="season"][data-label="Invierno"] { background: var(--season-invierno); }
+
+        /* Weather cards */
+        .source-card[data-type="weather"] {
+            background: #fff;
+            border: 2px solid #E7E0CB;
+            color: var(--ink);
+            font-weight: 600;
+            box-shadow: 0 3px 10px rgba(31, 58, 95, 0.1);
+        }
+        .source-card[data-type="weather"] .weather-emoji { font-size: 1.6em; }
+        .source-card[data-type="weather"]:hover {
+            border-color: var(--teal);
+            background: var(--teal-light);
+        }
+
+        /* ── GHOST ── */
+        .ghost {
+            position: fixed;
+            pointer-events: none;
+            z-index: 1000;
+            padding: 0;
+            margin: 0;
+            border-radius: 12px;
+            font-size: clamp(0.9rem, 2.2vw, 1.2rem);
+            font-weight: 700;
+            box-shadow: 0 12px 35px rgba(31, 58, 95, 0.3);
+            transform: translate(-50%, -50%);
+            letter-spacing: 0.3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+            opacity: 0.92;
+            border: 2px solid rgba(255, 255, 255, 0.7);
+            transition: transform 0.05s ease;
+        }
+        .ghost[data-type="day"] { color: #fff; }
+        .ghost[data-type="number"] { background: var(--warning); color: #3A2C05; }
+        .ghost[data-type="month"] { color: #fff; }
+        .ghost[data-type="season"] { color: #fff; }
+        .ghost[data-type="weather"] { background: #fff; color: var(--ink); border-color: var(--teal); }
+        .ghost .weather-emoji { font-size: 1.5em; }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(31, 58, 95, 0.5);
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal {
+            background: #FFFDF7;
+            border-radius: 20px;
+            padding: 30px 40px;
+            box-shadow: 0 20px 60px rgba(31, 58, 95, 0.35);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+            animation: modalPop 0.3s ease;
+        }
+        .modal h2 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            color: var(--ink);
+        }
+        .modal .full-sentence {
+            font-size: 1.6rem;
+            line-height: 1.5;
+            font-weight: 600;
+            color: #2B2418;
+            margin-bottom: 30px;
+            word-break: break-word;
+        }
+        .modal .btn-close-modal {
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-family: var(--font-family);
+        }
+        .modal .btn-close-modal:hover {
+            background: var(--teal);
+        }
+
+        @keyframes modalPop {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        /* ── ANIMATIONS ── */
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.06); }
+            100% { transform: scale(1); }
+        }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 700px) {
+            .main-container { padding: 6px 8px; gap: 8px; }
+            .modal { padding: 20px; }
+            .modal h2 { font-size: 1.5rem; }
+            .modal .full-sentence { font-size: 1.2rem; }
+        }
+
+        /* ── SCROLLBAR ── */
+        .palette::-webkit-scrollbar, .board::-webkit-scrollbar { width: 6px; }
+        .palette::-webkit-scrollbar-track, .board::-webkit-scrollbar-track { background: transparent; }
+        .palette::-webkit-scrollbar-thumb, .board::-webkit-scrollbar-thumb { background: #C9C2AA; border-radius: 3px; }
+        .palette::-webkit-scrollbar-thumb:hover, .board::-webkit-scrollbar-thumb:hover { background: #A39C86; }
+
+        /* ── TOAST ── */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--ink);
+            color: #fff;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none;
+            box-shadow: 0 6px 20px rgba(31, 58, 95, 0.3);
+            font-family: var(--font-family);
+        }
+        .toast.show { opacity: 1; }
+    </style>
+</head>
+<body>
+
+    <div class="question-screen active" id="screenQ1">
+        <div class="question-text">¿Qué día fue ayer?</div>
+        <div class="answer-row" id="answersQ1"></div>
+    </div>
+
+    <div class="question-screen hidden" id="screenQ2">
+        <div class="question-text">¿Qué día es mañana?</div>
+        <div class="answer-row" id="answersQ2"></div>
+    </div>
+
+    <div class="main-container hidden" id="screenBoard">
+
+        <div class="palette" id="palette">
+
+            <div class="palette-tabs" id="paletteTabs">
+                <button class="tab-btn active" data-tab="days">📅 Días</button>
+                <button class="tab-btn" data-tab="numbers">🔢 Números</button>
+                <button class="tab-btn" data-tab="months">📆 Meses</button>
+                <button class="tab-btn" data-tab="seasons">🍂 Estaciones</button>
+                <button class="tab-btn" data-tab="weather">🌤️ Tiempo</button>
+            </div>
+
+            <div class="palette-content">
+
+                <div class="palette-section active" data-section="days">
+                    <div class="palette-section-title">📅 Días de la semana</div>
+                    <div class="palette-items" id="paletteDays">
+                        <div class="source-card" data-type="day" data-label="Lunes" draggable="false">📘 Lunes</div>
+                        <div class="source-card" data-type="day" data-label="Martes" draggable="false">📙 Martes</div>
+                        <div class="source-card" data-type="day" data-label="Miércoles" draggable="false">📗 Miércoles</div>
+                        <div class="source-card" data-type="day" data-label="Jueves" draggable="false">📕 Jueves</div>
+                        <div class="source-card" data-type="day" data-label="Viernes" draggable="false">📚 Viernes</div>
+                        <div class="source-card" data-type="day" data-label="Sábado" draggable="false">🎉 Sábado</div>
+                        <div class="source-card" data-type="day" data-label="Domingo" draggable="false">🌈 Domingo</div>
+                    </div>
+                </div>
+
+                <div class="palette-section" data-section="numbers">
+                    <div class="palette-section-title">🔢 Números</div>
+                    <div class="palette-items" id="paletteNumbers">
+                        <div class="source-card" data-type="number" data-label="0" draggable="false">0</div>
+                        <div class="source-card" data-type="number" data-label="1" draggable="false">1</div>
+                        <div class="source-card" data-type="number" data-label="2" draggable="false">2</div>
+                        <div class="source-card" data-type="number" data-label="3" draggable="false">3</div>
+                        <div class="source-card" data-type="number" data-label="4" draggable="false">4</div>
+                        <div class="source-card" data-type="number" data-label="5" draggable="false">5</div>
+                        <div class="source-card" data-type="number" data-label="6" draggable="false">6</div>
+                        <div class="source-card" data-type="number" data-label="7" draggable="false">7</div>
+                        <div class="source-card" data-type="number" data-label="8" draggable="false">8</div>
+                        <div class="source-card" data-type="number" data-label="9" draggable="false">9</div>
+                    </div>
+                </div>
+
+                <div class="palette-section" data-section="months">
+                    <div class="palette-section-title">📆 Meses</div>
+                    <div class="palette-items" id="paletteMonths">
+                        <div class="source-card" data-type="month" data-label="Enero" draggable="false">Enero</div>
+                        <div class="source-card" data-type="month" data-label="Febrero" draggable="false">Febrero</div>
+                        <div class="source-card" data-type="month" data-label="Marzo" draggable="false">Marzo</div>
+                        <div class="source-card" data-type="month" data-label="Abril" draggable="false">Abril</div>
+                        <div class="source-card" data-type="month" data-label="Mayo" draggable="false">Mayo</div>
+                        <div class="source-card" data-type="month" data-label="Junio" draggable="false">Junio</div>
+                        <div class="source-card" data-type="month" data-label="Julio" draggable="false">Julio</div>
+                        <div class="source-card" data-type="month" data-label="Agosto" draggable="false">Agosto</div>
+                        <div class="source-card" data-type="month" data-label="Septiembre" draggable="false">Septiembre</div>
+                        <div class="source-card" data-type="month" data-label="Octubre" draggable="false">Octubre</div>
+                        <div class="source-card" data-type="month" data-label="Noviembre" draggable="false">Noviembre</div>
+                        <div class="source-card" data-type="month" data-label="Diciembre" draggable="false">Diciembre</div>
+                    </div>
+                </div>
+
+                <div class="palette-section" data-section="seasons">
+                    <div class="palette-section-title">🍂 Estaciones</div>
+                    <div class="palette-items" id="paletteSeasons">
+                        <div class="source-card" data-type="season" data-label="Primavera" draggable="false">🌸 Primavera</div>
+                        <div class="source-card" data-type="season" data-label="Verano" draggable="false">☀️ Verano</div>
+                        <div class="source-card" data-type="season" data-label="Otoño" draggable="false">🍁 Otoño</div>
+                        <div class="source-card" data-type="season" data-label="Invierno" draggable="false">❄️ Invierno</div>
+                    </div>
+                </div>
+
+                <div class="palette-section" data-section="weather">
+                    <div class="palette-section-title">🌤️ El tiempo</div>
+                    <div class="palette-items" id="paletteWeather">
+                        <div class="source-card" data-type="weather" data-label="Hace sol" draggable="false">
+                            <span class="weather-emoji">☀️</span> Hace sol
+                        </div>
+                        <div class="source-card" data-type="weather" data-label="Está nublado" draggable="false">
+                            <span class="weather-emoji">☁️</span> Está nublado
+                        </div>
+                        <div class="source-card" data-type="weather" data-label="Está lloviendo" draggable="false">
+                            <span class="weather-emoji">🌧️</span> Está lloviendo
+                        </div>
+                        <div class="source-card" data-type="weather" data-label="Está nevando" draggable="false">
+                            <span class="weather-emoji">❄️</span> Está nevando
+                        </div>
+                        <div class="source-card" data-type="weather" data-label="Hace viento" draggable="false">
+                            <span class="weather-emoji">💨</span> Hace viento
+                        </div>
+                        <div class="source-card" data-type="weather" data-label="Hay tormenta" draggable="false">
+                            <span class="weather-emoji">⛈️</span> Hay tormenta
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="board" id="board">
+
+            <div class="board-row" id="rowDate">
+                <span class="sentence-part">Hoy es</span>
+                <div class="drop-slot" id="slotDay" data-accepts="day">
+                    <span class="slot-placeholder">Día</span>
+                </div>
+                <div class="drop-slot" id="slotDateTens" data-accepts="number">
+                    <span class="slot-placeholder">—</span>
+                </div>
+                <div class="drop-slot" id="slotDateOnes" data-accepts="number">
+                    <span class="slot-placeholder">—</span>
+                </div>
+                <span class="sentence-part">de</span>
+                <div class="drop-slot" id="slotMonth" data-accepts="month">
+                    <span class="slot-placeholder">Mes</span>
+                </div>
+            </div>
+
+            <div class="board-row" id="rowSeason">
+                <span class="sentence-part">La estación es</span>
+                <div class="drop-slot" id="slotSeason" data-accepts="season">
+                    <span class="slot-placeholder">Estación</span>
+                </div>
+            </div>
+
+            <div class="board-row" id="rowWeather">
+                <span class="sentence-part">Hoy</span>
+                <div class="drop-slot" id="slotWeather" data-accepts="weather">
+                    <span class="slot-placeholder">Tiempo</span>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <h2>🎉 ¡Muy bien!</h2>
+            <div class="full-sentence" id="fullSentence"></div>
+            <button class="btn-close-modal" id="btnCloseModal">Cerrar</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const slotDay = document.getElementById('slotDay');
+            const slotDateTens = document.getElementById('slotDateTens');
+            const slotDateOnes = document.getElementById('slotDateOnes');
+            const slotMonth = document.getElementById('slotMonth');
+            const slotWeather = document.getElementById('slotWeather');
+            const slotSeason = document.getElementById('slotSeason');
+            const toast = document.getElementById('toast');
+            const modalOverlay = document.getElementById('modalOverlay');
+            const fullSentenceEl = document.getElementById('fullSentence');
+            const btnCloseModal = document.getElementById('btnCloseModal');
+
+            const allSlots = [slotDay, slotDateTens, slotDateOnes, slotMonth, slotWeather, slotSeason];
+            const allSourceCards = document.querySelectorAll('.source-card');
+
+            // ── Day colors (same as the palette cards — kept identical on purpose) ──
+            const DAY_COLORS = {
+                'Domingo':   { bg: 'linear-gradient(135deg, #12b5a5, #3ecfc2)', color: '#fff' },
+                'Lunes':     { bg: 'linear-gradient(135deg, #4285f4, #5a9bf6)', color: '#fff' },
+                'Martes':    { bg: 'linear-gradient(135deg, #ea4335, #f0695c)', color: '#fff' },
+                'Miércoles': { bg: 'linear-gradient(135deg, #fbbc04, #fcc934)', color: '#333' },
+                'Jueves':    { bg: 'linear-gradient(135deg, #34a853, #4cbb6e)', color: '#fff' },
+                'Viernes':   { bg: 'linear-gradient(135deg, #9334e6, #a55ef0)', color: '#fff' },
+                'Sábado':    { bg: 'linear-gradient(135deg, #f57c00, #f79a3e)', color: '#fff' },
+            };
+            // JS Date.getDay(): 0=Sunday ... 6=Saturday
+            const DAY_ORDER = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
+
+            function getRealTodayIndex() { return new Date().getDay(); }
+
+            function buildAnswerButtons(containerId, correctAnswer, onCorrect) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+                // Shuffle so the correct answer isn't always in the same visual position
+                const shuffled = [...DAY_ORDER].sort(() => Math.random() - 0.5);
+                shuffled.forEach(day => {
+                    const btn = document.createElement('button');
+                    btn.className = 'answer-btn';
+                    btn.textContent = day;
+                    btn.style.background = DAY_COLORS[day].bg;
+                    btn.style.color = DAY_COLORS[day].color;
+                    btn.addEventListener('click', () => {
+                        if (day === correctAnswer) {
+                            btn.classList.add('correct');
+                            showToast('✅ ¡Correcto!', 900);
+                            setTimeout(onCorrect, 700);
+                        } else {
+                            btn.classList.add('wrong');
+                            showToast('❌ Inténtalo de nuevo', 900);
+                            setTimeout(() => btn.classList.remove('wrong'), 400);
+                        }
+                    });
+                    container.appendChild(btn);
+                });
+            }
+
+            function startQuestionFlow() {
+                const todayIdx = getRealTodayIndex();
+                const yesterdayAnswer = DAY_ORDER[(todayIdx + 6) % 7];
+                const tomorrowAnswer = DAY_ORDER[(todayIdx + 1) % 7];
+
+                document.getElementById('screenBoard').classList.add('hidden');
+                document.getElementById('screenQ2').classList.add('hidden');
+                document.getElementById('screenQ1').classList.remove('hidden');
+
+                buildAnswerButtons('answersQ1', yesterdayAnswer, () => {
+                    document.getElementById('screenQ1').classList.add('hidden');
+                    document.getElementById('screenQ2').classList.remove('hidden');
+                    buildAnswerButtons('answersQ2', tomorrowAnswer, () => {
+                        document.getElementById('screenQ2').classList.add('hidden');
+                        document.getElementById('screenBoard').classList.remove('hidden');
+                    });
+                });
+            }
+
+            // ── Palette tab switching ──
+            document.getElementById('paletteTabs').addEventListener('click', function(e) {
+                const btn = e.target.closest('.tab-btn');
+                if (!btn) return;
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                document.querySelectorAll('.palette-section').forEach(s => s.classList.remove('active'));
+                document.querySelector(`.palette-section[data-section="${btn.dataset.tab}"]`).classList.add('active');
+            });
+
+            let dragState = null;
+            let toastTimeout = null;
+
+            const dayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const dayEmojis = ['📘', '📙', '📗', '📕', '📚', '🎉', '🌈'];
+            const seasonNames = ['Primavera', 'Verano', 'Otoño', 'Invierno'];
+
+            function showToast(message, duration = 1800) {
+                toast.textContent = message;
+                toast.classList.add('show');
+                clearTimeout(toastTimeout);
+                toastTimeout = setTimeout(() => toast.classList.remove('show'), duration);
+            }
+
+            function getDropZoneAtPoint(clientX, clientY) {
+                for (const slot of allSlots) {
+                    const rect = slot.getBoundingClientRect();
+                    const padding = 15;
+                    if (
+                        clientX >= rect.left - padding &&
+                        clientX <= rect.right + padding &&
+                        clientY >= rect.top - padding &&
+                        clientY <= rect.bottom + padding
+                    ) {
+                        return slot;
+                    }
+                }
+                return null;
+            }
+
+            function isTypeMatch(sourceType, targetSlot) {
+                const accepts = targetSlot.dataset.accepts;
+                return sourceType === accepts;
+            }
+
+            function clearSlot(slot) {
+                if (!slot) return;
+                const placeholder = slot.querySelector('.slot-placeholder');
+                const existingContent = slot.querySelector('.slot-content');
+                if (existingContent) existingContent.remove();
+                if (!placeholder) {
+                    const ph = document.createElement('span');
+                    ph.className = 'slot-placeholder';
+                    ph.textContent = slot.id === 'slotDateTens' || slot.id === 'slotDateOnes' ? '—' :
+                        (slot.id === 'slotDay' ? 'Día' : slot.id === 'slotMonth' ? 'Mes' : slot.id === 'slotWeather' ?
+                            'Tiempo' : 'Estación');
+                    slot.appendChild(ph);
+                }
+                slot.classList.remove('filled', 'day-filled', 'number-filled', 'month-filled', 'weather-filled',
+                    'season-filled');
+                slot.dataset.placedLabel = '';
+                slot.dataset.placedType = '';
+                slot.dataset.placedEmoji = '';
+            }
+
+            function clearAllSlots() {
+                allSlots.forEach(slot => clearSlot(slot));
+                showToast('🧹 ¡Todo limpio! Vamos de nuevo ✨');
+            }
+
+            function placeItemInSlot(slot, sourceData) {
+                clearSlot(slot);
+
+                const placeholder = slot.querySelector('.slot-placeholder');
+                if (placeholder) placeholder.remove();
+
+                const content = document.createElement('span');
+                content.className = 'slot-content';
+
+                if (sourceData.type === 'day' || sourceData.type === 'month' || sourceData.type === 'season') {
+                    content.textContent = sourceData.label;
+                } else if (sourceData.type === 'number') {
+                    content.textContent = sourceData.label;
+                } else if (sourceData.type === 'weather') {
+                    const emojiSpan = document.createElement('span');
+                    emojiSpan.textContent = sourceData.emoji || '';
+                    emojiSpan.style.fontSize = '1.4em';
+                    content.appendChild(emojiSpan);
+                    const textSpan = document.createElement('span');
+                    textSpan.textContent = sourceData.label || '';
+                    content.appendChild(textSpan);
+                }
+
+                slot.appendChild(content);
+
+                slot.classList.add('filled');
+                if (sourceData.type === 'day') slot.classList.add('day-filled');
+                if (sourceData.type === 'number') slot.classList.add('number-filled');
+                if (sourceData.type === 'month') slot.classList.add('month-filled');
+                if (sourceData.type === 'weather') slot.classList.add('weather-filled');
+                if (sourceData.type === 'season') slot.classList.add('season-filled');
+
+                slot.dataset.placedLabel = sourceData.label || '';
+                slot.dataset.placedType = sourceData.type || '';
+                slot.dataset.placedEmoji = sourceData.emoji || '';
+
+                if (!slot.querySelector('.remove-hint')) {
+                    const hint = document.createElement('span');
+                    hint.className = 'remove-hint';
+                    hint.textContent = '✕';
+                    slot.appendChild(hint);
+                }
+            }
+
+            function getSourceDataFromElement(el) {
+                const type = el.dataset.type;
+                const label = el.dataset.label;
+                let emoji = '';
+                if (type === 'day') {
+                    const index = dayNames.indexOf(label);
+                    emoji = dayEmojis[index] || '📅';
+                } else if (type === 'month') {
+                    emoji = '📅';
+                } else if (type === 'season') {
+                    const index = seasonNames.indexOf(label);
+                    emoji = ['🌸', '☀️', '🍁', '❄️'][index] || '🍂';
+                } else if (type === 'weather') {
+                    emoji = el.querySelector('.weather-emoji')?.textContent || '';
+                }
+                return { type, label, emoji, sourceEl: el };
+            }
+
+            function createGhost(sourceData, clientX, clientY) {
+                const sourceCard = sourceData.sourceEl;
+                const ghost = document.createElement('div');
+                ghost.className = 'ghost';
+                ghost.dataset.type = sourceData.type;
+
+                const computedStyle = window.getComputedStyle(sourceCard);
+
+                ghost.style.position = 'fixed';
+                ghost.style.left = '0px';
+                ghost.style.top = '0px';
+                ghost.style.transform = 'translate(-50%, -50%)';
+                ghost.style.width = sourceCard.offsetWidth + 'px';
+                ghost.style.height = sourceCard.offsetHeight + 'px';
+                ghost.style.boxShadow = '0 12px 35px rgba(31, 58, 95, 0.3)';
+                ghost.style.border = '2px solid rgba(255, 255, 255, 0.7)';
+                ghost.style.opacity = '0.92';
+                ghost.style.pointerEvents = 'none';
+                ghost.style.zIndex = '1000';
+                ghost.style.margin = '0';
+                ghost.style.padding = computedStyle.padding;
+                ghost.style.display = 'flex';
+                ghost.style.alignItems = 'center';
+                ghost.style.justifyContent = 'center';
+                ghost.style.gap = '6px';
+                ghost.style.whiteSpace = 'nowrap';
+                ghost.style.letterSpacing = '0.3px';
+                ghost.style.fontWeight = '700';
+                ghost.style.fontSize = computedStyle.fontSize;
+                ghost.style.borderRadius = computedStyle.borderRadius || '12px';
+                ghost.style.background = computedStyle.background;
+                ghost.style.color = computedStyle.color;
+
+                if (sourceData.type === 'number') {
+                    ghost.style.fontSize = computedStyle.fontSize;
+                    ghost.style.minWidth = computedStyle.minWidth || '48px';
+                }
+
+                ghost.innerHTML = '';
+                if (sourceData.type === 'day') {
+                    ghost.textContent = sourceData.label;
+                } else if (sourceData.type === 'number') {
+                    ghost.textContent = sourceData.label;
+                } else if (sourceData.type === 'month') {
+                    ghost.textContent = sourceData.label;
+                } else if (sourceData.type === 'season') {
+                    ghost.textContent = sourceData.label;
+                } else if (sourceData.type === 'weather') {
+                    const emojiSpan = document.createElement('span');
+                    emojiSpan.className = 'weather-emoji';
+                    emojiSpan.textContent = sourceData.emoji || '';
+                    emojiSpan.style.fontSize = '1.5em';
+                    ghost.appendChild(emojiSpan);
+                    const textSpan = document.createElement('span');
+                    textSpan.textContent = sourceData.label || '';
+                    ghost.appendChild(textSpan);
+                }
+
+                ghost.style.left = clientX + 'px';
+                ghost.style.top = clientY + 'px';
+                ghost.style.transform = 'translate(-50%, -50%)';
+
+                document.body.appendChild(ghost);
+                return ghost;
+            }
+
+            function updateGhostPosition(ghost, clientX, clientY) {
+                ghost.style.left = clientX + 'px';
+                ghost.style.top = clientY + 'px';
+            }
+
+            function removeGhost(ghost) {
+                if (ghost && ghost.parentNode) ghost.parentNode.removeChild(ghost);
+            }
+
+            function clearHighlights() {
+                allSlots.forEach(slot => slot.classList.remove('highlight', 'reject', 'accepted'));
+            }
+
+            function highlightMatchingSlots(sourceType) {
+                allSlots.forEach(slot => {
+                    if (slot.dataset.accepts === sourceType) {
+                        slot.classList.add('highlight');
+                    } else {
+                        slot.classList.remove('highlight');
+                    }
+                });
+            }
+
+            function flashReject(slot) {
+                slot.classList.add('reject');
+                setTimeout(() => slot.classList.remove('reject'), 500);
+            }
+
+            function flashAccept(slot) {
+                slot.classList.add('accepted');
+                setTimeout(() => slot.classList.remove('accepted'), 500);
+            }
+
+            function checkFullAnswer() {
+                const day = slotDay.dataset.placedLabel;
+                const tens = slotDateTens.dataset.placedLabel;
+                const ones = slotDateOnes.dataset.placedLabel;
+                const month = slotMonth.dataset.placedLabel;
+                const weather = slotWeather.dataset.placedLabel;
+                const season = slotSeason.dataset.placedLabel;
+
+                if (day && tens && ones && month && weather) {
+                    const dayNumber = parseInt(tens + ones, 10);
+                    const year = new Date().getFullYear();
+                    let weatherLower = weather.toLowerCase();
+                    weatherLower = weatherLower.charAt(0).toLowerCase() + weatherLower.slice(1);
+                    let sentence = `${day} ${dayNumber} de ${month.toLowerCase()} del ${year}, hoy ${weatherLower}`;
+                    if (season) {
+                        sentence += ` y la estación es ${season.toLowerCase()}`;
+                    } else {
+                        sentence += '.';
+                    }
+                    fullSentenceEl.textContent = sentence;
+                    modalOverlay.classList.add('show');
+                } else {
+                    if (day && month && tens && ones) {
+                        showToast(`📅 ${day} ${tens}${ones} de ${month}`, 1500);
+                    } else if (day && month) {
+                        showToast(`👍 ${day} de ${month}`, 1200);
+                    } else if (weather) {
+                        showToast(`🌤️ Hoy ${weather.toLowerCase()}`, 1200);
+                    }
+                }
+            }
+
+            function handlePointerDown(e) {
+                const card = e.target.closest('.source-card');
+                if (!card) return;
+
+                e.preventDefault();
+
+                const sourceData = getSourceDataFromElement(card);
+                const clientX = e.clientX;
+                const clientY = e.clientY;
+
+                const ghost = createGhost(sourceData, clientX, clientY);
+                card.classList.add('dragging');
+
+                dragState = {
+                    pointerId: e.pointerId,
+                    ghost: ghost,
+                    sourceData: sourceData,
+                    sourceCard: card,
+                    startX: clientX,
+                    startY: clientY,
+                    active: true,
+                };
+
+                highlightMatchingSlots(sourceData.type);
+            }
+
+            function handlePointerMove(e) {
+                if (!dragState || !dragState.active) return;
+                if (e.pointerId !== dragState.pointerId) return;
+
+                e.preventDefault();
+                updateGhostPosition(dragState.ghost, e.clientX, e.clientY);
+
+                const targetSlot = getDropZoneAtPoint(e.clientX, e.clientY);
+                clearHighlights();
+
+                if (targetSlot) {
+                    if (isTypeMatch(dragState.sourceData.type, targetSlot)) {
+                        targetSlot.classList.add('highlight');
+                    } else {
+                        targetSlot.classList.add('reject');
+                        setTimeout(() => targetSlot.classList.remove('reject'), 300);
+                    }
+                } else {
+                    highlightMatchingSlots(dragState.sourceData.type);
+                }
+            }
+
+            function handlePointerUp(e) {
+                if (!dragState || !dragState.active) return;
+                if (e.pointerId !== dragState.pointerId) return;
+
+                e.preventDefault();
+
+                const { ghost, sourceData, sourceCard } = dragState;
+                const clientX = e.clientX;
+                const clientY = e.clientY;
+
+                const targetSlot = getDropZoneAtPoint(clientX, clientY);
+
+                if (targetSlot) {
+                    if (isTypeMatch(sourceData.type, targetSlot)) {
+                        placeItemInSlot(targetSlot, sourceData);
+                        flashAccept(targetSlot);
+                        checkFullAnswer();
+                    } else {
+                        flashReject(targetSlot);
+                        showToast(`⚠️ ${sourceData.label} no va aquí`, 1200);
+                    }
+                }
+
+                removeGhost(ghost);
+                sourceCard.classList.remove('dragging');
+                clearHighlights();
+                dragState = null;
+            }
+
+            function handlePointerCancel(e) {
+                if (!dragState || !dragState.active) return;
+                if (e.pointerId !== dragState.pointerId) return;
+
+                const { ghost, sourceCard } = dragState;
+                removeGhost(ghost);
+                sourceCard.classList.remove('dragging');
+                clearHighlights();
+                dragState = null;
+            }
+
+            allSourceCards.forEach(card => card.addEventListener('pointerdown', handlePointerDown));
+            document.addEventListener('pointermove', handlePointerMove);
+            document.addEventListener('pointerup', handlePointerUp);
+            document.addEventListener('pointercancel', handlePointerCancel);
+
+            document.addEventListener('touchmove', function(e) {
+                if (dragState && dragState.active) e.preventDefault();
+            }, { passive: false });
+
+            allSlots.forEach(slot => {
+                slot.addEventListener('click', function(e) {
+                    if (this.classList.contains('filled')) {
+                        const label = this.dataset.placedLabel;
+                        clearSlot(this);
+                        showToast(`🗑️ ${label} quitado`, 800);
+                        checkFullAnswer();
+                    }
+                });
+            });
+
+            btnCloseModal.addEventListener('click', function() {
+                modalOverlay.classList.remove('show');
+                clearAllSlots();
+                startQuestionFlow();
+            });
+
+            modalOverlay.addEventListener('click', function(e) {
+                if (e.target === modalOverlay) {
+                    modalOverlay.classList.remove('show');
+                    clearAllSlots();
+                    startQuestionFlow();
+                }
+            });
+
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && dragState && dragState.active) {
+                    const { ghost, sourceCard } = dragState;
+                    removeGhost(ghost);
+                    sourceCard.classList.remove('dragging');
+                    clearHighlights();
+                    dragState = null;
+                }
+                if (e.key === 'Escape' && modalOverlay.classList.contains('show')) {
+                    modalOverlay.classList.remove('show');
+                }
+            });
+
+            function ensurePlaceholders() {
+                allSlots.forEach(slot => {
+                    if (!slot.querySelector('.slot-placeholder') && !slot.querySelector('.slot-content')) {
+                        const ph = document.createElement('span');
+                        ph.className = 'slot-placeholder';
+                        ph.textContent = slot.id === 'slotDateTens' || slot.id === 'slotDateOnes' ? '—' :
+                            (slot.id === 'slotDay' ? 'Día' : slot.id === 'slotMonth' ? 'Mes' : slot.id === 'slotWeather' ?
+                                'Tiempo' : 'Estación');
+                        slot.appendChild(ph);
+                    }
+                });
+            }
+            ensurePlaceholders();
+
+            // ── Boot: start with the two questions before the board appears ──
+            startQuestionFlow();
+        })();
+    </script>
+
+</body>
+</html>

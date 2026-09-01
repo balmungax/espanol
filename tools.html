@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tools — Cuaderno</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F2EEDF; --paper-soft:#FFFDF7; --ink:#1F3A5F; --ink-text:#2B2418;
+    --teal:#1F6E64; --marigold:#E3A62F; --coral:#D64545; --violet:#7A4FBF;
+    --border:#E7E0CB; --shadow: 0 10px 30px rgba(31,58,95,0.08);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--paper); color:var(--ink-text); font-family:'Century Gothic','CenturyGothic',Jost,sans-serif;}
+  h1,h2,h3{font-family:inherit; margin:0;}
+
+  .topbar{background:var(--ink); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px; position:sticky; top:0; z-index:20; box-shadow:0 4px 20px rgba(0,0,0,0.15);}
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand a{color:#9FB4C9; text-decoration:none; font-size:13px; font-weight:600; border:1.5px solid rgba(159,180,201,0.4); padding:5px 12px; border-radius:999px;}
+  .brand a:hover{color:#fff; border-color:#fff;}
+  .brand-title{color:#F5F1E4; font-size:19px; font-weight:800;}
+  .brand-title span{color:var(--marigold);}
+
+  main{max-width:980px; margin:0 auto; padding:36px 32px 80px;}
+  .eyebrow{font-size:11.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--teal); font-weight:700; margin-bottom:4px;}
+  .page-title{font-size:30px; font-weight:800; color:var(--ink); margin:0 0 4px;}
+  .muted{color:#6B6350; font-size:14.5px; line-height:1.55;}
+
+  .card{background:var(--paper-soft); border:1px solid var(--border); border-radius:20px; padding:26px; box-shadow:var(--shadow);}
+  .section-label{font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:#55503F; margin-bottom:10px; display:block;}
+
+  .tool-tabs{display:flex; gap:8px; margin:22px 0;}
+  .tool-tab{padding:10px 20px; border-radius:14px; border:none; font-weight:700; font-size:14px; cursor:pointer; background:#EAE4D2; color:#3A3223; font-family:inherit;}
+  .tool-tab.active{background:var(--violet); color:#fff;}
+  .tool-panel{display:none;}
+  .tool-panel.active{display:block; animation:fadeIn .2s ease;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+
+  .btn{display:inline-flex; align-items:center; gap:6px; border:none; border-radius:12px; padding:11px 20px; font-weight:700; font-size:14px; cursor:pointer; font-family:inherit;}
+  .btn-primary{background:var(--ink); color:#F5F1E4;}
+  .btn-ghost{background:transparent; border:1.5px solid var(--border); color:#55503F;}
+
+  /* Keyboard */
+  .kb-output{width:100%; min-height:100px; border-radius:14px; border:1.5px solid var(--border); padding:16px; font-size:20px; font-family:inherit; resize:vertical; margin-bottom:18px;}
+  .kb-output:focus{outline:none; border-color:var(--violet);}
+  .kb-row{display:flex; gap:8px; margin-bottom:8px; flex-wrap:wrap; justify-content:center;}
+  .kb-key{background:var(--ink); color:#F5F1E4; border:none; border-radius:10px; padding:14px 0; width:46px; font-size:17px; font-weight:700; cursor:pointer; font-family:inherit; transition:transform .1s ease;}
+  .kb-key:hover{transform:translateY(-2px); background:var(--teal);}
+  .kb-key.special{background:var(--marigold); color:#3A2C05;}
+  .kb-key.special:hover{background:#c98f26;}
+  .kb-key.wide{width:auto; padding:14px 22px;}
+  .kb-actions{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+  .kb-note{font-size:12.5px; color:#8A8270; margin:14px 0 0; text-align:center;}
+
+  /* Timer */
+  .timer-wrap{display:flex; flex-direction:column; align-items:center; gap:22px; padding:20px 0;}
+  .timer-ring-holder{position:relative; width:220px; height:220px;}
+  svg.timer-ring{transform:rotate(-90deg); width:220px; height:220px;}
+  .timer-ring-bg{fill:none; stroke:#E7E2D3; stroke-width:14;}
+  .timer-ring-fg{fill:none; stroke:var(--teal); stroke-width:14; stroke-linecap:round; transition:stroke-dashoffset 1s linear, stroke .3s ease;}
+  .timer-display{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:38px; font-weight:800; color:var(--ink);}
+  .timer-set-row{display:flex; align-items:center; gap:10px;}
+  .timer-set-row input{width:70px; padding:10px; border-radius:10px; border:1.5px solid var(--border); font-family:inherit; font-size:16px; text-align:center;}
+  .timer-btns{display:flex; gap:10px;}
+  .timer-msg{font-weight:700; color:var(--coral); min-height:20px;}
+  .presets{display:flex; gap:8px; flex-wrap:wrap; justify-content:center;}
+  .preset-btn{background:#EAE4D2; border:none; border-radius:10px; padding:8px 14px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; color:#3A3223;}
+  .preset-btn:hover{background:#DCEFE9;}
+
+  /* Game */
+  .game-header{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:18px;}
+  .game-stats{display:flex; gap:18px; font-size:13px; font-weight:700; color:#55503F;}
+  .game-stats span b{color:var(--ink); font-size:16px;}
+  .memory-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:12px; max-width:520px;}
+  @media (max-width:560px){.memory-grid{grid-template-columns:repeat(3,1fr);}}
+  .mem-card{aspect-ratio:1; border-radius:14px; cursor:pointer; perspective:600px;}
+  .mem-inner{position:relative; width:100%; height:100%; transition:transform .35s; transform-style:preserve-3d;}
+  .mem-card.flipped .mem-inner, .mem-card.matched .mem-inner{transform:rotateY(180deg);}
+  .mem-face{position:absolute; inset:0; border-radius:14px; display:flex; align-items:center; justify-content:center; backface-visibility:hidden; font-weight:800; text-align:center; padding:6px;}
+  .mem-back{background:var(--ink); color:#F5F1E4; font-size:24px;}
+  .mem-front{background:#DCEFE9; color:#164E47; transform:rotateY(180deg); font-size:14px;}
+  .mem-card.matched .mem-front{background:var(--marigold); color:#3A2C05;}
+  .game-win{text-align:center; padding:20px; font-weight:800; color:var(--teal); font-size:18px;}
+  .word-set-row{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;}
+  .word-set-btn{background:#EAE4D2; border:none; border-radius:999px; padding:8px 16px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; color:#3A3223;}
+  .word-set-btn.active{background:var(--violet); color:#fff;}
+  .coming-soon-card{background:#F0EDE1; border:1.5px dashed var(--border); border-radius:16px; padding:28px; text-align:center; color:#8A8270; font-weight:600; margin-top:20px;}
+
+  /* Writing / tracing tool */
+  .write-prompt-row{display:flex; gap:10px; margin-bottom:16px; flex-wrap:wrap;}
+  .write-prompt-row input{flex:1; min-width:200px; padding:12px 16px; border-radius:12px; border:1.5px solid var(--border); font-family:inherit; font-size:16px;}
+  .write-prompt-row input:focus{outline:none; border-color:var(--violet);}
+  .worksheet-area{position:relative; width:100%; height:300px; background:#fff; border-radius:14px; border:1.5px solid var(--border); overflow:hidden; margin-bottom:18px;}
+  #guideCanvas, #inkCanvas{position:absolute; inset:0; width:100%; height:100%;}
+  #guideCanvas{z-index:1; pointer-events:none;}
+  #inkCanvas{z-index:2; cursor:crosshair; background:transparent;}
+  .guide-lines{position:absolute; inset:0; z-index:1; pointer-events:none;}
+  .guide-line{position:absolute; left:24px; right:24px; height:1px;}
+  .top-line{top:50px; border-bottom:2px solid #ffb3ae;}
+  .middle-line{top:150px; border-bottom:2px dashed #7fd9c4;}
+  .bottom-line{top:230px; border-bottom:2px solid #9cc7ec;}
+  .toolbar-write{display:flex; justify-content:center; gap:26px; flex-wrap:wrap; align-items:flex-end; background:#F0EDE1; border-radius:14px; padding:18px;}
+  .tool-group{display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .tool-group-label{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#6B6350;}
+  .tool-btn-w{width:46px; height:46px; border-radius:10px; border:2px solid var(--border); background:#fff; cursor:pointer; font-size:19px; display:flex; align-items:center; justify-content:center;}
+  .tool-btn-w.active{background:var(--violet); border-color:var(--violet);}
+  .size-btn-w{width:38px; height:38px; border-radius:50%; border:2px solid var(--border); background:#fff; font-weight:700; cursor:pointer;}
+  .size-btn-w.active{background:var(--ink); color:#fff; border-color:var(--ink);}
+  .color-btn-w{width:34px; height:34px; border-radius:50%; border:2px solid var(--border); cursor:pointer;}
+  .color-btn-w.active{border-color:var(--ink); box-shadow:0 0 0 2px #fff inset;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand">
+    <a href="index.html">← All grades</a>
+    <span class="brand-title">Cuaderno · <span>Tools</span></span>
+  </div>
+</div>
+
+<main>
+  <div class="eyebrow">Para todos los grados</div>
+  <h2 class="page-title">Teclado, temporizador y juegos</h2>
+  <p class="muted">Estas herramientas se usan en la lección — están en español para los estudiantes.</p>
+
+  <div class="tool-tabs" id="toolTabs">
+    <button class="tool-tab active" data-tool="keyboard">⌨️ Teclado</button>
+    <button class="tool-tab" data-tool="timer">⏱️ Temporizador</button>
+    <button class="tool-tab" data-tool="games">🎮 Juegos</button>
+    <button class="tool-tab" data-tool="writing">✍️ Escritura</button>
+  </div>
+
+  <!-- Keyboard -->
+  <div class="tool-panel active" id="tool-keyboard">
+    <div class="card">
+      <span class="section-label">Escribe aquí — toca una letra para insertarla</span>
+      <textarea class="kb-output" id="kbOutput" placeholder="Toca las letras para escribir…"></textarea>
+      <div id="kbKeyboard"></div>
+      <div class="kb-actions">
+        <button class="btn btn-ghost" id="kbShift">⇧ Mayúsculas</button>
+        <button class="btn btn-ghost" id="kbClear">Borrar</button>
+        <button class="btn btn-primary" id="kbCopy">Copiar texto</button>
+      </div>
+      <p class="kb-note">Incluye el abecedario completo, la letra ñ, todas las vocales acentuadas (á é í ó ú), la diéresis (ü) y los signos de apertura (¿ ¡).</p>
+    </div>
+  </div>
+
+  <!-- Timer -->
+  <div class="tool-panel" id="tool-timer">
+    <div class="card timer-wrap">
+      <div class="timer-ring-holder">
+        <svg class="timer-ring" viewBox="0 0 220 220">
+          <circle class="timer-ring-bg" cx="110" cy="110" r="94"/>
+          <circle class="timer-ring-fg" id="timerRing" cx="110" cy="110" r="94" stroke-dasharray="590.6" stroke-dashoffset="0"/>
+        </svg>
+        <div class="timer-display" id="timerDisplay">05:00</div>
+      </div>
+      <div class="presets">
+        <button class="preset-btn" onclick="setPreset(1)">1 min</button>
+        <button class="preset-btn" onclick="setPreset(3)">3 min</button>
+        <button class="preset-btn" onclick="setPreset(5)">5 min</button>
+        <button class="preset-btn" onclick="setPreset(10)">10 min</button>
+      </div>
+      <div class="timer-set-row">
+        <input type="number" id="timerMin" value="5" min="0" max="60" /> <span>min</span>
+        <input type="number" id="timerSec" value="0" min="0" max="59" /> <span>seg</span>
+      </div>
+      <div class="timer-btns">
+        <button class="btn btn-primary" id="timerStart">Iniciar</button>
+        <button class="btn btn-ghost" id="timerPause">Pausar</button>
+        <button class="btn btn-ghost" id="timerReset">Reiniciar</button>
+      </div>
+      <div class="timer-msg" id="timerMsg"></div>
+    </div>
+  </div>
+
+  <!-- Games -->
+  <div class="tool-panel" id="tool-games">
+    <div class="card">
+      <div class="game-header">
+        <div>
+          <span class="section-label" style="margin-bottom:2px;">Memorama</span>
+          <div class="muted" style="font-size:13px;">Voltea dos tarjetas para emparejar la palabra en español con su significado en inglés.</div>
+        </div>
+        <div class="game-stats">
+          <span>Movimientos: <b id="gameMoves">0</b></span>
+          <span>Emparejados: <b id="gameMatched">0</b>/6</span>
+        </div>
+      </div>
+      <div class="word-set-row" id="wordSetRow"></div>
+      <div class="memory-grid" id="memoryGrid"></div>
+      <div id="gameWinMsg" class="game-win" style="display:none;"></div>
+      <div style="margin-top:16px;">
+        <button class="btn btn-ghost" id="gameRestart">Reiniciar</button>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px;">
+      <span class="section-label" style="margin-bottom:2px;">¿Qué día es? — Calendario y el tiempo</span>
+      <div class="muted" style="font-size:13px; margin-bottom:14px;">Un tablero interactivo para practicar días, números, meses, estaciones y el tiempo.</div>
+      <a href="tiempo.html" target="_blank" class="btn btn-primary" style="text-decoration:none;">Abrir el juego ↗</a>
+    </div>
+  </div>
+
+  <!-- Writing / Escritura -->
+  <div class="tool-panel" id="tool-writing">
+    <div class="card">
+      <span class="section-label">Escribe una palabra o letra para practicar</span>
+      <div class="write-prompt-row">
+        <input type="text" id="writePrompt" placeholder="Por ejemplo: hola, mamá, ñ…" />
+        <button class="btn btn-primary" id="writeTraceBtn">Trazar</button>
+        <button class="btn btn-ghost" id="writeClearGuide">Quitar guía</button>
+      </div>
+      <div class="worksheet-area">
+        <canvas id="guideCanvas"></canvas>
+        <div class="guide-lines">
+          <div class="guide-line top-line"></div>
+          <div class="guide-line middle-line"></div>
+          <div class="guide-line bottom-line"></div>
+        </div>
+        <canvas id="inkCanvas"></canvas>
+      </div>
+      <div class="toolbar-write">
+        <div class="tool-group">
+          <div class="tool-group-label">Herramienta</div>
+          <div style="display:flex; gap:8px;">
+            <button class="tool-btn-w active" id="writePenBtn" title="Lápiz">✏️</button>
+            <button class="tool-btn-w" id="writeEraserBtn" title="Borrador">🧽</button>
+          </div>
+        </div>
+        <div class="tool-group">
+          <div class="tool-group-label">Tamaño</div>
+          <div style="display:flex; gap:8px;">
+            <button class="size-btn-w active" data-size="3">P</button>
+            <button class="size-btn-w" data-size="5">M</button>
+            <button class="size-btn-w" data-size="8">G</button>
+          </div>
+        </div>
+        <div class="tool-group">
+          <div class="tool-group-label">Color</div>
+          <div style="display:flex; gap:8px;">
+            <button class="color-btn-w active" style="background:#2c3e50;" data-color="#2c3e50"></button>
+            <button class="color-btn-w" style="background:#D64545;" data-color="#D64545"></button>
+            <button class="color-btn-w" style="background:#1F6E64;" data-color="#1F6E64"></button>
+            <button class="color-btn-w" style="background:#1F3A5F;" data-color="#1F3A5F"></button>
+            <button class="color-btn-w" style="background:#7A4FBF;" data-color="#7A4FBF"></button>
+          </div>
+        </div>
+        <div class="tool-group">
+          <div class="tool-group-label">&nbsp;</div>
+          <button class="btn btn-ghost" id="writeClearInk">Borrar todo</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script>
+/* ---------- Tab switching ---------- */
+document.getElementById('toolTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tool-tab'); if(!btn) return;
+  document.querySelectorAll('.tool-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tool-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tool-'+btn.dataset.tool).classList.add('active');
+});
+
+/* ============================================================
+   KEYBOARD — full alphabet + every Spanish mark
+   ============================================================ */
+const KB_ROWS = [
+  ["q","w","e","r","t","y","u","i","o","p"],
+  ["a","s","d","f","g","h","j","k","l","ñ"],
+  ["z","x","c","v","b","n","m"],
+];
+const KB_SPECIAL_ROW = ["á","é","í","ó","ú","ü","¿","¡"];
+let kbShiftOn = false;
+
+function renderKeyboard(){
+  const kb = document.getElementById('kbKeyboard');
+  let html = "";
+  KB_ROWS.forEach(row=>{
+    html += `<div class="kb-row">${row.map(k=>{
+      const ch = kbShiftOn ? k.toUpperCase() : k;
+      return `<button class="kb-key" onclick="insertChar('${ch}')">${ch}</button>`;
+    }).join('')}</div>`;
+  });
+  html += `<div class="kb-row">${KB_SPECIAL_ROW.map(k=>{
+    const ch = kbShiftOn ? k.toUpperCase() : k;
+    return `<button class="kb-key special" onclick="insertChar('${ch}')">${ch}</button>`;
+  }).join('')}</div>`;
+  html += `<div class="kb-row">
+      <button class="kb-key wide" onclick="insertChar(' ')">Space</button>
+      <button class="kb-key wide" onclick="backspace()">⌫ Backspace</button>
+      <button class="kb-key wide" onclick="insertChar('\\n')">↵ Enter</button>
+    </div>`;
+  kb.innerHTML = html;
+}
+function insertChar(ch){
+  const ta = document.getElementById('kbOutput');
+  const start = ta.selectionStart ?? ta.value.length;
+  const end = ta.selectionEnd ?? ta.value.length;
+  ta.value = ta.value.slice(0,start) + ch + ta.value.slice(end);
+  ta.focus();
+  ta.selectionStart = ta.selectionEnd = start + ch.length;
+}
+function backspace(){
+  const ta = document.getElementById('kbOutput');
+  const start = ta.selectionStart ?? ta.value.length;
+  const end = ta.selectionEnd ?? ta.value.length;
+  if(start===end && start>0){
+    ta.value = ta.value.slice(0,start-1) + ta.value.slice(end);
+    ta.focus(); ta.selectionStart = ta.selectionEnd = start-1;
+  } else {
+    ta.value = ta.value.slice(0,start) + ta.value.slice(end);
+    ta.focus(); ta.selectionStart = ta.selectionEnd = start;
+  }
+}
+document.getElementById('kbShift').addEventListener('click', ()=>{
+  kbShiftOn = !kbShiftOn;
+  document.getElementById('kbShift').style.background = kbShiftOn ? 'var(--violet)' : '';
+  document.getElementById('kbShift').style.color = kbShiftOn ? '#fff' : '';
+  renderKeyboard();
+});
+document.getElementById('kbClear').addEventListener('click', ()=>{ document.getElementById('kbOutput').value=''; });
+document.getElementById('kbCopy').addEventListener('click', async ()=>{
+  const text = document.getElementById('kbOutput').value;
+  try{ await navigator.clipboard.writeText(text); alert('Copied!'); }
+  catch(e){ alert('Could not copy automatically — select the text and copy manually.'); }
+});
+renderKeyboard();
+
+/* ============================================================
+   TIMER
+   ============================================================ */
+let timerInterval = null, timerRemaining = 300, timerTotal = 300;
+const RING_CIRC = 2*Math.PI*94;
+function updateTimerDisplay(){
+  const m = Math.floor(timerRemaining/60), s = timerRemaining%60;
+  document.getElementById('timerDisplay').textContent = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  const ring = document.getElementById('timerRing');
+  const offset = RING_CIRC * (1 - timerRemaining/timerTotal);
+  ring.setAttribute('stroke-dasharray', RING_CIRC);
+  ring.setAttribute('stroke-dashoffset', offset);
+  ring.style.stroke = timerRemaining<=10 ? 'var(--coral)' : 'var(--teal)';
+}
+function setPreset(min){
+  clearInterval(timerInterval); timerInterval=null;
+  document.getElementById('timerMin').value = min;
+  document.getElementById('timerSec').value = 0;
+  timerTotal = min*60; timerRemaining = timerTotal;
+  document.getElementById('timerMsg').textContent='';
+  updateTimerDisplay();
+}
+document.getElementById('timerStart').addEventListener('click', ()=>{
+  if(timerInterval) return;
+  if(timerRemaining<=0 || timerRemaining===timerTotal){
+    const min = parseInt(document.getElementById('timerMin').value)||0;
+    const sec = parseInt(document.getElementById('timerSec').value)||0;
+    timerTotal = min*60+sec; timerRemaining = timerTotal;
+    if(timerTotal<=0){ document.getElementById('timerMsg').textContent='Set a time first.'; return; }
+  }
+  document.getElementById('timerMsg').textContent='';
+  timerInterval = setInterval(()=>{
+    timerRemaining--;
+    updateTimerDisplay();
+    if(timerRemaining<=0){
+      clearInterval(timerInterval); timerInterval=null;
+      document.getElementById('timerMsg').textContent="Time's up!";
+      try{
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination); o.frequency.value=880;
+        g.gain.setValueAtTime(0.15, ctx.currentTime);
+        o.start(); o.stop(ctx.currentTime+0.4);
+      }catch(e){}
+    }
+  },1000);
+});
+document.getElementById('timerPause').addEventListener('click', ()=>{ clearInterval(timerInterval); timerInterval=null; });
+document.getElementById('timerReset').addEventListener('click', ()=>{
+  clearInterval(timerInterval); timerInterval=null;
+  const min = parseInt(document.getElementById('timerMin').value)||0;
+  const sec = parseInt(document.getElementById('timerSec').value)||0;
+  timerTotal = min*60+sec; timerRemaining = timerTotal;
+  document.getElementById('timerMsg').textContent='';
+  updateTimerDisplay();
+});
+updateTimerDisplay();
+
+/* ============================================================
+   MEMORY MATCH GAME — word sets (expand as more grades are added)
+   ============================================================ */
+const WORD_SETS = {
+  "Greetings (Reception, Wk1)": [["Hola","Hello"],["Adiós","Goodbye"],["Gracias","Thank you"],["Por favor","Please"],["Sí","Yes"],["No","No"]],
+  "Emotions (Reception, Wk2)": [["Bien","Good"],["Mal","Bad"],["Triste","Sad"],["Feliz","Happy"],["Enojado","Angry"],["Cansado","Tired"]],
+  "Body Parts (Reception, Wk4)": [["Cabeza","Head"],["Hombros","Shoulders"],["Rodillas","Knees"],["Pies","Feet"],["Ojos","Eyes"],["Boca","Mouth"]],
+};
+let currentSetName = Object.keys(WORD_SETS)[0];
+let gameCards = [], gameFlipped = [], gameMoves = 0, gameMatched = 0, gameLock = false;
+function shuffle(arr){ for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]]; } return arr; }
+function renderWordSetRow(){
+  document.getElementById('wordSetRow').innerHTML = Object.keys(WORD_SETS).map(name=>
+    `<button class="word-set-btn ${name===currentSetName?'active':''}" onclick="selectWordSet('${name}')">${name}</button>`).join('');
+}
+function selectWordSet(name){ currentSetName = name; renderWordSetRow(); buildGame(); }
+function buildGame(){
+  const pairs = WORD_SETS[currentSetName];
+  const cards = [];
+  pairs.forEach((p,idx)=>{ cards.push({text:p[0], pair:idx}); cards.push({text:p[1], pair:idx}); });
+  gameCards = shuffle(cards).map((c,i)=>({...c, id:i, flipped:false, matched:false}));
+  gameFlipped=[]; gameMoves=0; gameMatched=0; gameLock=false;
+  document.getElementById('gameWinMsg').style.display='none';
+  document.getElementById('gameMatched').nextSibling; // no-op, placeholder
+  renderGame(pairs.length);
+}
+function renderGame(totalPairs){
+  totalPairs = totalPairs || WORD_SETS[currentSetName].length;
+  document.getElementById('gameMoves').textContent = gameMoves;
+  document.getElementById('gameMatched').textContent = gameMatched;
+  document.querySelector('.game-stats span:last-child').innerHTML = `Emparejados: <b id="gameMatched">${gameMatched}</b>/${totalPairs}`;
+  document.getElementById('memoryGrid').innerHTML = gameCards.map(c=>`
+    <div class="mem-card ${c.flipped?'flipped':''} ${c.matched?'matched':''}" onclick="flipCard(${c.id})">
+      <div class="mem-inner">
+        <div class="mem-face mem-back">?</div>
+        <div class="mem-face mem-front">${c.text}</div>
+      </div>
+    </div>`).join('');
+}
+function flipCard(id){
+  if(gameLock) return;
+  const card = gameCards.find(c=>c.id===id);
+  if(!card || card.flipped || card.matched) return;
+  card.flipped = true;
+  gameFlipped.push(card);
+  renderGame();
+  if(gameFlipped.length===2){
+    gameMoves++;
+    gameLock = true;
+    const [a,b] = gameFlipped;
+    if(a.pair===b.pair){
+      a.matched=true; b.matched=true; gameMatched++;
+      gameFlipped=[]; gameLock=false;
+      renderGame();
+      if(gameMatched===WORD_SETS[currentSetName].length){
+        document.getElementById('gameWinMsg').style.display='block';
+        document.getElementById('gameWinMsg').textContent = `¡Excelente! Emparejaste las ${gameMatched} parejas en ${gameMoves} movimientos.`;
+      }
+    } else {
+      setTimeout(()=>{ a.flipped=false; b.flipped=false; gameFlipped=[]; gameLock=false; renderGame(); },800);
+    }
+  }
+}
+document.getElementById('gameRestart').addEventListener('click', buildGame);
+renderWordSetRow();
+buildGame();
+
+/* ============================================================
+   WRITING / TRACING TOOL (Escritura)
+   Two stacked canvases: a non-interactive dotted "guide" layer showing
+   the word to trace, and an interactive ink layer the student draws on.
+   Clearing ink never erases the guide, and vice versa.
+   ============================================================ */
+const guideCanvas = document.getElementById('guideCanvas');
+const inkCanvas = document.getElementById('inkCanvas');
+const guideCtx = guideCanvas.getContext('2d');
+const inkCtx = inkCanvas.getContext('2d');
+
+let writeIsDrawing = false, writeLastX = 0, writeLastY = 0;
+let writeLineSize = 5, writeIsEraser = false, writePenColor = '#2c3e50', writeEraserSize = 20;
+
+function sizeCanvases(){
+  const area = document.querySelector('.worksheet-area');
+  [guideCanvas, inkCanvas].forEach(c=>{
+    c.width = area.clientWidth;
+    c.height = area.clientHeight;
+  });
+  redrawGuide();
+}
+
+function redrawGuide(){
+  guideCtx.clearRect(0,0,guideCanvas.width,guideCanvas.height);
+  const word = document.getElementById('writePrompt').value.trim();
+  if(!word) return;
+  // Baseline matches the .bottom-line CSS position (230px of a 300px-tall area)
+  const baseline = guideCanvas.height * (230/300);
+  const fontSize = Math.min(70, Math.max(28, (guideCanvas.width*0.75)/(word.length*0.65)));
+  guideCtx.font = `700 ${fontSize}px 'Century Gothic', Jost, sans-serif`;
+  guideCtx.textBaseline = 'alphabetic';
+  const totalWidth = guideCtx.measureText(word).width;
+  let x = Math.max(20, (guideCanvas.width - totalWidth) / 2);
+  guideCtx.save();
+  guideCtx.setLineDash([5, 6]);
+  guideCtx.lineWidth = 2;
+  guideCtx.strokeStyle = 'rgba(122,79,191,0.6)';
+  guideCtx.strokeText(word, x, baseline);
+  guideCtx.restore();
+  guideCtx.fillStyle = 'rgba(122,79,191,0.22)';
+  guideCtx.fillText(word, x, baseline);
+}
+if(document.fonts){ document.fonts.ready.then(()=>{ if(document.getElementById('writePrompt').value.trim()) sizeCanvases(); }); }
+
+document.getElementById('writeTraceBtn').addEventListener('click', sizeCanvases);
+document.getElementById('writePrompt').addEventListener('keydown', e=>{ if(e.key==='Enter') sizeCanvases(); });
+document.getElementById('writeClearGuide').addEventListener('click', ()=>{
+  document.getElementById('writePrompt').value='';
+  guideCtx.clearRect(0,0,guideCanvas.width,guideCanvas.height);
+});
+document.getElementById('writeClearInk').addEventListener('click', ()=>{
+  inkCtx.clearRect(0,0,inkCanvas.width,inkCanvas.height);
+});
+
+function writeGetPos(e){
+  const rect = inkCanvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return { x: clientX-rect.left, y: clientY-rect.top };
+}
+function writeStart(e){
+  e.preventDefault();
+  writeIsDrawing = true;
+  const p = writeGetPos(e); writeLastX=p.x; writeLastY=p.y;
+  inkCtx.beginPath(); inkCtx.moveTo(writeLastX, writeLastY);
+}
+function writeMove(e){
+  if(!writeIsDrawing) return;
+  e.preventDefault();
+  const p = writeGetPos(e);
+  if(writeIsEraser){ inkCtx.globalCompositeOperation='destination-out'; inkCtx.lineWidth=writeEraserSize; }
+  else { inkCtx.globalCompositeOperation='source-over'; inkCtx.strokeStyle=writePenColor; inkCtx.lineWidth=writeLineSize; }
+  inkCtx.lineCap='round'; inkCtx.lineJoin='round';
+  inkCtx.lineTo(p.x,p.y); inkCtx.stroke();
+  writeLastX=p.x; writeLastY=p.y;
+}
+function writeStop(){ writeIsDrawing=false; }
+
+inkCanvas.addEventListener('mousedown', writeStart);
+inkCanvas.addEventListener('mousemove', writeMove);
+inkCanvas.addEventListener('mouseup', writeStop);
+inkCanvas.addEventListener('mouseout', writeStop);
+inkCanvas.addEventListener('touchstart', writeStart, {passive:false});
+inkCanvas.addEventListener('touchmove', writeMove, {passive:false});
+inkCanvas.addEventListener('touchend', writeStop);
+
+document.getElementById('writePenBtn').addEventListener('click', ()=>{
+  writeIsEraser=false;
+  document.getElementById('writePenBtn').classList.add('active');
+  document.getElementById('writeEraserBtn').classList.remove('active');
+});
+document.getElementById('writeEraserBtn').addEventListener('click', ()=>{
+  writeIsEraser=true;
+  document.getElementById('writeEraserBtn').classList.add('active');
+  document.getElementById('writePenBtn').classList.remove('active');
+});
+document.querySelectorAll('.size-btn-w').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.size-btn-w').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    writeLineSize = parseInt(btn.dataset.size);
+    writeEraserSize = writeLineSize*4;
+  });
+});
+document.querySelectorAll('.color-btn-w').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.color-btn-w').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    writePenColor = btn.dataset.color;
+  });
+});
+
+window.addEventListener('resize', ()=>{ if(document.getElementById('tool-writing').classList.contains('active')) sizeCanvases(); });
+// Size canvases once their tab is first opened (so clientWidth is correct, not 0)
+document.getElementById('toolTabs').addEventListener('click', e=>{
+  const btn = e.target.closest('.tool-tab');
+  if(btn && btn.dataset.tool==='writing') setTimeout(sizeCanvases, 0);
+});
+</script>
+</body>
+</html>
