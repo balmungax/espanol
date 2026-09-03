@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Cuenta conmigo 🍊</title>
+<style>
+  :root{
+    --sky1:#aee3ff; --sky2:#e8f7ff;
+    --ink:#33415c; --muted:#6b7a99;
+    --card:#ffffff;
+    --purple:#7c3aed; --orange:#f97316; --green:#16a34a; --pink:#ec4899;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI","Comic Sans MS","Chalkboard SE",system-ui,sans-serif;
+    background:linear-gradient(160deg,var(--sky1),var(--sky2));
+    color:var(--ink);
+    min-height:100vh;
+    display:flex; flex-direction:column; align-items:center;
+    padding:14px 12px 40px;
+    user-select:none; -webkit-user-select:none;
+  }
+  .wrap{width:100%; max-width:640px;}
+  h1{
+    text-align:center; margin:6px 0 2px; font-size:30px; letter-spacing:.5px;
+    color:#0f4c81;
+  }
+  .subtitle{text-align:center;color:var(--muted);margin:0 0 14px;font-size:14px;}
+  .topbar{
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
+    margin-bottom:12px;
+  }
+  .chip{
+    background:var(--card); border-radius:999px; padding:7px 14px;
+    box-shadow:0 2px 8px rgba(51,65,92,.12); font-weight:700; font-size:15px;
+  }
+  .stars{font-size:18px;}
+  .btn{
+    border:none; cursor:pointer; font-weight:800; border-radius:16px;
+    padding:13px 18px; font-size:17px; color:#fff; letter-spacing:.3px;
+    box-shadow:0 4px 0 rgba(0,0,0,.15); transition:transform .06s, box-shadow .06s;
+    font-family:inherit;
+  }
+  .btn:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,.15);}
+  .btn:disabled{opacity:.45; pointer-events:none;}
+  .btn.purple{background:var(--purple);}
+  .btn.orange{background:var(--orange);}
+  .btn.green{background:var(--green);}
+  .btn.gray{background:#9aa7c0;}
+  .btn.ghost{background:#fff; color:var(--ink); border:2px solid #dbe3f0;}
+  .card{
+    background:var(--card); border-radius:22px; padding:18px;
+    box-shadow:0 8px 24px rgba(51,65,92,.14);
+  }
+  /* Home */
+  .home-grid{display:flex; flex-direction:column; gap:14px;}
+  .game-card{
+    display:flex; align-items:center; gap:14px; padding:18px; border-radius:20px;
+    background:var(--card); box-shadow:0 8px 24px rgba(51,65,92,.14);
+    cursor:pointer; border:3px solid transparent;
+  }
+  .game-card:active{transform:scale(.98);}
+  .game-card .icon{
+    font-size:44px; width:64px; height:64px; display:flex; align-items:center; justify-content:center;
+    border-radius:16px; flex-shrink:0;
+  }
+  .game-card h2{margin:0 0 4px; font-size:20px;}
+  .game-card p{margin:0; color:var(--muted); font-size:14px;}
+  .levels{display:flex; gap:10px; justify-content:center; margin:16px 0 4px; flex-wrap:wrap;}
+  .lvl{
+    border:3px solid #dbe3f0; background:#fff; border-radius:999px; padding:9px 20px;
+    font-weight:800; font-size:15px; cursor:pointer; color:var(--ink); font-family:inherit;
+  }
+  .lvl.active{border-color:var(--green); background:#e9f9ef; color:#0f7a3a;}
+  /* Game 1 */
+  .fruits-display{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:8px;
+    margin:10px 0 6px; min-height:64px; align-items:center;
+  }
+  .fruit{line-height:1; display:inline-block;}
+  .question{text-align:center; font-size:19px; font-weight:800; margin:8px 0 4px;}
+  .write-box{
+    position:relative; width:100%; max-width:320px; height:210px; margin:10px auto 14px;
+    border-radius:18px; background:#fdfdff; border:2px dashed #b8c6de; overflow:hidden;
+  }
+  .write-box canvas{display:block; width:100%; height:100%; touch-action:none; cursor:crosshair; border-radius:16px;}
+  .btnrow{display:flex; gap:10px; justify-content:center; flex-wrap:wrap;}
+  .feedback{
+    text-align:center; min-height:52px; margin-top:12px; font-size:18px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .feedback.good{color:var(--green);} .feedback.bad{color:#dc2626;} .feedback.info{color:var(--muted);}
+  /* Game 2 */
+  .target-banner{
+    text-align:center; font-size:22px; font-weight:900; margin:6px 0 2px;
+  }
+  .target-banner .big-num{
+    display:inline-block; min-width:44px; padding:2px 10px; border-radius:14px;
+    background:var(--orange); color:#fff; margin:0 4px;
+  }
+  .hint-line{text-align:center;color:var(--muted);font-size:14px;margin:0 0 10px;}
+  .field{
+    position:relative; width:100%; height:380px; border-radius:20px;
+    background:#f4fbff; border:2px dashed #c4d8ec; overflow:hidden;
+  }
+  .field canvas{position:absolute; inset:0; width:100%; height:100%; touch-action:none;}
+  .field .fruit-pos{
+    position:absolute; transform:translate(-50%,-50%); line-height:1;
+    transition:transform .12s;
+  }
+  .field .fruit-pos .ring{
+    position:absolute; left:50%; top:50%; transform:translate(-50%,-50%);
+    width:64px; height:64px; border-radius:50%; border:5px solid var(--green);
+    background:rgba(22,163,74,.14); opacity:0; transition:opacity .12s; pointer-events:none;
+  }
+  .field .fruit-pos.circled .ring{opacity:1;}
+  .field .fruit-pos.circled{transform:translate(-50%,-50%) scale(1.12);}
+  .count-chip{
+    position:absolute; top:10px; right:10px; background:#fff; border-radius:999px;
+    padding:7px 14px; font-weight:900; font-size:16px; box-shadow:0 2px 8px rgba(51,65,92,.15);
+  }
+  .count-chip b{color:var(--green);}
+  .celebrate{position:fixed; inset:0; pointer-events:none; z-index:50; overflow:hidden;}
+  .pop{position:absolute; font-size:34px; animation:pop 1.1s ease-out forwards;}
+  @keyframes pop{
+    0%{transform:translateY(0) scale(.6); opacity:0;}
+    20%{opacity:1;}
+    100%{transform:translateY(-120px) scale(1.25); opacity:0;}
+  }
+  .back{margin-bottom:10px;}
+  .mute{font-size:14px;}
+  /* Debug panel */
+  .dbg-toggle{font-size:15px; padding:12px 14px;}
+  #debugPanel{
+    margin-top:14px; background:#f7fafd; border:1px solid #dbe3f0; border-radius:12px;
+    padding:10px; font-size:12px; display:none; text-align:left;
+  }
+  #debugPanel .dbg-note{color:var(--muted); font-size:11px; margin-bottom:8px;}
+  .dbg-digit{margin-bottom:12px;}
+  .dbg-digit b{display:block; margin-bottom:6px; font-size:13px;}
+  .dbg-grids{display:flex; gap:14px; align-items:flex-start; margin:6px 0 4px;}
+  .dbg-grid-wrap{text-align:center; font-size:10px; color:var(--muted);}
+  .dbg-grid{width:72px; height:72px; image-rendering:pixelated; border:1px solid #cfd8e8; border-radius:4px; background:#fff; display:block; margin-bottom:3px;}
+  .dbg-scores{display:flex; flex-direction:column; gap:2px; margin-top:6px; max-width:280px;}
+  .dbg-score{display:flex; align-items:center; gap:6px;}
+  .dbg-score span{width:14px; text-align:right; font-weight:700;}
+  .dbg-score i{display:inline-block; height:8px; background:#dbe3f0; border-radius:4px; min-width:2px;}
+  .dbg-score.best i{background:var(--green);}
+  .dbg-score.best span{color:var(--green);}
+  .dbg-score em{font-size:10px; color:var(--muted); font-style:normal; width:34px;}
+  .dbg-thresh{font-size:10px; color:var(--muted); margin-top:6px;}
+  /* ==== Printable worksheet ==== */
+  #printArea{display:none;}
+  .ws-sheet{
+    font-family:"Century Gothic","Century Gothic Std",Futura,"Segoe UI",sans-serif;
+    color:#000;
+  }
+  .ws-header{display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:7mm;}
+  .ws-name,.ws-date{font-size:15pt; font-weight:bold;}
+  .ws-line{display:inline-block; width:68mm; border-bottom:1pt solid #000; margin-left:2mm;}
+  .ws-line-short{width:26mm;}
+  .ws-title{text-align:center; font-size:22pt; font-weight:bold; margin:3mm 0 1mm;}
+  .ws-sub{text-align:center; font-size:12pt; margin-bottom:7mm; color:#222;}
+  .ws-grid{display:grid; grid-template-columns:1fr 1fr; gap:6mm;}
+  .ws-problem{border:1pt solid #888; border-radius:2mm; padding:4mm; text-align:center; page-break-inside:avoid;}
+  .ws-fruits{display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:1mm; min-height:15mm;}
+  .ws-fruit{display:inline-block; line-height:1;}
+  .ws-answerbox{width:24mm; height:15mm; border:1.5pt solid #000; border-radius:1.5mm; margin:4mm auto 0;}
+  .ws-circle{min-height:44mm; position:relative;}
+  .ws-circle-num{
+    position:absolute; top:2.5mm; left:3mm; text-align:center;
+    background:#fff; box-sizing:border-box; display:flex;
+    align-items:center; justify-content:center; font-weight:bold;
+  }
+  .ws-circle-num.grid{border:0.7pt solid #5b7ea0;}
+  .ws-circle-num.plain{border-radius:50%; background:#efefef; border:1.2pt solid #555; width:12mm; height:12mm; font-size:16pt;}
+  .ws-circle-field{position:relative; height:36mm; margin-top:7mm;}
+  .ws-fruit-pos{position:absolute; transform:translate(-50%,-50%); line-height:1;}
+  .ws-cells{display:flex; justify-content:center; gap:1.5mm; margin-top:4mm;}
+  .ws-cell{border:0.7pt solid #5b7ea0; background:#fff; box-sizing:border-box;}
+  /* PDF creator section */
+  .pdf-controls{display:flex; flex-direction:column; gap:12px; text-align:left;}
+  .pdf-row{display:flex; flex-wrap:wrap; gap:8px 14px; align-items:center;}
+  .pdf-row label{font-weight:700; font-size:14px; color:var(--ink);}
+  .pdf-row select,.pdf-row input{
+    font-family:inherit; font-size:15px; padding:8px 10px; border-radius:10px;
+    border:2px solid #dbe3f0; background:#fff; color:var(--ink);
+  }
+  .pdf-row input{flex:1; min-width:160px;}
+  .pdf-hint{font-size:12px; color:var(--muted); text-align:left;}
+  .ws-preview-wrap{overflow:auto; background:#e9eef5; border:1px solid #dbe3f0; border-radius:14px; padding:12px; margin-top:12px;}
+  .ws-preview-sheet{background:#fff; box-shadow:0 4px 16px rgba(0,0,0,.18); padding:12mm 13mm; margin:0 auto; width:210mm; max-width:100%; box-sizing:border-box;}
+  @media print{
+    @page{size:A4; margin:12mm 13mm;}
+    body{background:#fff !important; padding:0 !important;}
+    .screen-only{display:none !important;}
+    .ws-preview-wrap{display:none !important;}
+    #printArea{display:block !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap screen-only">
+
+  <h1>Cuenta conmigo 🍊</h1>
+  <p class="subtitle">Aprende a contar jugando</p>
+
+  <div class="topbar">
+    <button class="chip ghost" onclick="goHome()">🏠 Inicio</button>
+    <button class="chip ghost mute" id="muteBtn" onclick="toggleMute()">🔊</button>
+  </div>
+
+  <!-- HOME -->
+  <div id="home" class="home-grid">
+    <div class="card">
+      <div style="text-align:center;font-weight:800;margin-bottom:6px;">Elige tu nivel</div>
+      <div class="levels">
+        <button class="lvl" data-max="5">1 – 5</button>
+        <button class="lvl active" data-max="10">1 – 10</button>
+        <button class="lvl" data-max="20">1 – 20</button>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="startGame1()" style="border-color:var(--purple);">
+      <div class="icon" style="background:#efe6ff;">✏️</div>
+      <div>
+        <h2>Cuenta y escribe</h2>
+        <p>Cuenta las frutas y <b>escribe el número</b> con el dedo o el ratón.</p>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="startGame2()" style="border-color:var(--orange);">
+      <div class="icon" style="background:#fff0e0;">⭕</div>
+      <div>
+        <h2>Encierra la cantidad</h2>
+        <p>Lee el número y <b>dibuja un círculo</b> alrededor de esa cantidad de frutas.</p>
+      </div>
+    </div>
+
+    <div class="game-card" onclick="openPdf()" style="border-color:var(--green);">
+      <div class="icon" style="background:#e7f7ee;">📄</div>
+      <div>
+        <h2>Crear hoja de trabajo</h2>
+        <p>Personaliza, previsualiza y <b>descarga el PDF</b> para imprimir.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME 1 -->
+  <div id="game1" style="display:none;">
+    <div class="card">
+      <div class="question">¿Cuántas frutas ves?</div>
+      <div class="fruits-display" id="g1fruits"></div>
+      <div class="question" style="font-size:17px;">✏️ Escribe tu respuesta en el recuadro</div>
+      <div class="write-box" id="writeBox">
+        <canvas id="writeCanvas" width="320" height="200"></canvas>
+      </div>
+      <div class="btnrow">
+        <button class="btn gray" onclick="clearWrite()">🧽 Borrar</button>
+        <button class="btn green" onclick="nextQuestion1()" id="g1next">Siguiente ➜</button>
+        <button class="btn ghost" onclick="openPdf('write')" title="Crear e imprimir hoja de trabajo">🖨️ Imprimir</button>
+        <button class="btn ghost dbg-toggle" onclick="toggleDebug()" title="Muestra lo que ve el reconocedor">🔍</button>
+      </div>
+      <div class="feedback info" id="g1feedback">Escribe el número en el recuadro.</div>
+      <div id="debugPanel"></div>
+    </div>
+  </div>
+
+  <!-- GAME 2 -->
+  <div id="game2" style="display:none;">
+    <div class="card">
+      <div class="target-banner" id="g2target"></div>
+      <div class="hint-line">👇 Dibuja un círculo alrededor de la cantidad correcta</div>
+      <div class="field" id="field">
+        <div id="fruitLayer"></div>
+        <canvas id="loopCanvas"></canvas>
+        <div class="count-chip">Encerradas: <b id="circledCount">0</b></div>
+      </div>
+      <div class="btnrow" style="margin-top:14px;">
+        <button class="btn gray" onclick="resetCircles()">🧽 Limpiar</button>
+        <button class="btn green" onclick="nextQuestion2()" id="g2next">Siguiente ➜</button>
+        <button class="btn ghost" onclick="openPdf('circle')" title="Crear e imprimir hoja de trabajo">🖨️ Imprimir</button>
+      </div>
+      <div class="feedback info" id="g2feedback">¡Dibuja círculos alrededor de las frutas!</div>
+    </div>
+  </div>
+
+  <!-- PDF CREATOR -->
+  <div id="pdf" style="display:none;">
+    <div class="card">
+      <h2 style="margin:0 0 4px;">📄 Crear hoja de trabajo</h2>
+      <p style="margin:0 0 12px;color:var(--muted);font-size:14px;">Personaliza la actividad, obtén una vista previa y descarga el PDF.</p>
+      <div class="pdf-controls">
+        <div class="pdf-row">
+          <label for="pdfType">Actividad:</label>
+          <select id="pdfType">
+            <option value="write">Cuenta y escribe</option>
+            <option value="circle">Encierra la cantidad</option>
+          </select>
+        </div>
+        <div class="pdf-row">
+          <label for="pdfRange">Rango de números:</label>
+          <select id="pdfRange">
+            <option value="5">1 – 5</option>
+            <option value="10" selected>1 – 10</option>
+            <option value="20">1 – 20</option>
+          </select>
+        </div>
+        <div class="pdf-row">
+          <label for="pdfCount">Cantidad de ejercicios:</label>
+          <select id="pdfCount">
+            <option value="6">6</option>
+            <option value="8" selected>8</option>
+            <option value="10">10</option>
+            <option value="12">12</option>
+          </select>
+        </div>
+        <div class="pdf-row">
+          <label for="pdfGrid">Cuadrícula Montessori:</label>
+          <select id="pdfGrid">
+            <option value="20">Grande (2 cm)</option>
+            <option value="15">Grande (1,5 cm)</option>
+            <option value="10" selected>Estándar (1 cm / 10 mm)</option>
+            <option value="5">Pequeña (0,5 cm / 5 mm)</option>
+            <option value="0">Sin cuadrícula</option>
+          </select>
+        </div>
+        <div class="pdf-row">
+          <label for="pdfTitle">Título:</label>
+          <input id="pdfTitle" type="text" placeholder="Se usa el título de la actividad si se deja vacío">
+        </div>
+      </div>
+      <div class="btnrow" style="margin-top:16px;">
+        <button class="btn purple" onclick="downloadPdf()">📥 Descargar PDF</button>
+        <button class="btn ghost" onclick="regeneratePdf()">🔄 Nueva hoja</button>
+      </div>
+      <div class="pdf-hint" style="margin-top:10px;">Se abrirá el diálogo de impresión: elige <b>«Guardar como PDF»</b> como destino para descargar el archivo. Fuente del documento: Century Gothic.</div>
+    </div>
+    <div class="ws-preview-wrap">
+      <div id="wsPreview" class="ws-preview-sheet"></div>
+    </div>
+  </div>
+
+</div>
+<div class="celebrate screen-only" id="celebrate"></div>
+
+<!-- PRINTABLE WORKSHEET (hidden on screen, shown only when printing) -->
+<div id="printArea"></div>
+
+<script>
+/* ============================================================
+   STATE & SETUP
+============================================================ */
+const FRUITS = [
+  {name:'uvas',      emoji:'🍇'},
+  {name:'naranjas',  emoji:'🍊'},
+  {name:'manzanas',  emoji:'🍎'},
+  {name:'limones',   emoji:'🍋'},
+  {name:'fresas',    emoji:'🍓'},
+  {name:'kiwis',     emoji:'🥝'},
+  {name:'plátanos',  emoji:'🍌'},
+  {name:'duraznos',  emoji:'🍑'},
+];
+
+let maxNum = 10;       // current level ceiling
+let score = 0;
+let muted = false;
+
+let g1target = 0, g1fruit = null;
+let g2target = 0, g2fruit = null, g2Fruits = []; // {el, x, y, circled}
+
+const $ = id => document.getElementById(id);
+
+function show(id){
+  ['home','game1','game2','pdf'].forEach(s=>{ $(s).style.display = (s===id?'':'none'); });
+}
+function goHome(){ show('home'); }
+function setScore(n){ score=n; $('score').textContent = score; }
+function addStar(){ setScore(score+1); }
+
+/* Level buttons */
+document.querySelectorAll('.lvl').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('.lvl').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    maxNum = parseInt(b.dataset.max,10);
+  });
+});
+
+/* ============================================================
+   AUDIO (tiny beeps, no external files)
+============================================================ */
+let actx = null;
+function beep(ok){
+  if(muted) return;
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.connect(g); g.connect(actx.destination);
+    const t = actx.currentTime;
+    if(ok){ o.frequency.setValueAtTime(660,t); o.frequency.setValueAtTime(880,t+0.09); }
+    else  { o.frequency.setValueAtTime(220,t); o.frequency.setValueAtTime(160,t+0.12); }
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.2,t+0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
+    o.start(t); o.stop(t+0.32);
+  }catch(e){}
+}
+function toggleMute(){ muted=!muted; $('muteBtn').textContent = muted?'🔇':'🔊'; }
+
+/* ============================================================
+   GAME 1 — COUNT & WRITE
+============================================================ */
+function randInt(a,b){ return a + Math.floor(Math.random()*(b-a+1)); }
+
+function startGame1(){
+  show('game1');
+  // (re)size the canvas now that it's visible
+  fitCanvas(wc); drawWriteBackground(); redrawWrite();
+  nextQuestion1();
+}
+
+function nextQuestion1(){
+  g1target = randInt(1, maxNum);
+  g1fruit = FRUITS[randInt(0, FRUITS.length-1)];
+  renderG1Fruits();
+  clearWrite();
+  $('g1feedback').className = 'feedback info';
+  $('g1feedback').textContent = 'Escribe el número en el recuadro.';
+  if(debugOn) renderDebug();
+}
+
+function renderG1Fruits(){
+  const box = $('g1fruits');
+  box.innerHTML = '';
+  const size = g1target <= 10 ? 52 : 40;
+  for(let i=0;i<g1target;i++){
+    const s = document.createElement('span');
+    s.className = 'fruit';
+    s.style.fontSize = size+'px';
+    s.textContent = g1fruit.emoji;
+    box.appendChild(s);
+  }
+}
+
+/* ---- drawing canvas ---- */
+const wc = $('writeCanvas');
+const wctx = wc.getContext('2d');
+let strokes = [];     // array of arrays of {x,y} in canvas CSS px
+let curStroke = null;
+
+function fitCanvas(canvas){
+  const rect = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio||1;
+  canvas.width = Math.round(rect.width*dpr);
+  canvas.height = Math.round(rect.height*dpr);
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+}
+window.addEventListener('resize', ()=>{ fitCanvas(wc); drawWriteBackground(); redrawWrite(); fitCanvas(lc); });
+
+function drawWriteBackground(){
+  const w = wc.getBoundingClientRect().width, h = wc.getBoundingClientRect().height;
+  wctx.clearRect(0,0,w,h);
+  wctx.strokeStyle = '#cfe0f5';
+  wctx.lineWidth = 1.5;
+  wctx.setLineDash([6,6]);
+  // Four equally-spaced guide lines (Montessori-style writing guide)
+  const top = h*0.15, gap = h*0.20;
+  for(let i=0;i<4;i++){
+    const y = top + i*gap;
+    wctx.beginPath(); wctx.moveTo(14,y); wctx.lineTo(w-14,y); wctx.stroke();
+  }
+  wctx.setLineDash([]);
+}
+
+function redrawWrite(){
+  const w = wc.getBoundingClientRect().width, h = wc.getBoundingClientRect().height;
+  wctx.clearRect(0,0,w,h);
+  drawWriteBackground();
+  wctx.strokeStyle = '#33415c';
+  wctx.lineCap = 'round';
+  wctx.lineJoin = 'round';
+  wctx.lineWidth = 12;
+  for(const st of strokes){
+    if(st.length<1) continue;
+    wctx.beginPath();
+    wctx.moveTo(st[0].x, st[0].y);
+    for(let i=1;i<st.length;i++) wctx.lineTo(st[i].x, st[i].y);
+    wctx.stroke();
+  }
+}
+
+function canvasPoint(canvas, e){
+  const r = canvas.getBoundingClientRect();
+  return {x:e.clientX-r.left, y:e.clientY-r.top};
+}
+
+wc.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  wc.setPointerCapture(e.pointerId);
+  curStroke = [canvasPoint(wc,e)];
+  strokes.push(curStroke);
+});
+wc.addEventListener('pointermove', e=>{
+  if(!curStroke) return;
+  curStroke.push(canvasPoint(wc,e));
+  redrawWrite();
+});
+wc.addEventListener('pointerup', e=>{ curStroke=null; if(debugOn) renderDebug(); });
+wc.addEventListener('pointercancel', e=>{ curStroke=null; if(debugOn) renderDebug(); });
+
+function clearWrite(){
+  strokes = []; curStroke = null;
+  redrawWrite();
+  if(debugOn) renderDebug();
+}
+
+/* ---- handwriting recognition ---- */
+const REC = 28, FIT = 20;
+
+function canvasToInk(cv){
+  const ctx = cv.getContext('2d', {willReadFrequently:true});
+  const d = ctx.getImageData(0,0,cv.width,cv.height).data;
+  const w=cv.width, h=cv.height, ink=new Float32Array(w*h);
+  for(let i=0;i<w*h;i++) ink[i] = (d[i*4+3]>40)?1:0;
+  return {ink,w,h};
+}
+function normalizeInk(ink,w,h){
+  const out = new Float32Array(REC*REC);
+  let x0=w,y0=h,x1=-1,y1=-1;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    if(ink[y*w+x]){ if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; }
+  }
+  if(x1<x0) return out;
+  const bw=x1-x0+1, bh=y1-y0+1;
+  const scale = FIT/Math.max(bw,bh);
+  const nw=Math.max(1,Math.round(bw*scale)), nh=Math.max(1,Math.round(bh*scale));
+  const ox=Math.round((REC-nw)/2), oy=Math.round((REC-nh)/2);
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
+    if(ink[y*w+x]){
+      const tx=ox+Math.round((x-x0)*scale), ty=oy+Math.round((y-y0)*scale);
+      if(tx>=0&&tx<REC&&ty>=0&&ty<REC) out[ty*REC+tx]=1;
+    }
+  }
+  return out;
+}
+/* Template bank classifier: Hamming distance + k-NN (k=3) over a bank of
+   30 varied kid-like samples per digit (0-9). Each sample is a 28x28 bitmap
+   packed to 98 bytes. Calibrated on simulated kid handwriting:
+     accuracy ~99%, wrong-number acceptance 0%, scribble acceptance ~2%. */
+const N_SAMPLES = 30, K = 3, BYTES_PER = REC*REC/8;
+const BANK_B64 = "AAAAAAAAAAAAAAAAAAAA/AcAwH8AAP4HAPD/AwDffwD4+Q/AD/4AfIAP4AfwAD4AD+AB8AAeAA/gA/gAPsAP4AN+AD7wA8D/HwD8/wHA/w8A+H8AAHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAADwPwAA/w8A+PkBgAMeADzAAcABPAAegAPgAXgADgAH4AHwABwAD8AD8AA4AAeAB3gAeIADAA84APDzAwD+HwCA/wEA4AMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOADAID/AQD/HwDw/wOAfz8A+MADwAd8AHyAB8ADeAA+gA/gAfgAHsAH4AN8AD7gA8ADPgA88AHAzx8A+P8AgP8PAPg/AAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AEA+P8DgP9/APj/B4ADeAA4gAfAA3gAPIAHwAN4ADyAB8ADeAA4gAOABzgAeIADAA84APDhAwB+PwDA/wEA+AcAAD8AAMABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+AQDgPwAA/wcA8PgBgAcfAHjgAYAHPAA8wAPAAzgAHIAHwAF4ABwAB8ABeAAcgAfAATwAfOADwA8eAPj/AAD+DwDAfwAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOYDAPh/AOD/DwD//wHwAT4AD8AH8AD4AA8AD+AA8AAeAA7gAeAAHgAOwAPgAHwADoAH4ADwgA8AH/4A4P8HAPwfAMB/AAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAMAAHwAAPwfAOD/AwAefADwAAeAB3AAPAAOwAPgAB4AHuAAwAEeAB7AAfAAPAAHgAN4ADjAA4AHHADw/QEA/g8AwD8AAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AADw/wDA/38A/P8HwAN+ABwAD8AB8AAcAA7gAeABHgAc4ADgAR4AHuAB4AA8AA7AB+AAeAAPAA/4APD/BwD+fwDA/wAAwAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfAAD+A8D/PwD8vwPA/3gAHIAHwAFwABwAD+AB8AAeAA7gAOAAHgAO4APgADwADoAH4ADwgA8Af/wA4P8HAPwfAAD+AACABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfAAA+D8AwP8PAPz/AcD/PwA++APgA34APsAH4AP8AD6AD+AD+AB8gA/AB/wA+MAHgA9+APj5AwD/HwDw/wEA/w8AwD8AAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAQCA/wEA/z8A+PcDgA94ADgAD8AD8AAcAB7gAeABDgAe4ADgAA4ADuAB4AAcAA7AAfAAPAAHgAN8APjxB4D/HwDgfwAA4AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAAOB/AAD+PwDw/weA//8A+OAPwA/4AH6AD+AD+AA+gA/gAfgAHoAP4AH8AB7gB+ABPwA++APgvx8A/v8AwP8HAPA/AAD8AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAAwD8AAP8PAPz/AMC/HwB84APAA34AHsAH4AH4AB6AD+AB8AAeAA/gA/gAPIAHwAd8APjgB4B/PwDw/wEA/g8AgD8AAOABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAwDAfwAA/w8A+PMAgA8eABzAA8ABfAAcgAfAAXAAHAAHwAF4AByAB8ADOAA8wAOABxwAcOABAI8PAOD/AAD+AwDAHwAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAOD/AAD/HwD4/wOAB3wAPIAP4APwAB4ADuAA4AAeAA7AAeAAHAAPwAPwADiAB4AHeAD4wAMAPzwA4OcBAPwfAAD/AADgDwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wEA+D8AgP8HAPj/AMDHHwB8+APABz8APuAH4AP8AD6AD+AD+AB+gA/AB3wA/MAHgA9+APjhAwD/PwDw/wMA/h8AwP8AAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAADgfwCA/wcA+P8AgP8PADjwAcADPgA8wAPAA3wAPIAHwAN4ADyAB8AHeAB4gAeADzwA8MADAL8/APD/AwD+HwCAPwAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMABAIB/AID/HwD44QPAATgAHAADwABwAA4AB+AAcAAOAAbgAGAADgAH4ABwAA4AA8AAOAAMgAPAABwAfPABwP8PAOA/AABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAMAAH8AAP4fAPD/BwD/fwDw4weAD3gA+IAPwAf4AHwAD8AH8AB8gA/AB/gA+MAPgA98APDjAwD/PwDg/wEA/B8AAP8AAMADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAHHwD8/wHA/z8A/P8DwP9/AHzGB8AH/AB8gA/AA/gAfIAPwAf4AHzAB8AHfAB8wAeAD38A+PkDgP8/APj/AQD/BwDgHwAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwHAPD/AMD/DwD+/wHgDz8APuAD4AF8AB/AD/AA+AAPAA/wAPAAHwAe8APgAX4AHsAH8AH4gB+A//wB8P8PAP4/AOD/AQCADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAcAAP8AAPgfAOD/AwD/PgD4wweAD/gAfAAfwAPwAT4AD+AB8AA+gAfAB3gAfMAHgA88APDgAwB/HgDg/wEA/A8AAP8AAIAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAQAA/wMA/D8A8OcHgB9wAHgAB4ADcAAcAA7AAeAAHAAO4ABgAA4AB+AAcAAeAAfAAXAAHIADgAM8ADjwA4D/DwDwfwAA/AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMABAAA8AAD4DwDw/wGAPxwAeIADwAF4ABwAB8ABcAAOAA7gAOAADgAO4ABwAB4AB8ABeAAcwAPAAT8AOPwBgP8HAPgfAAB/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+AMA4P8AwP8fAP79A+AHfAAOgAfgAPgADgAP4ADgAQ4ADuAA4AAeAA7gAeAAPAAOwAfgAHgADwAP/ADw/wcA/j8A4P8AAIAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADABwCA/wMA/z8A+P8HgD94AHgAB4AH8AA4AA/AA+AAPAAOwAPwADwAD8AD8AB4AAeAB3gA8MAHAB9/APD/AwD+DwDAfwAA4AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOABAID/AAD8HwDg/wMA/z8A+P8HwB/+APzBD+AP/AF+gB/gB/ABfAAfwA/4AfyBD4Af+AD4/w8A//8A4P8PAP5/AMD/AQDgAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AMAwP8BgP8fAPz/A8A/PwD8wAfgA3wAPoAP4AHwAB4AH+AB8AA+AA/gA/AAfAAPwAfwAPjAD4D//wDw/wcA/z8A4P8AAMADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAwDA/wGA/z8A/P8HwP9/AP6AB+AD+AAegA/wAfAAHwAP8ADwAB+AD/AB+AAewAfgAXwAHvAD4M8/AP7/A8D/HwD8PwAA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP4DAOD/AAD/PwD4/weAB/wAPAAP4APgAB4ADuAA4AAOAA7gAeAAHgAO4AHwAB6AD+ABeAA+wAPADzwA+P8BAP8fAOD/AAD4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAMAAD8AAPgHAIB/AAD4BwAAeAAAgAcAAHgAAIAHAAB4AACABwAAeAAAgAcAAHgAAIAHAAB4AACABwAAeAAAgAcAAHgAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAA/AAA+A8AwP8AAHwOAIBwAAAABwAAcAAAAAcAAHgAAIADAAA4AACAAwAAOAAAwAEAABwAAMABAAAcAADgAQAADgAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAD8AAD4DwDA/wAAfAcAgHEAAAAHAABwAACABwAAeAAAgAMAADgAAIADAAA4AADAAwAAPAAAwAEAABwAAMABAAAcAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8AAP8BAP4fAOD/AQD+DwDg8QAAAA8AAPAAAIAHAAB4AACABwAAeAAAgAMAADwAAMADAAA8AADAAwAAHgAA4AEAAB4AAMABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAA/AAA8A8A4H8AAH4HAOBwAAAABwAAOAAAgAMAADgAAMABAAAcAADAAQAAHgAA4AAAAA4AAOAAAAAHAABwAAAABwAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAD8AADwDwDg/wAA/g8A4P8AAJ4PAAB4AACABwAAeAAAgAcAAHgAAIAHAAB4AADABwAAfAAAwAcAADwAAMADAAA8AACAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAB8AAPgBAMAfAAD+AwDwPwCA3wcA+HwAgIcHAAD4AACADwAA8AAAAB8AAPABAAAeAADgAwAAPAAAwAcAAHwAAIAHAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAAADwAA8AAAAA8AAPAAAAAPAADwAAAADwAA8AAAAA8AAPAAAAAOAADgAAAADgAA4AEAAB4AAOABAAAeAADgAQAAHgAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIADAAB8AADABwAAfAAAwAcAAHwAAOADAAA+AADgAwAAPgAA8AMAAB8AAPABAAAfAADwAQCADwAA+AAAgA8AAPgAAIAHAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAAAAcAAHAAAAAHAABwAAAADwAA8AAAAA8AAPAAAAAPAADgAAAADgAA4AAAAA4AAOAAAAAOAADgAQAAHgAA4AEAAB4AAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAAAAHAAAwAEAAB4AAOAAAAAOAADgAAAADgAA4AAAAA4AAOAAAAAOAADwAAAADwAA8AAAAA8AAHAAAAAHAABwAAAABwAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAAIAHAAD4AACADwAA+AAAgA8AAPgAAAAPAADwAAAAHwAA8AEAAB8AAPABAAAfAADgAQAAHgAA4AMAAD4AAOADAAA+AADAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAAwAMAAD4AAOADAAB+AAAABwAAcAAAAA4AAOAAAAAOAADAAQAAHAAAwAEAADwAAIADAAA4AAAABwAAcAAAAAcAAGAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAADgAQAAHgAA4AEAADwAAMADAAB4AACABwAA8AAAAA8AAOAAAAAeAADgAQAAPAAAwAMAAHgAAIAHAADwAAAADwAA8AAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIADAAA+AADwAwCAPwAA+AMAABwAAMABAAAcAADAAQAADgAA4AAAAA4AAOAAAAAPAABwAAAABwAAcAAAAAcAADgAAIADAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAEAAB8AAPwDAOA/AAC+AwDAOAAAgAcAAHgAAAAHAABwAAAABwAA8AAAAA8AAOAAAAAOAADgAAAAHgAAwAEAABwAAMABAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAQAAHAAAwAEAABwAAMABAAAeAADgAAAADgAA4AAAAA4AAOAAAAAOAADgAAAABgAAcAAAAAcAAHAAAAAHAABwAAAABwAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIADAAA/AAD4AwCAOwAAgAMAABgAAIABAAAcAADAAQAAHAAAwAAAAAwAAOAAAAAOAADgAAAABgAAYAAAAAcAAHAAAAAHAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAHwAAOAHAAB/AAD8BwDAdwAAHAcAAHAAAAAHAABwAAAABwAAcAAAgAcAAHgAAIAHAAB4AACABwAAeAAAgAcAAHgAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAA/AAA8A8AgH8AAPgHAIB/AADAAwAAPAAA4AMAAB4AAOABAAAfAADwAAAADwAA+AAAgAcAAHgAAMADAAA8AADAAwAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMADAAA/AAD4AwCAPwAA+AMAAD8AAMADAAA8AADAAwAAPAAAwAMAADwAAMADAAA8AADAAwAAPAAAwAMAADwAAMADAAA8AACAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAcAAH4AAPgHAIB/AAD4BwAAPwAA4AMAAD4AAOABAAAeAADwAQAAHwAA8AAAgA8AAPgAAIAHAAB4AADABwAAPAAAwAMAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAQAAPgAA8AMAgD8AAPgDAIAfAADgAQAAHgAA4AEAAB4AAOABAAAeAADgAQAAHgAA4AEAAA8AAPAAAAAPAADwAAAADwAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAD4AADgDwAA/wAA/A4AwOMAABwOAADgAAAADgAA4AAAAA4AAOAAAAAOAADgAAAADgAAwAAAAAwAAMAAAAAMAADAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAEAAB4AAOABAAAeAADgAQAAHgAA4AEAAB4AAOABAAAeAADgAQAAHgAA4AEAAB4AAOABAAAeAADgAQAAHgAA4AEAAB4AAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAACADwAA+AAAgA8AAPgBAIAfAADwAQAAHwAA8AEAAB8AAPADAAA/AADgAwAAPgAA4AMAAD4AAOAHAAB8AADABwAAPAAAgAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIADAAA+AAD4AwCAPwAA+AMAADwAAMADAAA8AADAAwAAHAAA4AEAAB4AAOABAAAeAADgAQAADgAA4AAAAA8AAPAAAAAPAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAPwAAPAPAMD/AAD+DwDg9wAAHg8AAPAAAAAHAABwAAAABwAAeAAAgAcAAHgAAIAHAAB4AACABwAAeAAAgAMAADgAAIADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAHgAA4AEAAB4AAOABAAAOAADgAAAADgAA4AAAAA4AAPAAAAAPAADwAAAADwAA8AAAAA8AAPAAAAAPAADwAAAADwAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAAD4AADgDwAA/wAA/A4AwOMAABwOAADgAAAADgAA4AAAAA4AAOAAAAAOAADgAAAADgAA4AAAAA4AAOAAAAAOAADAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAP4AAPwPAPz/AcB/HAD8wAGAADwAAMADAAA8AADwAwDAHwAAfgAA+AMA4A8AAD8AAPgBAIAP/ADw/w8A/v8AwH8AAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwDw/wPA/z8A/P8DwH88AADAAwAAPAAA4AMAAD8AAPwDAPAfAMB/AAD/AQD4BwCAPwAA+AAAgA8/APD/BwD/fwDw/wMA/gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8AAPB/AAD//wDw/x8A8P8BAMAfAADgAQAADgAA8AAA+A8A8P8A+P8P4P8fAP4fAPAfAAAPAADwfwAA//8A8P8fAP7/AQCADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAHwAA+D8AgP8/APj/AwD+PwAA/gMAADwAAMADAAA/AAD+AwD4PwDw/wGA/wcA+A8AgD8AAPgAAAD/PwDw/wcA/38A4P8HAIA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgDA/wPA/38A/v8H4P95AH6ABwAAeAAAgA8AAH4AAPAHAIA/AAD+AADwBwCAPwAA/gAA8AcAAD8YAPj/A4D/PwD4/wOAfwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAD/AQD/HwD83wHAHzwAHIADAAA4AACABwAAfgAA8AMAwA8AAH4AAPABAMAPAAB+AADwAQAAD3AA4PkPAPz/AID/AAB4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAHwAA+P8DgP8/AMD/AwAAOAAAgAMAADgAAIADAAA8AAD4AwDwPwDg/wAA/wEA8AMAAA8AAPAAAAAeAADg/wAA/H8AwP8HAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/fwD8/wfA/38AAAAHAAB4AACAAwAAOAAA4AMAAD8AAPwAAPAHAIAfAAB+AADwAwDADwAAfAAAwAMAADwAAID//wDw/w8A//8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8PAPD/DwD//wAAAA4AAOAAAAAHAABwAAAABwAAfAAA+AMA8B8AwD8AgP8AAPwBAMADAAAcAACAAwAA+AAAgP8fAPD/AQDAHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgA8AwP8AwP8PAP7/AOAfDgAM4AEAABwAAOABAAAfAAD8AADgBwAAPwAA/AAA4AcAAB8AAPAAAAAPfADg/wcA/n8AwP8AADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+/wDw/w8A//8A4P8PAADwAAAADwAA8AAAwA8AAP8AAPgHAPA/AMB/AAD/AQD8DwDAHwAAfgAA4AMAAP7/AOD/HwD+/wEA8B8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8/APj/B4D/fwD4/wcA+H8AAMAHAAB8AADwBwCAfwAA/gMA+B8A4H8AAP8BAPwPAOA/AAD+BwDg/z8A/P8HwP9/AOD/BwAAPgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AAP8DAP8/APj/A4B/PAAwwAMAADwAAOABAIAfAAD8AADgBwAAPwAA+AEAwA8AAD4AAPgBAICPfwD4/weA/38A8H8AAB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfwDg/weA/38A+B8HgAdwAACABwAAOAAAgAMAAD4AAPADAMAPAAA/AAD8AQDgBwCAHwAA+AAAgAcAAPDwAwD+fwDg/wcA/AMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH8AAPD/BwD//wAA/g8AAHAAAAAHAAB4AACABwAAPgAA8AMAwB8AAH8AAPwBAPAHAMAfAAB+AADgDwAA/n8AgP8/AMD/AwAAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgB8A4P8B4P8fAP7/AeB/HgAc4AEAAB4AAPABAIAfAAD8AADgBwAAPwAA/AEA4A8AAH8AAPgBAIAPAAD8/wfA//8A/P8PwP//AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+AADg/wcA/v8AAPAPAABwAAAABwAAeAAAgAMAgD8AgP8BgP8PAPwHAMAHAAA8AACAAwAA+AAAgH8AAOA/AADwDwAA+AAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4P8fAP7/A+D/PwD8/wMAADwAAMADAAA8AADgAwCAPwAA/gMA+A8AwD8AAP8AAPwDAOAPAAB+AADgAQAA/P8HwP//APz/D4D/fwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgB8A8P8BwP8fAPz/AcA/PAAAwAMAAD4AAPADAIAfAAD8AADgBwAAPwAA+AEAwA8AAH4wAPDzBwD/fwDw/wcA/wcA8AcAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAID/AwD4/wMA/z8AAIADAAA4AACAAwAAOAAAwAMAAD8AAPgBAOAHAAA/AAD8AADwAwCAHwAAeAAAgB8AAPh/AAD/PwAA/gMAADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAPAPz/AeD/HwD+/wHgPx4AAOABAAA+AADAAwAAPwAA/AMA4B8AgH8AAP4DAPAPAIB/AAD4AQCABwAA+P8HAP//APD/DwD+fwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg/x8A//8B8P8fAP/HAQAAHAAAwAEAAB4AAPABAIAfAAB8AADgAwAAHwAA+AAA4AcAAD8AAPgBAIAP8AD4/x+A//8B8P8PAH8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAHwD8/wHg/z8A/v8DwAc8AACABwAAeAAAgAcAAHgAAMAHAAB/AAD8AwDgDwCAfwAA/AEA4AcAAD4AAOD/HwD8/wGA/x8A8P8BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAMAPAAD8BwAA/wMAAH8AAIAHAABwAAAABwAAcAAAwAcA8H8A+P8DgP8DAPgAAIADAAA4AACAAwAA+AMAgP8PAPj/AADADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAfwAA+P8DgP9/APD/BwDgPwAAwAMAADwAAOABAMAfAID/AQD+DwD4PwCAfwAA+AAAgA8AAPAAAAD/AQDw/wAA/g8AgP8AAIAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMD/AAD8/wPA/z8A+P8DAAA8AACAAwAAOAAAgAMAAD4AAPgDAPA/AOD/AYD/AwD4BwCADwAA+AAAAD8AAPD/AwD+fwDg/wcAAH8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8AAPj/AID/PwD4/wcA/38AAPgHAAB8AADABwAAfgAA/gcA/n8A8P8DAP8fAPAPAAAPAADwDwAA/w8A8P8BAP4fAAD/AQAAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAMAgH8AAP8HAP7/APD/DwD/8ADwAQ8AAPgAAMAPAAB8AADgAwAAPwAA+AEAwA8AAHzwAODzHwD+/wHg/w8A/h8AwD8AADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/fwD8/wfA/38A/P8HAAB4AACABwAAeAAAwAcAAH8AAPwDAPgfAOA/AID/AAD8AwDADwAAeAAAgAcAAPj/BwD/fwDw/wcA/gMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+AID/A8D/PwD8/wfA/3gAPIAHAAB4AADABwAAfgAA+AMAwB8AAH4AAPgDAMAPAAB/AADwAwYAH/4A8P8PAPz/AID/AQDwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AAPwBAPwfAPifAYAfOAA4gAMAADgAAAAHAAB8AADwAwCAHwAAfgAA+AEAgP8HAPB/AADwAwDgDwAAPwAA/AAA4AMAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4/w+A//8B+P8fAP//AQAADwAA+AAAgAcAAHwAAPgHAPw/APj/A8D/HwD8BwCA/wAA4H8AAPgfAP7/AfD/HwD//wHwPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgD8AAPj/AID//wD4/x8AgP8BAAAPAADwAAAADwAA8AAAAAcA/38A8P8HAP9/AOD/BwD8AwAA/wAA+B8A//8B8P8fAP8PAPABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wMA+P8fAP//AQCAHwAAwAEAAA4AAOAAAAAOAADgAAAADgCA/wDw/w8A//8A4AcAAPwAAAA/AADgBwAA+AHw/x8A//8B4AcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwHwD8/wHA/x8A/MMBAAAcAADAAQAAHAAAwAEAADwAAIADAAB4AAAABwAA8AAAAA8AAPwAAPAHAMA/AAD/AAD4AQCABwAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8/APD/DwD//wDg/w8AAOAAAAAOAADwAAAADwAA8AAAAA8A+P8A+P8PgP//APj/AwD/DwCA/wEA/h8A/v8B4P8HAP4DAOADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwA8A4P8AwP8PAPz/AMB/DwA48AAAAA8AAPABAAA/AADgBwAAfAAAgAcAAHgAAOADAIA/AAD+AwD8HwDgPwAA/wAA8AMAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/PwDw/wcA/38A8P8HAP5/AADABwAAPAAA4AMAAD4AAOADAAB8AADABwAAfAAAwAcAAHwAAP4HgP8/APz/A8D/PwD8PwCABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8BAPD/DwD//wDw/w8AAPgAAIAHAAB4AACABwAAPAAAwAMAADwAAMADAAB4AACAAwAAPAAAwAMA/D8A+P8DwP8fAPw/AIADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwAA8P8AAP//APD/DwDg/wAAwA8AAHwAAMAHAAA+AADgAwAAPgAA4AMAADwAAMADAAA8AADAAwAAPgD8/wPA/z8A/P8DgP8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+AADg/wMA/v8BgP8fAAD8AQAAHgAA4AAAAA8AAPAAAAAPAAB/APj/B4D/fwD4/wMA/wAAwB8AAPgHAP7/APD/DwD//wDwDwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP//APD/DwD+/wAAAA4AAOAAAAAOAABgAAAABwAAcAAAAAcA/H8A4P8DAP4/AIAfAADwAwAA/AAAgB8AwP8B4P8PAP4DAOABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA/38A+P8HgP9/AACABwAAeAAAgAMAADgAAMADAAA8AACAAwAAOAAAgAMAAHgAAAAHAABwAADgBwDgfwDA/wEA/wMA+AMAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfwD4/weA/38A+P8HgP95AACABwAAeAAAgAcAAHgAAPgHAPx/AOD/BwD+PwDg/wAA/D8AAP4DAP8/APz/AcD/AwD8BwCAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAPA/AAD/PwDA/wMAgD8AAIADAAA4AACAAwAAeAAAgAcAAHgA4P8HAP5/AOD/BwD+MACAPwAA4AcAwP8BwP8fAPz/AcB/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAA+P8AgP9/APD/BwCAfwAAwAMAADwAAMADAAA8AADAAQAAPAAAwAMAADwAAIADAAA4AACAAwCAPwDw/wOA/z8A+P8BAB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAfwAA/gcA/H8A4D8HAH5wAAAADwAA8AEAAD4AAMADAAB4AACABwAA8AAAAA8AAPwAAPgPAOA/AIB/AAD8AQDABwAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAPAPD/AAD/DwDw/wAAAB4AAOABAAAeAADgAQCAHwAA/gEA+AcAwD8AAP4fAOD/AQD8HwAAfgAA+AMAwA8AAH4AAOABAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA/wEA+P8HgP9/AACABwAAOAAAgAMAADwAAMABAAA8AACAAwAAeAAAAAcAAHAAAAAHAABwAAAABwCAPwDA/wPg/w8A/gMA4AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+DwD8/wHA/x8A/P8BAAAeAADgAAAADgAA4AAAAB4AAOABAAAeAADgAQAAPAAAwAMAADwAAMADAIA/APj/A8D/PwD8/wGADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgP8DAPj/A4D/PwAA4AMAADgAAMADAAAcAADAAQAAPAAAgAMAAHgAAAAHAADwAAAADgAA8AAAgAcAAHgAAP8DwP8/APz/AMAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH4AwP8HAP9/APAPBwAAcAAAAAcAAHAAAAAHAAB4AADwBwDgPwDAfwAA/A8AwP8HAIB/AAD4BwDwDwDAPwCAfwAA+AEAgAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+AADg/wAA/P8AAPAfAADgAAAADgAAYAAAAAcAAHAAAIADAAA4AAAAAwAAMAAAAAMAADAAAIADAAA4AADwA+D/HwD+/wHgAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMA/APz/B8D/fwD8/weAB3gAAIAHAAB4AAAABwAAcAAAwA8A/P8A4P8PAP5/AMD/AADwfwAA/A8A4P8AwP8PAP4/AOAfAAAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgAA4P8AAPz/AADwDwAA4AAAAA8AAHAAAIADAAA8AADAAQAAPAAAgAMAADgAAIADAAA4AADAAQDAHwDA/wHA/wMA/AEAwAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/fwD4/w+A//8A+P8HAAB4AACABwAAeAAAgAcAAHgAAP4HAP8/APD/AwD/DwDwPwAA/h8AgP8BAP8fAP7/AeD/AwD+AwDgAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeAAD/AYD/HwD4xwGAAxwAAMAAAAAOAADgAAAAHAAAwAMAADgAAAADAAAwAAAAAwAAcAAAwAcAgH8AAP8AAP4BAOADAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADg/wAA/v8H4P9/APz/BwAAfAAA4AMAAD4AAOABAAAeAADgAQAAHgAA4AMAADwAAMAHAAB8AADgBwDwfwDw/weA/38A+D8AAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAPAAD8fwDA/z8AwP8DAAA8AACAAwAAOAAAgAMAADgAAIADAAA4AADAAwAAPAAAgAMAAHgAAIAHAABwAMD/D8D//wD8/wfAHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8PAPj/D4D//wDw/w8AAPgAAIAPAAD4AACABwAAeAAA/gcA/38A8P8HAP8/APA/AAD8DwAA/wEA/x8A/v8B4P8PAP4DAMABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAMAADwAAMADAAD8AADAHwAA/AEA4A8AAH8AAPADAID/AQD8PwDg/wMA/x8A+H8AgP8HAPh9AADABwAAfAAAwAcAAHgAAIADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAA4AEAAB4AAOAHAAB+AAD4BwDAPwAA/wEA/B8A4P8BgP8PAPz/AMD/fwD8/weA/38AAPwHAAAPAAD4AACADwAA+AAAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMABAAAcAADABwAAfAAAwAcAAH4AAOADAAA/AAD4AwDAPwAA/n8A4P8HAP9/APj/AYD/BwD4eQAAgAcAAHgAAAAHAABwAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAPAAAAwPAOD/AAD+DwDw/wEA/x8A8PwAAM8DAPg8AIDPAwD4PwCA/x8A+P8DAP4/AAD/AQDwAQAADwAA8AAAAA8AAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAwAAOAAAgAMAAPgBAIAfAAD4AQDADwAAPgAA8AMAgD8AAP4DAPD/B4D/fwD4/weAjwMAADgAAIADAAA4AACAAwAAOAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAADgAQAAHgAA4AAAAC8AAPAHAAB/AAD4BwDgHwCAfwAA/gMA8D8AgP8fAPj/AQD+HwAA3gEA4AEAAA4AAOAAAAAOAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAADAAAAAPAADwAAAADwAAeAAAwAMAAD4AAPADAIA3AAA8AwDgMQAA/38A+P8HgP8DAAAwAAAAAwAAMAAAAAcAAHAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAADgAA4AAAAA4AgP8BAPg/AID/AwA4DgCAxwAAcAwAAMcBAHAcAAD/AQDg/wEA/j8AAPwDAMABAAAcAACAAQAAGAAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIADAAA4AACAAwAA+AEAgD8AAPgDAMAfAAD+AADwBwDAfwAA/gcA8H8AgP//APz/D8D//wD8dwAAAAcAAHAAAAAHAABwAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAEAABwAAMABAAB8AADABwAAfAAA4AMAAH8AAPgHAMB3AAA+dwDw+QeA/38A/P8DwP8eAHzgAQAAHAAAwAEAADwAAIADAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAA4AEAAB4A4PMAAP4PAPD/AAD/DwDw+AAAjwcA8HgAAI8HAPA4AAD/HwDw/wMA/z8A8P8DAOABAAAeAADgAQAADgAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAAIADAAA4AACAAwAAeAMAAD8AAPADAAAfAAD4AADADwAA/gEA8P8DgP8/APj/AYCHAwAAOAAAAAcAAHAAAAAHAABgAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAAAB8AAPABAAAeAADwAACAHwAA/AEAwB8AAN4DAPA4AICPAwD4/w/A//8A/P8HwAcPAADgAAAAHgAAwAEAABwAAMABAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAOAAAAAMAAPABAAAfAAD4AADABwAAfgAA8AcAgH8AAD4HAPBxAID/fwD4/weA/z8AAHAAAAAHAABwAAAABwAAcAAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMABAAAcAADAAQAA+AAAgA8AAHgAAOADAAA/AAD4BwDAdwAAPgcA8HEAgP9/APj/B4D/HwAA4AAAAA4AAOAAAAAOAADgAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAwAAMAAAMA/AMD/AwD8DwDAwQAAPBwAgMMBADgcAIDHAQBwHAAAxwEA8H8AAP4/AAD+AwDAAQAAHAAAwAEAABgAAIABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAADgAA4AAAAA4AAP8HAPh/AID/BwA4DgCA5wAAeA4AAOcAAHAOAAD/AADw/wMA/38AgP8HAOAAAAAOAADgAAAADgAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAA4AACAAwAA+AAAgB8AAPgAAMAHAAA+AAD4AwDAPwAAvgMA+DkAwP9/APz/B8D/DwAAOAAAgAMAADgAAIADAAA4AACAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAMAADgAAIAHAAD4AQCAHwAA+AAA4AcAAH8AAPgHAOB/AAC/BwD4fwCA/38A+P8HAIB/AAB4AAAABwAAcAAAAAcAAHAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAQAAHgAA5wEA+H8AgP8PAPj/AYD/DwB4fwCA/wEA+B8AgP8AAPAPAAD/AwDg/wEA+B8AgP8DAPgfAICHAAB4AACABwAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AACAAwAAGAAAwAEAAHwAAMAHAIA/AAD+AAD4BwDgdwCAHwcA+DcAgP8PAAD+AwCAPQAAHAAAwAEAAAwAAOAAAAAOAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAEAABwAAMABAAD8AADADwAAfAAA8AMAgB8AAPwBAPAbAICfAQD4/wEA/z8AAPgDAIADAAA4AACAAwAAOAAAgAMAADgAAIADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAA4AEAAB4AAPAHAAB/AAD4BwDgPwCA/wEA/g8A+P8AgP8HAPj/B4D/fwCA/wcAwH8AADwAAMADAAA8AADgAwAAPgAAwAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGAABgAAAGBwDgcwAA/wcA8H8AAMcfAHD4AQCHAwBwOAAAhwMAcBgAAL8BAPA/AAD8HwAA/AEAwBwAAA4AAOAAAAAOAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAAOADAAAeAADgBwAA/wAA+AcA8H8AwP8AAP8PAPx/AMD/BwD8/wGA/z8AgP8DAOAfAAAfAADwAQAADwAA8AAAAA8AAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAAAABwAA8AMAAD4AAOABAAAeAADwAACAHwAA+AEAwBkAAJ47APD8AwD/PwD4fwCADwcAAGAAAAAOAADgAAAADAAAwAEAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAB4AACABwAA+AAAgB8AAPgBAOAPAAB/AAD4BwDgfwAA/wcA+P8BgP8/APj/AwDgPwAAcAAAAAcAAHAAAAAHAABwAAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcAAHAAAAAfAADwAQCAHwAA/AAA4AcAAH8AAPgHAMB/AAD+BwDw/wOA/38A+P8DgP8HAAB4AACABwAAeAAAgAcAAHgAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAA4AAAAA8AAPABAAAfAAD4AQDgDwAA/wAA+AcA4H8AAH8HAPh/AID/fwD4/wcA8H8AAHgAAIAHAAB4AACABwAAOAAAgAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAAAAB/AADwBwAAfwAA4AcAAD8AAPgDAMA/AAD+AwDgfwAAn/8A+P8PwP//AP7/B+D/DwD+8QHAAR4AAOADAAA+AADAAwAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/H8A8P8PAP//APD/DwD+fwDgDwAA/AEAgD8AAPgHAAD+AADAHwAA/AEA8B8AgP8AAP4HAPAfAID/AAD8AwDAHwAAfAAAgAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACABwCAfwCA/wMA+AMAgAMAADgAAIADAAAwAAAAAwAA8P8AAP8PAADwAQAAHAAAgAEAABgAAPABAMAfAIA/AAD+AADwAwAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP4DAPg/AID/AwD4PwDA/wAAfAAAwH8AAPw/AMD/PwDw/wcA8H8AAPAHAAB+AAD4BwDAPwAA/wEA+A8AwD8AAP4AAOAHAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+A8A+P8BgP8fAPgfAIAHAADwAAAADwAA4AMAAP4HAOD/BwDwfwAA4AcAAD8AAPgBAMAPAAA/AAD4AQDgBwAAPgAA8AEAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB+AADg/wAA/n8A4P8HAI5/AOAAAwAOAADgAQAAPgAA4A8AAPwDAID/AADgDwAA+AAAAA8AAPAAAAAPAPj/AMD/DwD8/wDAHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfAADwfwAA/x8AcPwBgAMAADgAAIADAAB4AACADwAA4AMAAHwAAIAfAADgAwAAfgCA/wfA/x8A/w8A8AcAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeAAAgD8AAPgfAID7DwAY/ACAAQQAHAAAwAEAADwAAMAPAADwAQAAfgAAgA8AAPABAAB8AADwBwDwHwDgPwCAfwAA/AAAwAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAA4B8AAP4PAPD/AQDvHwDw8AGADwAA+AEAAD8AAOAHAAB8AACADwAA8AEAwD8A8P8D8P8fAP8/APAPAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAD/AAD+BwDgBwAADgAA4AAAAA4AAOAAAAD+AQDg/wEA4B8AAOABAAAPAAB8AADgAwAADwAAeAAAwAMAAB8AAPAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AcA8H8AgP8HAPgHAIAHAADwAAAADwAA4B8AAP4/AMD/AwDAPwAA4AEAAB8AAPgAAMADAAA+AADwAQCADwAAfAAAwAMAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/AADw/wMA/z8AcP8DAAcAAHAAAAAPAADwAQAAfwAA4B8AAPwHAAD+AQCAPwAA4AMAADgAAIADAIA/APD/A4D/PwD4PwCABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwfAPD/AwD/HwDwPwAABwAAcAAAAAcAAPABAAD/AADwfwAA+B8AAP4DAAA/AACAAwAAOAAAwAMA4D8A8P8DgP8fAPgPAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/P8A4P8fAP7/AfD/HwAfAADwAQAAPwAA8AcAAP4BAMA/AAD4BwAA/gEAwB8AAPgBAAAeAADgAeD/HwD//wHw/x8A//8BAMAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4DwD4/wCA/w8AOAAAgAMAADgAAAAHAABwAAAABwAA8AMAAP8BAMD/AADgfwAA4AcAAHAAAIADAAA+AMD/A8D/PwD8HwDABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH8AAPD/AwD//wDw/w+A//8A+PAPgA8AAPgBAIB/AAD4HwAA/wcAwP8BAPA/AAD8AwAAPwAA4APg/z8A//8B8P8fAP//AeD/DwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/j8A8P8DAP8/AOD/AwAeAADgAQAAPgAAwB8AAPwPAID/AwDAfwAA4AcAADwAAMADAAA/AAD+AQD8HwDwfwCA/wAA+AEAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/PwDw/wMA/z8A8P8DAA8AAPAAAAAPAADwAQAA/wAA8H8AAP4fAAD/AwCAPwAAwAMAADwAAPgDAPw/APj/A4D/DwD4DwAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAfAAD4/wDA/x8A/P8BwPMfAD4AAOADAAD+AADgHwAA+AMAAP8AAOAfAAD4AQDwHwDg/wHA/wcA/w8A8D8AAD8AAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+D8A8P8DgP8/ADgAAIADAAA4AACAAwAAOAAAgAcAAPgPAID/DwCA/wMAAD8AAAADAABwAAAABwAAfgAA/gcA/g8A4A8AAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADABwDgfwDA/wcA/B8AwA8AADwAAIAHAAB4AAAAPwAA8D8AAP8/AAD/AwCAPwAAgAcAAHgAAMAHAMB/AMD/BwD+DwDgDwAAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOAPAPD/AYD/DwD4BwAABwAAcAAAAAcAAHAAAAA/AADwPwAA/x8AAP8BAAAfAADAAQAAHAAA8AMA8D8A4P8BgP8DAPgDAIADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAPg/AID/HwA4/AHAAQAAHAAA4AAAAA4AAOADAAD8AAAAHwAA4AcAAPgBAAAeAADAAQAAHAAAwAHw/w8A//8A8P8HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AADAfwAA/H8AwPkHABx4AMABAAAcAADAAwAA+AAAAB8AAOAHAAD4AAAAPwAA4AMAgD8AAP4AAPgDAPAHAMAfAAB8AADAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAHAPj/AID/BwD4AQCAAwAAOAAAgAMAADgAAIAPAAD4HwAA/x8AAP8DAAA/AACAAwAAOAAAgAMAgD8AgP8DgP8HAPgHAIAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/AAAwP8BAPx/AMD/BwD8fwDAwwMAPAAAwA8AAPwDAIB/AADwHwAA/AMAgH8AAPgHAOA/AMD/AQD+BwD4HwCAfwAA+AEAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8BwDg/wcA/n8A4MADAA8AAHAAAAAPAADwAwAA/wEAgH8AAOAfAAD4BwAA/AAAAA8AAHAAAOAHAOA/APD/A8D/AwD8AwCAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPD/AYD/HwD4/wGAAwAAHAAAwAEAAB4AAOAAAAAPAADwBwAA/gEAAH8AAMA/AADwAwAAOAAAgAMAADgAAIAD8P8fAP//AfB/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8AwP8DAP4/AOD/AQD+AADAAQAAPAAAwH8AAPw/AMD/AwDgPwAA+AEAwA8AAH4AAPADAIAfAAD8AADgBwAAPwAA8AAAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADADwDg/wCA/w8A+P8AgH8AAPgAAAAfAADwDwAA/wcA8P8BAPg/AAD8AwDAHwAA/gAA+AcAwB8AAP4AAPgDAIAfAAD4AACABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPh/AMD/BwD8fwDAAQAAHAAAwAEAADwAAMAPAAD8AQAAfwAAwB8AAPAHAAB8AADwBwDAfwAA/wAA/gMA+AcA4B8AAH4AAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAP4DAPg/AMB/AAA8AADgAQAADgAA8AAAAAcAAPABAIB/AAC4HwCA9wMAcPwAAA8fAODhAwCePwDA/wAA+AMAgB8AADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA/wDA/w8A/v8A4P8HAB4AAPABAAAPAAD4AACAPwAA+D8AgP8/APj/A8DjPwA84APAAzwAfMADgM8/APj/AwD/HwDgfwAAfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAD8AAD4DwDg/wAA/wMA+AcAgB8AAHgAAIAHAAB4+AGA/z8A+P8DgP8/APjDA4AHPAB48AOA3z8A+P8DAP8PAMAfAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AAP8BAP4PAOAPAAAOAABwAAAABwAAcAAAgAMAALgBAIB7AAD4HwAA5wcA8PgBAB4+AMDBAwA4HwAA/wAA8AMAAB4AAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAA/gMA/D8A4H8AAD4AAOAAAAAPAABwAAAABwAA8AAAAP8/APj/A4D7PwA4gAOAAzgAeIADgA8/APD/AQD+DwDAHwAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAB8AAD4BwDgHwCAPwAA+AAAgAMAADgAAIADAAAwAAAAHwAA8AcAAP8HAPD/AQCefwDAxwcA+DwAAP8BAMAPAAD4AAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAgP8HAPx/AOD/AwB+AADwAQAADwAA+AAAgP8AAPj/AcD/PwC8/wPAAzgAPIADwAN4AHyAB8APfgD4/wcA/38AwP8BAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAA+AEA4A8AwD8AAP4AAOABAAAOAADgAAAABgAAcAAAAAcAAPAPAAD/DwDw/wMAHj8A4OMBADwPAIB/AADwAwAAHgAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPD/AOD/DwD+/wDwAQAABwAAeAAAgAcAADgAAMADAAD8AwDA/w8A/P8D4OE/AA7AA+AAPAAewAHgwx8A/P8BgP8PAPAPAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+P8BwP8fAP7/AfD/DwAfAAD4AACABwAAfAAA4AcAAP4BAOB/AAD+HwDA/wcAPP8BwMc/AHj8A4D/HwD4/wAA/wEA8AMAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAA/gMA/D8A4H8AAH4AAPAAAAAPAABwAACABwAAOAAAwB8AAPwHAMD/AwD4/wCAzx8A8PABAN4PAMB/AAD8AQCADwAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/AOD/AwD+PwDwBwAABwAAcAAAgAMAADgAAIADAAD8AwDA/w8A/P8BwIEfABzAAcABDAA84ADAgw8AeP8AAP8DAOAPAAAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4H8AwP8HAP5/AOB/AAAPAADwAACABwAAeAAAwAcAAPwBAMA/AAD8DwCA/wMAeH8AAM8PAPD4AQDeHwDg/wAA/AMAwA8AADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwDg/wMA/j8A4AMAAA4AAHAAAAAHAABwAAAAAwAA+AcAgP8fALj/B4ADfwA4AAeAA3AAeAAHgA94APD5BwD+PwDAPwAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIADAAB/AAD+BwDwPwAAfwAA8AEAAAcAAHAAAIAHAAB4AACANwAA+H8AgP8/APj/B4D/fwDw7wMA/D8AgP8BAOAPAAB8AAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAAPwDAPgPAMAPAAAcAADAAAAADgAA4AAAAAYAAHAAAAAfAADwBwAA/wEA4H4AAJwPAIDjAwB4PAAA7wMA4A8AAHwAAIABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8DwDg/w8A/v8A8P8PAA8AAPgAAIAHAAB8AADAPwAA/D8AwP8fAPz/A8DjPwA84APABzwA/MADgA8/APD/AwD+HwDg/wEAfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPx/AMD/BwD+fwDg/wMAHgAA8AEAAA8AAPAAAAD/AAD4/wGA/38AeP8HgAc+AHjAA4AHPAD44AMA3x8A4P8BAP4PAMA/AAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAPwAAPgPAPAfAIA/AAB4AACAAwAAOAAAgAMAADjAAYD/HwD4/wGAPzgAOIADgAM4AHiAA4APPgDw/wEA/AcAAD8AAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAwAAfAAA8AcAwB8AAH8AAPgBAIAHAAB4AACABwAAOAAAgAMAAPj/A4D/PwDw/wMAHz4A4PMBAPwPAIB/AADwAwAAHgAAwAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPx/AOD/BwD+fwDwwAcADwAAeAAAgAcAADwAAMAfAAD8DwDA/wcA3v8B4OE/AB7gA+ABHAA+wAHAhx8A+P8BgP8fAPA/AAAeAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAPwAAPgPAOAfAAB+AADgAAAABwAAcAAAAAcAAHAAAIAHAAD4BwCA/wcA+P8BgI8/APDhAQA+DwDAfwAA+AMAAB8AAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAA/wEA/h8A8P8AAP8BAPAAAAAPAADwAACABwAAeAAAgD8AAPgfAID/DwDw/wEA/z8A4PsBAPwPAMB/AAD4AwAAHwAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfAMD/AQD+HwDg/wEA/wAA8AAAAA8AAPAAAIAPAAD4AwCA/wAA+D8AgP8PAPD/AwC+fwDA9wcA/D8AgP8BAPAHAAA+AADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AwP8DAPw/AOB/AAAOAADgAAAADwAA8AAAAAcAAPgBAIA/AAD4HwCA/wMA8P4AAI8/AODhAwC8HwDA/wAA+AMAgA8AAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAA/wEA/h8A4H8AAH8AAPAAAAAPAABwAACABwAA+AAAgD8AAPgPAID/AwDw/wAA/j8AwPsDAPw/AID/AwDwDwAAPwAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIB/AOD/BwD+fwDwDwAABwAAcAAAAAcAAHgAAIADAAB4AADA/z8A/P8HwPF/AByAA8ABOAA8gAPABzgA+PADAP8/AOD/AQD8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/H8A4P8HAP9/APAHAAAHAAB4AACAAwAAPAAAwD8AAPwfAOD/DwAe/wHgAR8ADuAB4AEeAD7gAMCDDwD4/wCA/w8A8B8AAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAA/AMA/B8A4D8AAD4AAOAAAAAGAABwAAAABwAAcAAAAP8/APD/AwDHPwBwgAMABzAA4IEDAD4+AMD/AwD4DwAAPwAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAD+AAD8DwDwfwAAfwAA8AAAAAcAAHAAAIAHAAB4AACAHwAA+B8AgP8HAPj/AwDfPwDg4wMAfD8AwP8BAPAHAAA+AADAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADADwAA/P8AgP9/AAD4BwAAOAAAwAMAABwAAOAAAAAPAAD/AADwDwAAOAAAwAMAABwAAOAAAAAOAABwAACABwAAOAAAgAMAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAPwDw/wPA/z8A/P8DwP8/APjgAwAAPgCA/wMA/h8A4P8BAP4fAMD3AQAAHwAA8AEAAB8AAPAAAAAPAAD4AACADwAA+AAAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAD+AwD8PwD4/wOA/z8A+MMDAAM8AADAAwAAPAAAwAMAADwAAMADAAA8AADAAwAAPAAAwAMAADwAAMADAAAcAADAAQAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAHwAA+P8BgP8/AMD/AwAAHgDw5wEA/w8A8H8AAPgHAAA4AADAAwAAHgAA4AEAAA8AAPAAAIAHAAB4AADAAwAAPAAAwAEAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgPwDw/wMA/zMAAIADAAA4AACAAwAAGAAAgAEAABwAAMABAAAMAADAAAAADAAA4AAAAA4AAGAAAAAGAABwAAAABwAAcAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgP9/APz/B8D/fwD8/weA/38AAPADAIA/AAD4AQDADwAA/gAA4AcAAD8AAPgDAIAfAAD8AADgDwAAfgAA8AMAAD8AAPABAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACADwAA+B8AgP8/APD/AwDwPwAA4AMAAD4AAPABAAAPAAD4AACABwAAfAAAwAMAAD4AAPABAAAPAAD4AACABwAAfAAAwAMAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+PwD8/wfA/38A/P8DAAA+AAD8AQD+HwDg/wAA/g8AwHsAAMAHAAA8AADgAwAAHgAA8AEAAA8AAPgAAIAHAAB8AACAAwAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8/APD/AwDwPwAAgAMAADgAwIABAP4dAMDfAQAADAAA4AAAAA4AAOAAAAAHAABwAAAABwAAMAAAgAMAADgAAIADAAAYAACAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAfwAA+P8HAP9/AADgBwAAOADwwAMA/x0A8P8BAOAPAABwAAAABwAAOAAAgAMAABwAAOABAAAOAADwAAAABwAAOAAAgAMAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAID/AwD4/wOA/38AAOADAAA8AADAAQAAHAAA4AEA8A8AAP8AAOAHAAB4AACABwAAOAAAwAMAABwAAOABAAAOAADgAAAADgAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+AID/AwD/PwDwvwMADzgAAIADAIA/AAD/AwD4PwAAhwMAADgAAIADAAA4AACAAwAAOAAAgAMAADgAAIADAAA4AACAAwAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAHwAA+P8DAP9/AADwBwAAOAAAwAMAABwAAOABAPAOAAD/AADwBwAAeAAAgAMAADwAAMABAAAeAADgAAAADwAAcAAAAAcAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwDw/wOA/z8A+L8DAAA4AACAAwDwPwDA/wMA/D8AgMMDAAAcAADAAQAAHAAAwAEAABwAAMABAAAcAADgAQAAHgAA4AAAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8/APj/A4D/PwDw/wMAAD4AAP8BAP8fAPD/AAD+DwAA+AAAgAcAAHwAAMADAAA8AADgAQAAHgAA8AEAAA8AAPgAAIAHAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACADwAA+A8AgP8fAID/AwAAPwAA4AEAAB4AAPAAAAAHAMB/AAD8AwCAPwAA4AEAAA8AAHgAAIAHAAA8AADAAQAAHgAA4AAAAAYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+PwD4/wOA/z8AAIADAAA4AADAAQD8HwDg/wEA/h0AAOABAAAOAADgAAAADgAA4AAAAA4AAHAAAAAHAABwAAAABwAAcAAAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOA/APj/A4D/PwD4xwMAAB4AAOABAAAOAADwAAAADwAAeAAAgAcAADwAAMADAAAcAADgAQAADgAA8AAAAA8AAHgAAIAHAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AAPwDAPg/APD/AYD/HwD4xwGABx4AAOABAIAfAAD8AQDAHwAA/AEAAB4AAOAAAAAPAADwAAAADwAA8AAAAA8AAPAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAID/PwD4/weA/38AAMADAAA8AADgAQAAHgAA8AAA8A8AAH8AAPAHAAA8AADAAwAAHgAA4AAAAA8AAHAAAIAHAAA8AADAAwAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMB/APj/B4D/fwD4/wMABzwAAMADAAA+AADgAQDgHwAA/gEA4A8AAP4AAAAPAAB4AACABwAAeAAAwAMAADwAAMADAAAcAADAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH4AgP8HgP9/APj/B4D/eQAwgAMAADwAAPwDAMA/AAD8AwDAHwAA4AEAAB4AAOABAAAPAADwAAAADwAA8AAAAA8AAHAAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMB/AAD8/wPA/38A/P8HAP9/AADgBwDgPwAA/wMA8B8AAP4BAOAPAAD8AADABwAAfgAA4AMAAD8AAPABAIAfAAD4AQCADwAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAP8BAPj/A4D/fwD4/wcA/D8A4P8DAP4/AOD/AQD+HwAA/gEAAA8AAPgAAIAPAAB8AADABwAAfAAA4AMAAD4AAOADAAAeAADAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/n8A+P8HgP9/AAAABwAAMAAAgAMAADgAAIADAIAfAAD8AQDAHwAAwAEAAAwAAOAAAAAOAADgAAAABwAAcAAAAAcAAHAAAAADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHwAA/wEA/h8A8P8AAD8OAADgAAAADwAAcAAAAAcAAHAAAIAHAAA4AACAAwAAOAAAwAMAABwAAMABAAAcAADgAQAADgAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAPAfAAD+HwAA/gMAAD4AAMABAB8eAPD/AAD+BwAAPgAAwAMAABwAAOAAAAAPAAB4AACAAwAAPAAA4AEAAA4AAPAAAAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAA+D8AgP8/APj/BwD+fwDw/QcA/z4A8P8DAP8fAMD/AADgDwAAfgAA8AMAAD8AAPgBAMAPAAB8AADgBwAAPgAA4AEAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/fwD4/weA/38A+P8HAAA+AADgAwAAHgAA8AEAAA8AAPgAAIAPAAB8AADABwAAPgAA4AMAAB4AAPABAAAfAADwAAAADwAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAfAPj/A4D/HwD4wQEAAB4AAOAAAAAPAABwAAAABwAAeAAAgAMAADwAAMABAAAcAADgAQAADgAA4AAAAAcAAHAAAAAHAAAwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/wcA/v8A4P8fAP7/AeABPgAe4APgBz8A/v8D4P8/APj/AYD/PwD4/wOA/z8A+P8HgAd4AHiAD4A//wD4/w+A/38A4P8AAMABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgDwDw/wGA/z8A+P8DgP9/AHjDB8AHfwD8/wfA/38A+P8BAP4fAPD/AYD/PwD4/wOAxz4AfPADwP8/APz/A8D/DwDwfwAA8AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgPAPD/AcD/HwD8/wPABzwAHMAD4AF4AB6AB+ABfwD+/wfg/x8A/n8AgP8/APD/B4D/fwD4gQ+AB/4A+P8PgP9/APj/AAD/AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/x8A+P8BgP8fABzAA8ABOAA8gAPAH34A+P8DAP4PAAC/AwCAPwAA/wMA/ncA8B8HAAdwAHgADoAP+AD45w8A/j8AAH8AAMABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwD8/wHA/x8A/P8BwAE8ABzAA8ABPwD8+wHA/w8A/P8AAPgfAOD/AQD+PwDwnwMAB3gAeAAHgAP4APjzD4D/fwDw/wAA4AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAAPgfAID/HwD4/wOAAz8AOIADwAM4AByAA8AHeAD84weA/38AwP8DAP8DAPj/AMD/PwA88APADzgA/PsDAP8/AID/AQDgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+AcA+H8A4P8PAP7hAOAAHAAOwAPgADgADuAD4AAfAP54AOD/ewD4/wcA/H8A8H8HAH9wAHDgB4CDPwC4/wCA/wMA+AcAgAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB/AADw/wGA/x8AeP4DgAM4ADyAA8ADeAD84AfA/38A8P8BAP4fAPj/A4D/PwA4hgOAA3gAOAAHgAd8APz7B4D/PwDgfwAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOADAOD/AAD+fwDw/w8AD/4A8IAPgA/wAHgAD4AH8AD89w/A//8A+P8PAP9/APz/A8D/PwD+/wPgDzwA/v8DwP8/AOD/AwD4AwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAcAwP8AwP8PAPznAMAHHgAcwAHAAR8AHPgBwP8HAPw/AMD/HgDw/wEA/z8A8L8DgAd4ADgAB4ADfAD88wfA/z8A+P8AAOABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwDwD4/wGA/z8A+MMDwAM4ADyAB8ABfAD88AfA/z8A+H8AAPw/APD/AwD/fwD4BweAB3AAOAAPwAf8APz3D8D/fwDg/wAA4AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABwAMD/BwD+fwDgOAcABmAAcAAGAAd8ADj4B4D/DwD4HwAAAAAA8AMAgP8/ADj/A4DDcAAcAAfAAWAAHgAH4P9/APz/BwDwAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACA/wAA+P8BwP8/APz/B8ADfgA8gAfgAXgAHgAP4A/8AP7/D8D//wDg/wMA/w8A+P8DgP8/AHzwB8APfwD8/weA/38A4P8AAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB8AADg/wMA/n8A8PwHAA9wAHAAB4Af8ADwhw8A/v8AgP8PAP8PAPD/A4D/PwB4/AOAAzgAPIADwA84APz7AwD/PwDA/wMA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwPAPD/AID/HwD+/wHgBz4APsAD4AE8AB7AB+ABfwB+/APg/w8A/v8BwP8/AMD/BwD//wDwhw8AH/4AcP8PAP8/APD/AAD/AwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwAEAwP8AAP8/APD/A4A/PgB4gAOABz4A/PsDwP8fAPz/AID/DwDA/wAA/g8A8P8BAB8eAPDgAYAPPAD4/wOA/z8A+P8DAPgHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAwD8fwDg/w8AfuAA4AAeAA7AA+AAPgA++AHg/wcA/h8AAPgfAPD/AwD/PwDwAQcAA/AAMAAOAAP4APDgDwD/PwDw/wAAwAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPj/AMD/DwD+/wDg/w8AH/AA8AEPAD/+APD/DwD//wDg/wMA/n8A8P8HAP9/APieB4AHeAB8gAfAH38A/P8HgP8/AOD/AADgAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAAA4HMAAP8HAPz/AOD/DwA+4AHgARwADsAD4AA4AB7wB+D/fwD+/wPA/w8A8P8BgP8/APzAA8ADeAD89w/A//8A+P8HAPADAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AAD4/wDg/x8A/v8B4Ac/AB7AA+ABfAAegAfgAXwA/vAH4P9/AP7/A4D/HwDw/wOA/38A+PcPgA/8Afj/H4D//wD4/wcA/AcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAPAMD/AQD8fwDghw8ADvAA8AAOAA/gAXgAHIAHwAH4ARyAf/4B4P8fAPD/Afg/AMD/DwD8/wHgAz4A/oEDwP8/AOD/AwDwPwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AcAwP8DAD8/APAAB4ADcAA4AAaAAWAAGAAGwAHwABzgD8D/PwDwfwAA4AcAwP8DAH8/APgAB4ADcAAYwAfAv38A/P8AAPgBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4AADAfwAA+A8A4P8AAD8eAPjgAYAHPAA8wAPAAz4AHPADwP8fAPz/AcD/PwDg/wcA/nsA4IcPAA7/AOD/DwD/HwDwPwAAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHAMD/AQD+fwDg/w8AH/wA8AAPgA/wAPgAD4A/8ADwBw8A/v8A8P8PgP//APx/AOD/DwA++AHgHx4A/P8BAP8fAMD/AADwBwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AEA8P8BgP8/APj/A4AHfAA4gAeAA3gAPAAHwAd4APz7D8D/fwDw/wMA/AcA+P8BgP8/APjxA8APeAD8/wfA/38A4P8HAOABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8AADwfwDA/w8A/v8B4O8fAH7gA+ABfgAe4AfggX8A/vwH4P8fAP7/A8D/fwDg/w8A//8B8P8fAB//AfD/DwD/PwDw/wAA/gMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwAAMD/BwD+/wDg+A8AD+AAcAAOAB/gAPCHDwD8/wCA/w8A/g8A8P8DAP8/AHj8A4ADOAA8gAPAD3AA/PMHAP9/AMD/AwDwAQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAfwAA8P8BAP8/AHj/A4AHOAA4gAOAD3gA+P8HgP9/AMD/AQD/DwD4/wGA/x8AOMQBwAM8ADzAA8APPgD8/wMA/x8AwH8AAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAwDw/wCA/x8A+P8BwA8eADzAA8ADPAA8wAPADzwA/P8HgP9/AOD/AwD+DwDw/wGA/x8A+OEBgIcfAPj/AYD/HwDwPwAA+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPwHAMD/AQD+fwDg/x8AH/wB8AAegA/gAfgAHoA/4AH4jx8A/v8B8P8fgP//APz/AOD/PwA++APgHz4A/P8DAP8/AMD/AwDwHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAAgP8AAPw/AOD7AwAfOADwgAMABzgAeAAHgANwADgAB4AHcADw/wcA/n8AwAcAAPgAAAA/AADgDwAA+AMAAH4AAIAHAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAACA/wEA/B8AwOEBAB4cAPDAAQAHHABwwAEABxwAcMABAAccAPDAAQD+HwDg/wEA/B8AwAEAAPwAAIA/AADgHwAA+AEAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAID/AQD8PwDg/wMAvz8A+MEDgA88AHjAA4AHPAB4wAOA9z8A+P8DAP8/APD/AwB+AADAHwAA+B8AAP8DAOB/AADwAwAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AEAAP8AAPw/AOD/AwD/PwDw9wMAHz4A+OEDgA8+APjgA4APHwD4/wGA/x8A8P8BAP8fAOB/AAD+BwDA/wAA+A8AAP4AAAAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAQAA/wAA/D8A8MMHAA9wADAAAwADOAA4gAOAAzgAOIABgAMcAPjDAQD/DwDw/wAABw8A4AAAAD4AAMAPAADwAwAAfAAAAAcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAIB/AAD8PwDg/wcAv38A8IEHAA94AHiAA4AHPAB4wAOABzwA+P8DgP8/APD/AQD+HwDgBwAA/AEAgP8AAPgfAAD8AQAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAAgH8AAPgfAMD7AwAeOADwgAOABzgAOIADgAM4ADiAA4ADOAB4gAMABzgA8P8DAP4/AOAHAAAcAADAHwAA+A8AAP8AAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAACAPwAA/A8A4P8BAD8fAPDAAQAHHABwwAMADzwA8MADAA88AOD/AwD+PwDA/wMA/D8AgB8AAPgHAAD/AQDAPwAA8AMAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgDAID/AwD8PwDg8QMAHjwA8MADgAccAHjAAYADHAA4wAGAAxwAOP4BgP8fAPj/AIB/AADgHwAA+AcAAP4AAIA/AADgAwAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAeAAAwB8AAP4HAOD/AQD/PwDw+QMADz4A8MADgA88APjAA4AHPgB44AOA/x8A+P8BAP8fAPD/AQD/AQDg/wAA/g8AwP8AAIAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABgAACAPwAA/A8A8PEDAA88AHCAAwADOAAwgAMAAzgA8IMDAP4/AOD/AwAOHgDAAAAAHAAAgAMAAHgAAAAfAADABwAA+AAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPABAID/AQD8PwDg4QMADzAAeAADgAMwADiAA4ADOAA4gAOAAzgAOIADgP8/APD/AQAOAADgAQAAPAAAwB8AAPgfAAD8AQAAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA/g8A8P8BgP8fAPj/AcAHHgB+4APgAzwAHsAD4AM8AD7AB8ADeAD8/wfA/38A+P8HAP8PAOAPAAD8HwCA/x8A8P8BAPwfAADwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgAAAAfwAA/B8A4P8DAB4+APCAAwAPPABwwAOABzwAeMABgAccAPDAAQD/HwDg/wEA/h8AwMMAAPgAAIB/AADwDwAA/AAAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOABAIB/AAD+HwDg/wMAPz4A8MADAA88APDAAwAHHABwwAEADx4A8P8BAP4fAOD/AAD+DwDgAwAA/AAAwD8AAPAHAAB8AAAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AEAgP8DAPw/AOCBAwAOOABwgAMABzgAcIABAAYYAGCAAQAOHADg+AEA/A8AwB8AABwAAIABAAA4AACADwAA8B8AAPwDAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwAQCA/wMA/D8A4P8DAD98APiBB4APeAB4gAeAB3gAeIAHgAd8APj/B4D/fwDw/wcA/gMA4AcAAPwHAID/BwDwfwAA+AcAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAHAMD/BwD+fwDwAQcAD3AAcAAHgANwADgAB4ADcAA4AAeAA3AA+A8HgP9/APD/AwAPPwDgAQAAPAAAwB8AAPgPAAD+AQAAHgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AAAgH8AAP4/APD7BwAffgBwgAeABzgAeIADgAc8ADjAA4B/HAD4/wEA/x8A8P4BAB4MAOAHAAD8AACAPwAA4AcAAHgAAAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+DwDw/wGA/x8AeMABwAMcAB7AAeAAPAAOgAPgATgAHIADwAF4ABz4B8D/fwD4/wcA/wMA4AEAADwAAID/AQDw/wEA/x8AAPAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPAAAIB/AAD8HwDw+wGADxwAeMABgAMcADjAAYAHHABwwAEABxwA8MABAP4fAOD/AQD8HwDAAwAA+AEAgH8AAOAfAADwAQAAHAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAAD8AAPgPAMD/AQA/HwDwwQEADxwAcMABAA8cAPDAAQAOHADgwQEA/h8A4P8BAP4fAMAHAAD8AQAAfwAA4A8AAPgAAAAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAQAAfgAA+B8A4P8HAD9+APCBB4AHOAB4wAOABzwA+OEBgP8fAPD/AAD/DwDg+QAAHgAAwAcAAPwAAIAfAADgAwAAPAAAgAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHgAAMB/AAD+HwDw/QGADxwAeMABgAMcAHjAAQAHPABwwAMADzgA8IADAP4/AOD/AwD8HwCADwAA+AMAAP8AAMA/AADwAwAAGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+AAAwH8AAP4fAPD/AYAfHwD4wAGABxwAeMABAA88APDAAwAfPADgwQMA/j8AwP8DAPgfAIAPAADwBwAA/wMA4H8AAPAHAAA4AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAQAAfwAA+A8A4P8DAH4/APDjAwAPPADwwAMADzwA8OABAB8eAPD/AQD/HwDg/wEA/g8A4AcAAP4AAMA/AADwAwAAPgAAgAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMABAAD/AQD4PwDg/wMAfz4A8MEDAA8eAPDgAQAPHgDg4QEAfh4A4P8BAP4fAOD/AQD+HwDg7wAA/AMAAP8AAOAPAAD4AAAADgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA4AAAwH8AAP8/APj7A4APPAA4wAPAAzwAHMABwAEeABzgAcAfDgD4/wCA/wcAeH8AgAcAAPAAAAA/AADwDwAA/AMAAD4AAIABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD4AADA/wAA/B8A8P8BAB8fAPjgAYAHHgB44AGABx4AeOABgA88APDwAwD/PwDg/wMA/h8AwA8AAPwDAID/AQDwPwAA/AEAABwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPABAID/AwD8fwDg/wcAH3wA+IEHgA9wAHgAB4AHcAB4AAcAD3AA8P4HAP9/AOD/BwD8PwDAHwAA+AcAAP8DAMB/AADgBwAAOAAAAAAAAAAAAAAA";
+const POPCNT = new Uint8Array(256);
+for(let i=0;i<256;i++){ let c=0; for(let j=0;j<8;j++) c += (i>>j)&1; POPCNT[i]=c; }
+let BANK = null;
+function loadBank(){
+  const bin = atob(BANK_B64);
+  BANK = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) BANK[i] = bin.charCodeAt(i);
+}
+function packGrid(grid){
+  const bytes = new Uint8Array(BYTES_PER);
+  for(let i=0;i<REC*REC;i++) if(grid[i]>0.5) bytes[i>>3] |= (1<<(i&7));
+  return bytes;
+}
+function unpackSample(idx){
+  const grid = new Float32Array(REC*REC);
+  const base = idx*BYTES_PER;
+  for(let i=0;i<REC*REC;i++) if(BANK[base+(i>>3)] & (1<<(i&7))) grid[i]=1;
+  return grid;
+}
+function hammingToSample(u, sampleIdx){
+  let bits=0; const base=sampleIdx*BYTES_PER;
+  for(let i=0;i<BYTES_PER;i++) bits += POPCNT[u[i] ^ BANK[base+i]];
+  return bits/(REC*REC);
+}
+function recognize(userGrid){
+  const u = packGrid(userGrid);
+  const byDigit=[];   // byDigit[d] = avg hamming distance to digit d's closest K samples
+  for(let d=0;d<=9;d++){
+    const ds=[];
+    for(let s=0;s<N_SAMPLES;s++) ds.push(hammingToSample(u, d*N_SAMPLES+s));
+    ds.sort((a,b)=>a-b);
+    byDigit.push(ds.slice(0,K).reduce((a,b)=>a+b,0)/K);
+  }
+  const order = byDigit.map((score,digit)=>({digit,score})).sort((a,b)=>a.score-b.score);
+  const winner = order[0];
+  let bd=Infinity, bi=-1;
+  for(let s=0;s<N_SAMPLES;s++){
+    const h=hammingToSample(u, winner.digit*N_SAMPLES+s);
+    if(h<bd){ bd=h; bi=winner.digit*N_SAMPLES+s; }
+  }
+  return {digit:winner.digit, score:winner.score, second:order[1].score, byDigit, bestSample:bi};
+}
+
+/* render the user's strokes into a 200x200 ink canvas (aspect-preserving) */
+function strokesToCanvas(strokes){
+  const cv=document.createElement('canvas'); cv.width=cv.height=200;
+  const ctx=cv.getContext('2d');
+  // bounding box of all points
+  let minx=1e9,miny=1e9,maxx=-1e9,maxy=-1e9;
+  for(const st of strokes) for(const p of st){
+    if(p.x<minx)minx=p.x; if(p.x>maxx)maxx=p.x;
+    if(p.y<miny)miny=p.y; if(p.y>maxy)maxy=p.y;
+  }
+  if(maxx<minx) return cv;
+  const bw=Math.max(1,maxx-minx), bh=Math.max(1,maxy-miny);
+  const scale=170/Math.max(bw,bh);
+  const ox=(200-bw*scale)/2 - minx*scale;
+  const oy=(200-bh*scale)/2 - miny*scale;
+  ctx.strokeStyle='#000'; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.lineWidth=12;
+  for(const st of strokes){
+    if(st.length<1) continue;
+    ctx.beginPath();
+    ctx.moveTo(st[0].x*scale+ox, st[0].y*scale+oy);
+    for(let i=1;i<st.length;i++) ctx.lineTo(st[i].x*scale+ox, st[i].y*scale+oy);
+    ctx.stroke();
+  }
+  return cv;
+}
+
+function splitSegments(cv){
+  const {ink,w,h}=canvasToInk(cv);
+  const col=new Array(w).fill(0);
+  for(let x=0;x<w;x++)for(let y=0;y<h;y++) if(ink[y*w+x]) col[x]=1;
+  const segs=[]; let i=0;
+  while(i<w){
+    if(col[i]){ const s=i; while(i<w&&col[i]) i++; segs.push([s,i-1]); }
+    else i++;
+  }
+  return segs;
+}
+function splitSegmentAtMin(cv, seg, n){
+  const {ink,w,h}=canvasToInk(cv);
+  const counts=[];
+  for(let x=seg[0];x<=seg[1];x++){ let c=0; for(let y=0;y<h;y++) if(ink[y*w+x]) c++; counts.push(c); }
+  const a=seg[0]+Math.floor((seg[1]-seg[0])*0.25), b=seg[0]+Math.floor((seg[1]-seg[0])*0.75);
+  let mi=a; for(let x=a;x<=b;x++) if(counts[x-seg[0]]<counts[mi-seg[0]]) mi=x;
+  const res=[]; const span=seg[1]-seg[0];
+  const step=span/n;
+  for(let k=0;k<n;k++){
+    const s=seg[0]+Math.round(k*step), e=seg[0]+Math.round((k+1)*step)-1;
+    res.push([s,e]);
+  }
+  return res;
+}
+
+function recognizeNumber(cv, expectedDigits){
+  const segs = splitSegments(cv);
+  let cells=[];
+  if(expectedDigits===1){
+    cells=[[0,cv.width-1]];
+  } else if(segs.length>=expectedDigits){
+    cells = segs.slice().sort((a,b)=>(b[1]-b[0])-(a[1]-a[0])).slice(0,expectedDigits).sort((a,b)=>a[0]-b[0]);
+  } else if(segs.length===1){
+    cells = splitSegmentAtMin(cv, segs[0], expectedDigits);
+  } else {
+    cells = segs;
+  }
+  const digits=[];
+  for(const [x0,x1] of cells){
+    const cw=Math.max(1,x1-x0+1), ch=cv.height;
+    const c=document.createElement('canvas'); c.width=cw; c.height=ch;
+    c.getContext('2d').drawImage(cv,x0,0,cw,ch,0,0,cw,ch);
+    const {ink,w,h}=canvasToInk(c);
+    digits.push(recognize(normalizeInk(ink,w,h)));
+  }
+  return digits;
+}
+
+// Calibrated thresholds (28x28 grid distance units), measured against simulated
+// kid handwriting: a correct-but-wobbly digit scores 0.15–0.60, a random scribble
+// 0.73+, and a *different* digit is caught by the digit-match check below.
+const ACCEPT_SCORE  = 0.16;  // below this => clearly a real digit, accept
+const UNCERTAIN_MAX = 0.24;  // up to this => "I think it's X, write clearer" (gentle)
+
+function checkWrite(){
+  if(strokes.length===0 || strokes.every(s=>s.length<2)){
+    $('g1feedback').className='feedback info';
+    $('g1feedback').textContent = '✏️ Write the number first!';
+    return;
+  }
+  const cv = strokesToCanvas(strokes);
+  const tstr = String(g1target);
+  const digits = recognizeNumber(cv, tstr.length);
+  const fb = $('g1feedback');
+
+  if(digits.length !== tstr.length){
+    fb.className='feedback bad';
+    fb.textContent = "Hmm, I couldn't read that clearly. Try again! 🧽";
+    beep(false);
+    return;
+  }
+
+  let readStr='', confSum=0, ok=true;
+  for(let i=0;i<tstr.length;i++){
+    const d = digits[i];
+    readStr += d.digit;
+    confSum += Math.max(0, Math.min(1, 1 - d.score/0.3));   // score 0 -> 100%, 0.3 -> 0%
+    if(d.digit !== +tstr[i]) ok = false;
+  }
+  const confidence = Math.round(confSum/tstr.length*100);
+  const avgScore = digits.reduce((s,d)=>s+d.score,0)/digits.length;
+
+  if(!ok){
+    // Recognizer read a DIFFERENT number than the target -> reject.
+    fb.className='feedback bad';
+    fb.textContent = 'That looks like a "' + readStr + '" to me. Count the fruits again! 🧽';
+    beep(false);
+  } else if(avgScore < ACCEPT_SCORE){
+    fb.className='feedback good';
+    fb.textContent = '🎉 Great! You wrote ' + g1target + ' — I read "' + readStr + '" (' + confidence + '% sure).';
+    beep(true);
+    if($('g1next').disabled){ addStar(); }
+    $('g1next').disabled = false;
+    burst();
+  } else if(avgScore < UNCERTAIN_MAX){
+    // Right number but a bit too messy to be sure — gentle nudge, not a fail.
+    fb.className='feedback info';
+    fb.textContent = 'I think that says "' + readStr + '" (' + confidence + '% sure). Write it a bit bigger and clearer! ✏️';
+    beep(false);
+  } else {
+    fb.className='feedback info';
+    fb.textContent = "I can't quite read that. Press 🧽 and try a nice clear " + tstr + '!';
+    beep(false);
+  }
+  renderDebug();
+}
+
+/* ============================================================
+   GAME 2 — CIRCLE THE AMOUNT
+============================================================ */
+const lc = $('loopCanvas');
+const lctx = lc.getContext('2d');
+let loopStroke = null;
+
+function startGame2(){ show('game2'); nextQuestion2(); }
+
+function nextQuestion2(){
+  g2target = randInt(1, Math.min(maxNum, 10));      // keep the field manageable
+  g2fruit = FRUITS[randInt(0, FRUITS.length-1)];
+  const total = g2target + randInt(2,4);            // extra "options" to ignore
+  $('g2target').innerHTML =
+    'Encierra <span class="big-num">'+g2target+'</span> ' + g2fruit.name + ' ' + g2fruit.emoji;
+  buildField(total);
+  resetCircles();
+  $('g2feedback').className='feedback info';
+  $('g2feedback').textContent = '¡Dibuja círculos alrededor de las frutas!';
+}
+
+function buildField(total){
+  const field = $('field');
+  const layer = $('fruitLayer');
+  layer.innerHTML='';
+  fitCanvas(lc);
+  const fw = field.clientWidth, fh = field.clientHeight;
+  const size = total<=8 ? 48 : 42;
+  g2Fruits = [];
+  const positions = [];
+  const minGap = size + 26;
+  let guard = 0;
+  while(positions.length < total && guard < 4000){
+    guard++;
+    const x = randInt(46, fw-46), y = randInt(60, fh-40);
+    let ok=true;
+    for(const p of positions){ if(Math.hypot(p.x-x,p.y-y) < minGap){ ok=false; break; } }
+    if(ok) positions.push({x,y});
+  }
+  positions.forEach((p,i)=>{
+    const wrap = document.createElement('div');
+    wrap.className='fruit-pos';
+    wrap.style.left=p.x+'px'; wrap.style.top=p.y+'px';
+    const span = document.createElement('span');
+    span.className='fruit'; span.style.fontSize=size+'px';
+    span.textContent=g2fruit.emoji;
+    const ring = document.createElement('div'); ring.className='ring';
+    wrap.appendChild(span); wrap.appendChild(ring);
+    layer.appendChild(wrap);
+    g2Fruits.push({el:wrap, x:p.x, y:p.y, circled:false});
+  });
+}
+
+function resetCircles(){
+  g2Fruits.forEach(f=>{ f.circled=false; f.el.classList.remove('circled'); });
+  updateCircledCount();
+  clearLoopCanvas();
+}
+
+function updateCircledCount(){
+  $('circledCount').textContent = g2Fruits.filter(f=>f.circled).length;
+}
+
+function clearLoopCanvas(){
+  const r = lc.getBoundingClientRect();
+  lctx.clearRect(0,0,r.width,r.height);
+}
+
+function loopPoint(e){ return canvasPoint(lc,e); }
+
+function pointInPoly(x,y,pts){
+  let inside=false;
+  for(let i=0,j=pts.length-1;i<pts.length;j=i++){
+    const xi=pts[i].x,yi=pts[i].y,xj=pts[j].x,yj=pts[j].y;
+    if(((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) inside=!inside;
+  }
+  return inside;
+}
+
+lc.addEventListener('pointerdown', e=>{
+  e.preventDefault();
+  lc.setPointerCapture(e.pointerId);
+  loopStroke = [loopPoint(e)];
+});
+lc.addEventListener('pointermove', e=>{
+  if(!loopStroke) return;
+  loopStroke.push(loopPoint(e));
+  // live draw
+  const r=lc.getBoundingClientRect();
+  lctx.clearRect(0,0,r.width,r.height);
+  lctx.strokeStyle='rgba(249,115,22,.8)'; lctx.lineWidth=7; lctx.lineCap='round'; lctx.lineJoin='round';
+  lctx.beginPath();
+  lctx.moveTo(loopStroke[0].x,loopStroke[0].y);
+  for(let i=1;i<loopStroke.length;i++) lctx.lineTo(loopStroke[i].x,loopStroke[i].y);
+  lctx.stroke();
+});
+lc.addEventListener('pointerup', e=>{
+  if(!loopStroke){ return; }
+  const st = loopStroke; loopStroke=null;
+
+  // tiny movement => a tap (uncircle a fruit)
+  const moved = Math.hypot(st[st.length-1].x-st[0].x, st[st.length-1].y-st[0].y);
+  if(moved < 10 && st.length < 8){
+    let best=null,bd=36;
+    for(const f of g2Fruits){
+      const d=Math.hypot(f.x-st[0].x, f.y-st[0].y);
+      if(d<bd){ bd=d; best=f; }
+    }
+    if(best && best.circled){ best.circled=false; best.el.classList.remove('circled'); updateCircledCount(); }
+    clearLoopCanvas();
+    return;
+  }
+
+  // is it a closed loop?
+  const end=st[st.length-1];
+  const closed = Math.hypot(end.x-st[0].x, end.y-st[0].y) < 42 && st.length>12;
+  if(closed){
+    const poly = st.slice();
+    let changed=false;
+    for(const f of g2Fruits){
+      if(!f.circled && pointInPoly(f.x,f.y,poly)){
+        f.circled=true; f.el.classList.add('circled'); changed=true;
+      }
+    }
+    if(changed){ updateCircledCount(); beep(true); }
+  }
+  clearLoopCanvas();
+});
+lc.addEventListener('pointercancel', ()=>{ loopStroke=null; clearLoopCanvas(); });
+
+function checkCircles(){
+  const got = g2Fruits.filter(f=>f.circled).length;
+  const fb=$('g2feedback');
+  if(got===g2target){
+    fb.className='feedback good';
+    fb.textContent='🎉 Perfect! You circled ' + g2target + ' ' + g2fruit.name + '!';
+    beep(true);
+    if($('g2next').disabled){ addStar(); }
+    $('g2next').disabled=false;
+    burst();
+  } else {
+    fb.className='feedback bad';
+    fb.textContent='You circled ' + got + ', but we need ' + g2target + '. Try again!';
+    beep(false);
+  }
+}
+
+/* ============================================================
+   DEBUG — "show what I see"
+============================================================ */
+let debugOn = false;
+function toggleDebug(){
+  debugOn = !debugOn;
+  $('debugPanel').style.display = debugOn ? '' : 'none';
+  if(debugOn) renderDebug();
+}
+
+function gridToDataURL(grid){
+  const gc=document.createElement('canvas'); gc.width=gc.height=140;
+  const g=gc.getContext('2d');
+  g.fillStyle='#fff'; g.fillRect(0,0,140,140);
+  const cell=140/REC;
+  g.fillStyle='#33415c';
+  for(let y=0;y<REC;y++)for(let x=0;x<REC;x++) if(grid[y*REC+x]) g.fillRect(x*cell,y*cell,cell,cell);
+  return gc.toDataURL();
+}
+
+function renderDebug(){
+  const panel = $('debugPanel');
+  if(!debugOn) return;
+  if(strokes.length===0 || strokes.every(s=>s.length<2)){
+    panel.innerHTML = '<div class="dbg-note">✏️ Dibuja un número — el panel mostrará la cuadrícula 28×28 que ve el reconocedor y la puntuación de cada dígito.</div>';
+    return;
+  }
+  const cv = strokesToCanvas(strokes);
+  const tstr = String(g1target);
+  const nCells = tstr.length;
+  const segs = splitSegments(cv);
+  let cells=[];
+  if(nCells===1) cells=[[0,cv.width-1]];
+  else if(segs.length>=nCells) cells = segs.slice().sort((a,b)=>(b[1]-b[0])-(a[1]-a[0])).slice(0,nCells).sort((a,b)=>a[0]-b[0]);
+  else if(segs.length===1) cells = splitSegmentAtMin(cv, segs[0], nCells);
+  else cells = segs;
+
+  let html = '<div class="dbg-note">Objetivo = <b>'+tstr+'</b> · acepta por debajo de <b>'+ACCEPT_SCORE+'</b> · «escribe más claro» hasta '+UNCERTAIN_MAX+'. Menor puntuación = mejor coincidencia.</div>';
+  cells.forEach(([x0,x1], ci)=>{
+    const cw=Math.max(1,x1-x0+1), ch=cv.height;
+    const c=document.createElement('canvas'); c.width=cw; c.height=ch;
+    c.getContext('2d').drawImage(cv,x0,0,cw,ch,0,0,cw,ch);
+    const {ink,w,h}=canvasToInk(c);
+    const norm = normalizeInk(ink,w,h);
+    const rec = recognize(norm);
+    const best = rec.digit, bs = rec.score;
+    const scores = rec.byDigit;   // index = digit 0..9
+    const tplURL = gridToDataURL(unpackSample(rec.bestSample));
+    const usrURL = gridToDataURL(norm);
+
+    html += '<div class="dbg-digit"><b>Celda '+(ci+1)+' → Leo "'+best+'" (puntuación '+bs.toFixed(2)+')</b>';
+    html += '<div class="dbg-grids">'
+          + '<div class="dbg-grid-wrap"><img class="dbg-grid" src="'+usrURL+'">Tú escribiste</div>'
+          + '<div class="dbg-grid-wrap"><img class="dbg-grid" src="'+tplURL+'">Plantilla '+best+'</div>'
+          + '</div>';
+    html += '<div class="dbg-scores">';
+    scores.forEach((s,d)=>{
+      const w = Math.max(2, Math.min(120, s*400));
+      html += '<div class="dbg-score'+(d===best?' best':'')+'"><span>'+d+'</span><i style="width:'+w.toFixed(0)+'px"></i><em>'+s.toFixed(2)+'</em></div>';
+    });
+    html += '</div></div>';
+  });
+  panel.innerHTML = html;
+}
+
+/* ============================================================
+   WORKSHEET / PDF CREATOR
+============================================================ */
+function wsScatter(n){
+  const pts=[]; let guard=0;
+  while(pts.length<n && guard<3000){
+    guard++;
+    const x = 12 + Math.random()*76;   // % across the box
+    const y = 22 + Math.random()*58;   // % down the box
+    let ok=true;
+    for(const p of pts){ if(Math.hypot(p.x-x,p.y-y) < 21){ ok=false; break; } }
+    if(ok) pts.push({x,y});
+  }
+  return pts;
+}
+
+function currentPdfOptions(){
+  return {
+    type:  $('pdfType').value,
+    range: parseInt($('pdfRange').value,10),
+    count: parseInt($('pdfCount').value,10),
+    grid:  parseInt($('pdfGrid').value,10),
+    title: $('pdfTitle').value.trim(),
+  };
+}
+
+function buildWorksheetHTML(opts){
+  const type = opts.type;
+  const range = opts.range;
+  const count = opts.count;
+  const cellMm = opts.grid;
+  const hasGrid = cellMm > 0;
+  const title = opts.title || (type==='write' ? 'Cuenta y escribe' : 'Encierra la cantidad');
+  const sub = type==='write'
+    ? 'Cuenta las frutas y escribe el número en la cuadrícula.'
+    : 'Encierra con un círculo la cantidad de frutas que se indica.';
+
+  let problems='';
+  for(let i=0;i<count;i++){
+    if(type==='write'){
+      const n = randInt(1, range);
+      const f = FRUITS[randInt(0,FRUITS.length-1)].emoji;
+      const digits = String(n).length;
+      const size = n<=10 ? 20 : 15;
+      let spans='';
+      for(let k=0;k<n;k++) spans += '<span class="ws-fruit">'+f+'</span>';
+      let cells='';
+      if(hasGrid){
+        for(let c=0;c<digits;c++){
+          cells += '<div class="ws-cell" style="width:'+cellMm+'mm;height:'+cellMm+'mm"></div>';
+        }
+        cells = '<div class="ws-cells">'+cells+'</div>';
+      } else {
+        cells = '<div class="ws-answerbox" style="width:'+(digits*20+4)+'mm"></div>';
+      }
+      problems += '<div class="ws-problem ws-write">'
+        + '<div class="ws-fruits" style="font-size:'+size+'pt">'+spans+'</div>'
+        + cells
+        + '</div>';
+    } else {
+      const target = randInt(1, Math.min(range,10));
+      const total = target + randInt(2,4);
+      const f = FRUITS[randInt(0,FRUITS.length-1)].emoji;
+      const pos = wsScatter(total);
+      let spans='';
+      for(const p of pos){
+        spans += '<span class="ws-fruit-pos" style="left:'+p.x.toFixed(1)+'%;top:'+p.y.toFixed(1)+'%;font-size:18pt">'+f+'</span>';
+      }
+      let num;
+      if(hasGrid){
+        const fs = Math.max(8, Math.round(cellMm*1.6));
+        num = '<div class="ws-circle-num grid" style="width:'+cellMm+'mm;height:'+cellMm+'mm;font-size:'+fs+'pt">'+target+'</div>';
+      } else {
+        num = '<div class="ws-circle-num plain">'+target+'</div>';
+      }
+      problems += '<div class="ws-problem ws-circle">'
+        + num
+        + '<div class="ws-circle-field">'+spans+'</div>'
+        + '</div>';
+    }
+  }
+
+  return '<div class="ws-sheet">'
+    + '<div class="ws-header">'
+    +   '<div class="ws-name">Nombre: <span class="ws-line"></span></div>'
+    +   '<div class="ws-date">Fecha: <span class="ws-line ws-line-short"></span></div>'
+    + '</div>'
+    + '<div class="ws-title">'+title+'</div>'
+    + '<div class="ws-sub">'+sub+'</div>'
+    + '<div class="ws-grid">'+problems+'</div>'
+    + '</div>';
+}
+
+function regeneratePdf(){
+  const html = buildWorksheetHTML(currentPdfOptions());
+  $('printArea').innerHTML = html;
+  $('wsPreview').innerHTML = html;
+}
+
+function openPdf(presetType){
+  if(presetType) $('pdfType').value = presetType;
+  show('pdf');
+  regeneratePdf();
+}
+
+function downloadPdf(){
+  regeneratePdf();
+  window.print();
+}
+
+/* ============================================================
+   CELEBRATION
+============================================================ */
+function burst(){
+  const c=$('celebrate');
+  const emo=['⭐','🌟','🎉','✨','🍎','🍊','💛'];
+  for(let i=0;i<14;i++){
+    const s=document.createElement('span');
+    s.className='pop';
+    s.textContent=emo[randInt(0,emo.length-1)];
+    s.style.left=randInt(5,95)+'%';
+    s.style.top=randInt(20,70)+'%';
+    s.style.animationDelay=(Math.random()*0.4)+'s';
+    c.appendChild(s);
+    setTimeout(()=>s.remove(),1600);
+  }
+}
+
+/* ============================================================
+   INIT
+============================================================ */
+loadBank();
+['pdfType','pdfRange','pdfCount','pdfGrid','pdfTitle'].forEach(id=>{
+  $(id).addEventListener('input', regeneratePdf);
+  $(id).addEventListener('change', regeneratePdf);
+});
+fitCanvas(wc); drawWriteBackground();
+</script>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a344243a394db17e',t:'MTc4ODI2NDMwOA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
