@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="refresh" content="0; url=5_color.html"/>
+<title>Los Colores · Year 5</title>
+<script>location.replace('5_color.html');</script>
+</head>
+<body>
+  <p><a href="5_color.html">Year 5 · Los Colores</a></p>
+</body>
+</html>
