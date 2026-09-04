@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Español · K–6 Alfabetización</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Baloo+2:wght@700;800&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden}
+body{font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;background:#f0eeff;display:flex;flex-direction:column}
+
+:root{
+  --cl:#1460c8; --cl-s:#eaf1ff; --cl-m:#2575e8; --cl-d:#0d469a;
+  --ej:#db2777; --ej-s:#fce7f3; --ej-m:#ec4899; --ej-d:#9d174d;
+  --he:#9c1fc4; --he-s:#f8eaff; --he-m:#b83ae0; --he-d:#721090;
+  --ti:#1a8a3c; --ti-s:#ebfaef; --ti-m:#28a84d; --ti-d:#116129;
+  --ho:#d94008; --ho-s:#fff0eb; --ho-m:#ff6b35; --ho-d:#a83005;
+
+  --white:#fff; --bg:#f0eeff; --bdr:#ddd8f5; --text:#1a1535; --muted:#7068a0;
+  --active-bg:#fffbe6; --active-ln:#fcc419;
+  --sw:264px; --hh:56px;
+  --t:.25s cubic-bezier(.4,0,.2,1);
+}
+
+.hdr{
+  height:var(--hh);flex-shrink:0;
+  background:var(--white);border-bottom:2px solid var(--bdr);
+  display:flex;align-items:center;padding:0 1rem;gap:9px;
+  box-shadow:0 2px 12px rgba(60,40,120,.06);z-index:20;
+}
+.fold-btn{
+  width:36px;height:36px;border-radius:9px;border:1.5px solid var(--bdr);
+  background:var(--white);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:background var(--t),border-color var(--t);color:var(--muted);
+}
+.fold-btn:hover{background:var(--bg);border-color:#c4bce8;color:var(--text)}
+.fold-btn svg{width:16px;height:16px}
+.badge{
+  width:36px;height:36px;border-radius:9px;background:#fcc419;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;
+}
+.badge:hover{opacity:.88}
+.badge svg{width:24px;height:24px}
+.h1{flex:1;display:flex;align-items:center;gap:8px;min-width:0}
+.htitle{font-family:'Baloo 2',cursive;font-size:15.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.htitle span{color:var(--muted);font-weight:600;font-family:'Nunito',sans-serif;font-size:12.5px}
+.hdate{font-size:11.5px;color:var(--muted);font-weight:700;
+  background:var(--bg);border-radius:7px;padding:4px 11px;border:1.5px solid var(--bdr);white-space:nowrap}
+.hlinks{display:flex;gap:4px}
+.hlink{
+  display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;
+  color:var(--muted);text-decoration:none;padding:5px 11px;border-radius:8px;
+  border:1.5px solid var(--bdr);background:var(--white);
+  transition:background var(--t),color var(--t),border-color var(--t);cursor:pointer;
+}
+.hlink:hover{background:var(--bg);color:var(--text);border-color:#c4bce8}
+.hlink svg{width:13px;height:13px}
+
+.ws{flex:1;display:flex;overflow:hidden;position:relative}
+
+.sb{
+  width:var(--sw);min-width:var(--sw);
+  background:var(--white);border-right:2px solid var(--bdr);
+  overflow-y:auto;overflow-x:hidden;
+  transition:width var(--t),min-width var(--t);
+  scrollbar-width:thin;scrollbar-color:#ddd transparent;
+  flex-shrink:0;
+}
+.sb::-webkit-scrollbar{width:3px}
+.sb::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
+.sb.closed{width:0;min-width:0}
+
+.subj{overflow:hidden}
+.sj-btn{
+  display:flex;align-items:center;gap:10px;
+  padding:.85rem 1rem .85rem 1.1rem;cursor:pointer;
+  position:relative;border:none;background:none;
+  width:100%;text-align:left;transition:background var(--t);
+  white-space:nowrap;
+}
+.sj-btn::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 3px 3px 0}
+.sj-btn:hover{background:rgba(0,0,0,.025)}
+.sj-ico{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;
+  justify-content:center;font-size:18px;flex-shrink:0;transition:transform var(--t)}
+.sj-btn:hover .sj-ico{transform:scale(1.1)}
+.sj-lbl{font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;color:var(--text);flex:1}
+.sj-cnt{font-size:10px;font-weight:800;border-radius:20px;padding:2px 7px}
+.chev{width:15px;height:15px;flex-shrink:0;transition:transform var(--t);opacity:.35}
+.subj.open>.sj-btn>.chev{transform:rotate(180deg)}
+
+.cl .sj-btn::before{background:var(--cl)}.cl .sj-ico{background:var(--cl-s)}
+.cl .sj-cnt{background:var(--cl-s);color:var(--cl-d)}.cl.open>.sj-btn{background:var(--cl-s)}
+.ej .sj-btn::before{background:var(--ej)}.ej .sj-ico{background:var(--ej-s)}
+.ej .sj-cnt{background:var(--ej-s);color:var(--ej-d)}.ej.open>.sj-btn{background:var(--ej-s)}
+.he .sj-btn::before{background:var(--he)}.he .sj-ico{background:var(--he-s)}
+.he .sj-cnt{background:var(--he-s);color:var(--he-d)}.he.open>.sj-btn{background:var(--he-s)}
+.ti .sj-btn::before{background:var(--ti)}.ti .sj-ico{background:var(--ti-s)}
+.ti .sj-cnt{background:var(--ti-s);color:var(--ti-d)}.ti.open>.sj-btn{background:var(--ti-s)}
+.ho .sj-btn::before{background:var(--ho)}.ho .sj-ico{background:var(--ho-s)}
+.ho .sj-cnt{background:var(--ho-s);color:var(--ho-d)}.ho.open>.sj-btn{background:var(--ho-s)}
+
+.tl{overflow:hidden;max-height:0;transition:max-height .35s cubic-bezier(.4,0,.2,1)}
+.subj.open>.tl{max-height:2400px}
+
+.sg{border-top:1px solid rgba(0,0,0,.04)}
+.sg-btn{
+  display:flex;align-items:center;gap:7px;
+  padding:.52rem 1rem .52rem 1.4rem;
+  cursor:pointer;border:none;background:none;width:100%;text-align:left;
+  font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--muted);transition:color var(--t),background var(--t);white-space:nowrap;
+}
+.sg-btn:hover{color:var(--text);background:rgba(0,0,0,.025)}
+.sg-ico{font-size:13px}
+.sg-chev{width:13px;height:13px;margin-left:auto;opacity:.35;transition:transform var(--t);flex-shrink:0}
+.sg.open>.sg-btn>.sg-chev{transform:rotate(180deg)}
+.sg-items{overflow:hidden;max-height:0;transition:max-height .3s cubic-bezier(.4,0,.2,1)}
+.sg.open>.sg-items{max-height:600px}
+
+.tp{
+  display:flex;align-items:center;gap:8px;cursor:pointer;
+  font-size:12.5px;font-weight:700;color:var(--muted);
+  border-left:3px solid transparent;
+  transition:background var(--t),color var(--t),border-color var(--t),transform var(--t);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.tp:hover{background:var(--bg);color:var(--text);transform:translateX(2px)}
+.tp.active{background:var(--active-bg);color:var(--text);border-left-color:var(--active-ln);transform:translateX(2px)}
+.tp.d1{padding:.6rem 1rem .6rem 2.4rem}
+.tp.d2{padding:.55rem 1rem .55rem 2.8rem}
+.tdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;opacity:.75;transition:opacity var(--t),transform var(--t)}
+.tp:hover .tdot,.tp.active .tdot{opacity:1;transform:scale(1.4)}
+.tnew{margin-left:auto;font-size:9px;font-weight:800;letter-spacing:.06em;
+  border-radius:4px;padding:1px 6px;background:#f5f3ff;color:var(--muted);flex-shrink:0}
+
+.sdiv{height:1px;background:var(--bdr);margin:.2rem .8rem;opacity:.6}
+
+.ct{flex:1;display:flex;flex-direction:column;background:var(--bg);overflow:hidden;min-width:0}
+
+.bc{
+  height:38px;flex-shrink:0;
+  background:var(--white);border-bottom:1.5px solid var(--bdr);
+  display:flex;align-items:center;padding:0 1.1rem;gap:5px;
+  font-size:12px;font-weight:700;color:var(--muted);
+}
+.bc-h{cursor:pointer;display:flex;align-items:center;gap:4px;transition:color var(--t)}
+.bc-h:hover{color:var(--text)}
+.bc-sep{opacity:.3;font-size:11px}
+.bc-sj{display:flex;align-items:center;gap:4px;border-radius:5px;padding:2px 7px;font-size:11px}
+.bc-tp{color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+.lbar{
+  height:3px;position:absolute;top:38px;left:0;right:0;z-index:5;
+  background:linear-gradient(90deg,#fcc419,#ff6b35,#1460c8,#1a8a3c);
+  background-size:300%;animation:lb 1.4s linear infinite;
+  opacity:0;transition:opacity .2s;
+}
+.lbar.on{opacity:1}
+@keyframes lb{0%{background-position:100%}100%{background-position:-200%}}
+
+.fw{flex:1;position:relative;overflow:hidden}
+.fw iframe{
+  position:absolute;inset:0;width:100%;height:100%;border:none;
+  opacity:0;transform:translateX(18px);
+  transition:opacity .3s ease,transform .3s ease;
+  background:var(--bg);
+}
+.fw iframe.vis{opacity:1;transform:translateX(0)}
+
+.wlc{
+  position:absolute;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;padding:2rem;gap:1.6rem;
+  transition:opacity .25s,transform .25s;
+}
+.wlc.gone{opacity:0;transform:scale(.97);pointer-events:none}
+.wlc h2{
+  font-family:'Baloo 2',cursive;font-size:clamp(22px,3.5vw,34px);
+  font-weight:800;color:var(--text);text-align:center;line-height:1.15;
+}
+.wlc h2 em{font-style:italic;color:var(--ho)}
+.wlc p{font-size:13px;color:var(--muted);text-align:center;font-weight:600}
+
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;width:100%;max-width:680px}
+.tile{
+  background:var(--white);border-radius:14px;padding:1.1rem 1rem;
+  border:2px solid var(--bdr);cursor:pointer;
+  transition:transform var(--t),box-shadow var(--t),border-color var(--t);
+  display:flex;align-items:center;gap:10px;
+  animation:fu .4s ease both;
+}
+@keyframes fu{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.tile:nth-child(1){animation-delay:.04s}.tile:nth-child(2){animation-delay:.09s}
+.tile:nth-child(3){animation-delay:.14s}.tile:nth-child(4){animation-delay:.19s}
+.tile:nth-child(5){animation-delay:.24s}
+.tile:hover{transform:translateY(-3px)}
+.tico{font-size:24px;width:44px;height:44px;border-radius:11px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tlbl{font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;color:var(--text);line-height:1}
+.tsb{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.t-cl{border-color:var(--cl-s)}.t-cl:hover{border-color:var(--cl-m);box-shadow:0 8px 22px rgba(20,96,200,.1)}.t-cl .tico{background:var(--cl-s)}
+.t-ej{border-color:var(--ej-s)}.t-ej:hover{border-color:var(--ej-m);box-shadow:0 8px 22px rgba(219,39,119,.1)}.t-ej .tico{background:var(--ej-s)}
+.t-he{border-color:var(--he-s)}.t-he:hover{border-color:var(--he-m);box-shadow:0 8px 22px rgba(156,31,196,.1)}.t-he .tico{background:var(--he-s)}
+.t-ti{border-color:var(--ti-s)}.t-ti:hover{border-color:var(--ti-m);box-shadow:0 8px 22px rgba(26,138,60,.1)}.t-ti .tico{background:var(--ti-s)}
+.t-ho{border-color:var(--ho-s)}.t-ho:hover{border-color:var(--ho-m);box-shadow:0 8px 22px rgba(217,64,8,.1)}.t-ho .tico{background:var(--ho-s)}
+
+.cpan{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;padding:3rem;text-align:center;background:var(--bg);
+  opacity:0;transform:translateX(18px);
+  transition:opacity .3s ease,transform .3s ease;pointer-events:none;
+}
+.cpan.vis{opacity:1;transform:translateX(0);pointer-events:auto}
+.c-em{font-size:50px;line-height:1}
+.c-ti{font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;color:var(--text)}
+.c-de{font-size:13px;color:var(--muted);max-width:300px;font-weight:600;line-height:1.55}
+.c-bd{font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+  border-radius:20px;padding:5px 14px;margin-top:2px}
+
+.sbbk{display:none;position:absolute;inset:0;background:rgba(26,21,53,.35);z-index:14}
+.sbbk.on{display:block}
+
+@media(max-width:760px){
+  :root{--sw:250px}
+  .hdate{display:none}
+  .hlink span{display:none}
+  .htitle span{display:none}
+  .sb{position:absolute;left:0;top:0;bottom:0;z-index:15;
+      transition:transform var(--t);box-shadow:6px 0 24px rgba(60,40,120,.16)}
+  .sb.closed{width:var(--sw);min-width:var(--sw);transform:translateX(-100%)}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <button class="fold-btn" onclick="toggleSb()" title="Abrir/cerrar menú">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </button>
+
+  <div class="badge" onclick="goHome()" title="Inicio">
+    <svg viewBox="0 0 48 48" fill="none">
+      <path d="M24 4 L42 12 V24 C42 35 34 42 24 44 C14 42 6 35 6 24 V12 Z" fill="#1a1535"/>
+      <path d="M24 4 L42 12 V24 C42 35 34 42 24 44 C14 42 6 35 6 24 V12 Z" stroke="#1a1535" stroke-width="3"/>
+      <text x="24" y="32" text-anchor="middle" font-family="Nunito, sans-serif" font-weight="900" font-size="20" fill="#fcc419">E</text>
+    </svg>
+  </div>
+
+  <div class="h1">
+    <span class="htitle">Español <span>· K–6 Alfabetización</span></span>
+  </div>
+
+  <div class="hdate" id="hdate">Hoy</div>
+
+  <nav class="hlinks">
+    <a class="hlink" href="schedule.html" onclick="return navLnk(event,this,'Horario','🗓️')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Horario</span>
+    </a>
+    <a class="hlink" href="tiempo.html" onclick="return navLnk(event,this,'Tiempo','🌅')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span>Tiempo</span>
+    </a>
+    <a class="hlink" href="tools.html" onclick="return navLnk(event,this,'Herramientas','🧰')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M8 14h8"/></svg>
+      <span>Herramientas</span>
+    </a>
+    <a class="hlink" href="memoria.html" onclick="return navLnk(event,this,'Memoria','🃏')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6v6H9z"/></svg>
+      <span>Memoria</span>
+    </a>
+  </nav>
+</header>
+
+<div class="ws">
+
+  <div class="sbbk" id="sbbk" onclick="closeSbMobile()"></div>
+
+  <aside class="sb" id="sb">
+
+    <div class="subj cl open" id="cl">
+      <button class="sj-btn" onclick="tSubj('cl')">
+        <div class="sj-ico">📚</div>
+        <span class="sj-lbl">Clases</span>
+        <span class="sj-cnt">8</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="tl">
+        <div class="tp d1" onclick="lp('day1.html','Primer día','Clases','📚','cl',this)"><span class="tdot" style="background:#E3A62F"></span>🌟 Primer día</div>
+
+        <div class="sg open" id="sg-ey">
+          <button class="sg-btn" onclick="tSg('sg-ey')">
+            <span class="sg-ico">🧸</span>Early Years
+            <svg class="sg-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="sg-items">
+            <div class="tp d2" onclick="lp('nursery.html','Nursery','Clases','📚','cl',this)"><span class="tdot" style="background:#E3A62F"></span>Nursery</div>
+            <div class="tp d2" onclick="lp('reception.html','Reception','Clases','📚','cl',this)"><span class="tdot" style="background:#1F6E64"></span>Reception</div>
+          </div>
+        </div>
+
+        <div class="sg open" id="sg-ks1">
+          <button class="sg-btn" onclick="tSg('sg-ks1')">
+            <span class="sg-ico">🎒</span>Key Stage 1
+            <svg class="sg-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="sg-items">
+            <div class="tp d2" onclick="lp('grade-1.html','Year 1','Clases','📚','cl',this)"><span class="tdot" style="background:#7A4FBF"></span>Year 1</div>
+            <div class="tp d2" onclick="lp('grade-2.html','Year 2','Clases','📚','cl',this)"><span class="tdot" style="background:#D64545"></span>Year 2</div>
+          </div>
+        </div>
+
+        <div class="sg open" id="sg-ks2">
+          <button class="sg-btn" onclick="tSg('sg-ks2')">
+            <span class="sg-ico">🚀</span>Key Stage 2
+            <svg class="sg-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="sg-items">
+            <div class="tp d2" onclick="lp('grade-3.html','Year 3','Clases','📚','cl',this)"><span class="tdot" style="background:#2E7DB8"></span>Year 3</div>
+            <div class="tp d2" onclick="lp('grade-4.html','Year 4','Clases','📚','cl',this)"><span class="tdot" style="background:#7A9A3C"></span>Year 4</div>
+            <div class="tp d2" onclick="lp('grade-5.html','Year 5','Clases','📚','cl',this)"><span class="tdot" style="background:#B4517A"></span>Year 5</div>
+            <div class="tp d2" onclick="lp('5_color.html','Year 5','Clases','📚','cl',this)"><span class="tdot" style="background:#B4517A"></span>Colores</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="subj ej" id="ej">
+      <button class="sj-btn" onclick="tSubj('ej')">
+        <div class="sj-ico">🎯</div>
+        <span class="sj-lbl">Ejercicios</span>
+        <span class="sj-cnt">4</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="tl">
+        <div class="tp d1" onclick="lp('traza.html','Alfabeto','Ejercicios','🎯','ej',this)"><span class="tdot" style="background:var(--ej)"></span>✏️ Alfabeto</div>
+        <div class="tp d1" onclick="lp('drag_capital_minuscula.html','Letras','Ejercicios','🎯','ej',this)"><span class="tdot" style="background:var(--ej)"></span>🔤 Letras</div>
+        <div class="tp d1" onclick="lp('match-connect (1).html','Números – Une','Ejercicios','🎯','ej',this)"><span class="tdot" style="background:var(--ej)"></span>🔢 Números – Une</div>
+        <div class="tp d1" onclick="lp('counting-game.html','Números – Escribe','Ejercicios','🎯','ej',this)"><span class="tdot" style="background:var(--ej)"></span>✍️ Números – Escribe</div>
+      </div>
+    </div>
+
+    <div class="subj he" id="he">
+      <button class="sj-btn" onclick="tSubj('he')">
+        <div class="sj-ico">🧰</div>
+        <span class="sj-lbl">Herramientas</span>
+        <span class="sj-cnt">4</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="tl">
+        <div class="tp d1" onclick="lp('tools.html','Panel de herramientas','Herramientas','🧰','he',this)"><span class="tdot" style="background:var(--he)"></span>Todas las herramientas</div>
+        <div class="tp d1" onclick="lp('tools.html','Juegos','Herramientas','🧰','he','[data-tool=\'games\']',this)"><span class="tdot" style="background:var(--he)"></span>🎮 Juegos</div>
+        <div class="tp d1" onclick="lp('tools.html','Escritura','Herramientas','🧰','he','[data-tool=\'writing\']',this)"><span class="tdot" style="background:var(--he)"></span>✍️ Escritura</div>
+        <div class="tp d1" onclick="lp('memoria.html','Memoria de números','Herramientas','🧰','he',this)"><span class="tdot" style="background:var(--he)"></span>🃏 Memoria de números</div>
+      </div>
+    </div>
+
+    <div class="subj ti" id="ti">
+      <button class="sj-btn" onclick="tSubj('ti')">
+        <div class="sj-ico">🌤️</div>
+        <span class="sj-lbl">El Tiempo</span>
+        <span class="sj-cnt">5</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="tl">
+        <div class="tp d1" onclick="lp('tiempo.html','Días de la semana','El Tiempo','🌤️','ti','[data-tab=\'days\']',this)"><span class="tdot" style="background:var(--ti)"></span>📅 Días</div>
+        <div class="tp d1" onclick="lp('tiempo.html','Números','El Tiempo','🌤️','ti','[data-tab=\'numbers\']',this)"><span class="tdot" style="background:var(--ti)"></span>🔢 Números</div>
+        <div class="tp d1" onclick="lp('tiempo.html','Meses','El Tiempo','🌤️','ti','[data-tab=\'months\']',this)"><span class="tdot" style="background:var(--ti)"></span>📆 Meses</div>
+        <div class="tp d1" onclick="lp('tiempo.html','Estaciones','El Tiempo','🌤️','ti','[data-tab=\'seasons\']',this)"><span class="tdot" style="background:var(--ti)"></span>🍂 Estaciones</div>
+        <div class="tp d1" onclick="lp('tiempo.html','Tiempo','El Tiempo','🌤️','ti','[data-tab=\'weather\']',this)"><span class="tdot" style="background:var(--ti)"></span>🌤️ Tiempo</div>
+      </div>
+    </div>
+
+    <div class="subj ho" id="ho">
+      <button class="sj-btn" onclick="tSubj('ho')">
+        <div class="sj-ico">🗓️</div>
+        <span class="sj-lbl">Horario</span>
+        <span class="sj-cnt">1</span>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="tl">
+        <div class="tp d1" onclick="lp('schedule.html','Schedule','Horario','🗓️','ho',this)"><span class="tdot" style="background:var(--ho)"></span>🗓️ Semana escolar</div>
+      </div>
+    </div>
+
+  </aside>
+
+  <main class="ct">
+    <div class="bc" id="bc">
+      <span class="bc-h" onclick="goHome()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Inicio
+      </span>
+      <span class="bc-sep" id="bs1" style="display:none">›</span>
+      <span class="bc-sj" id="bsj" style="display:none"></span>
+      <span class="bc-sep" id="bs2" style="display:none">›</span>
+      <span class="bc-tp" id="btp" style="display:none"></span>
+    </div>
+
+    <div class="lbar" id="lbar"></div>
+
+    <div class="fw" id="fw">
+      <div class="wlc" id="wlc">
+        <div>
+          <h2>¡Hola! ¿Listos para <em>aprender?</em> 🌟</h2>
+          <p>Elige una clase del menú, o toca una tarjeta.</p>
+        </div>
+        <div class="tiles">
+          <div class="tile t-cl" onclick="openSj('cl')"> <div class="tico">📚</div><div><div class="tlbl">Clases</div><div class="tsb">Nursery · Reception · Year 1–5</div></div></div>
+          <div class="tile t-ej" onclick="openSj('ej')"> <div class="tico">🎯</div><div><div class="tlbl">Ejercicios</div><div class="tsb">Alfabeto · Letras · Números</div></div></div>
+          <div class="tile t-he" onclick="openSj('he')"> <div class="tico">🧰</div><div><div class="tlbl">Herramientas</div><div class="tsb">Juegos · Escritura · Memoria</div></div></div>
+          <div class="tile t-ti" onclick="openSj('ti')"> <div class="tico">🌤️</div><div><div class="tlbl">El Tiempo</div><div class="tsb">Días · Meses · Estaciones</div></div></div>
+          <div class="tile t-ho" onclick="openSj('ho')"> <div class="tico">🗓️</div><div><div class="tlbl">Horario</div><div class="tsb">Semana escolar</div></div></div>
+        </div>
+      </div>
+
+      <iframe id="lf" title="Contenido" src="about:blank"></iframe>
+
+      <div class="cpan" id="cpan">
+        <div class="c-em" id="cem">📚</div>
+        <div class="c-ti" id="cti">¡Próximamente!</div>
+        <div class="c-de" id="cde">Esta lección está en construcción. ¡Vuelve pronto!</div>
+        <span class="c-bd" id="cbd">🚧 En construcción</span>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+const D=new Date(),DY=['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'],
+  MN=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+document.getElementById('hdate').textContent=DY[D.getDay()]+' · '+MN[D.getMonth()]+' '+D.getDate();
+
+const isMobile=()=>window.innerWidth<=760;
+function toggleSb(){
+  const sb=document.getElementById('sb');
+  sb.classList.toggle('closed');
+  document.getElementById('sbbk').classList.toggle('on', isMobile() && !sb.classList.contains('closed'));
+}
+function closeSbMobile(){
+  if(!isMobile()) return;
+  document.getElementById('sb').classList.add('closed');
+  document.getElementById('sbbk').classList.remove('on');
+}
+if(isMobile()) document.getElementById('sb').classList.add('closed');
+window.addEventListener('resize',()=>{ if(!isMobile()) document.getElementById('sbbk').classList.remove('on'); });
+
+function tSubj(id){document.getElementById(id).classList.toggle('open')}
+function tSg(id){document.getElementById(id).classList.toggle('open')}
+function openSj(id){
+  const sb=document.getElementById('sb');
+  sb.classList.remove('closed');
+  const el=document.getElementById(id);
+  el.classList.add('open');
+  el.scrollIntoView({behavior:'smooth',block:'nearest'});
+  document.getElementById('sbbk').classList.toggle('on', isMobile());
+}
+
+const SC={cl:{bg:'#eaf1ff',c:'#0d469a'},ej:{bg:'#fce7f3',c:'#9d174d'},he:{bg:'#f8eaff',c:'#721090'},ti:{bg:'#ebfaef',c:'#116129'},ho:{bg:'#fff0eb',c:'#a83005'}};
+function showBc(sn,si,sk,tn){
+  const s1=document.getElementById('bs1'),sj=document.getElementById('bsj'),
+    s2=document.getElementById('bs2'),tp=document.getElementById('btp');
+  if(!sn){s1.style.display=sj.style.display=s2.style.display=tp.style.display='none';return}
+  const c=SC[sk]||{bg:'#eee',c:'#333'};
+  sj.textContent=si+' '+sn;
+  sj.style.cssText='display:inline-flex;background:'+c.bg+';color:'+c.c;
+  s1.style.display='';
+  if(tn){tp.textContent=tn;s2.style.display='';tp.style.display=''}
+  else{s2.style.display=tp.style.display='none'}
+}
+
+function lp(url,topic,subject,icon,sk,tab,el){
+  document.querySelectorAll('.tp.active').forEach(e=>e.classList.remove('active'));
+  if(el) el.classList.add('active');
+  showBc(subject,icon,sk,topic);
+  closeSbMobile();
+  loadInFrame(url,tab,sk);
+}
+
+function loadInFrame(url,tab,sk){
+  const ifr=document.getElementById('lf'),wlc=document.getElementById('wlc'),
+    cpan=document.getElementById('cpan'),lbar=document.getElementById('lbar');
+  wlc.classList.add('gone');cpan.classList.remove('vis');ifr.classList.remove('vis');
+  if(url==='#'){
+    lbar.classList.remove('on');
+    const col=SC[sk]||{bg:'#eee',c:'#333'};
+    document.getElementById('cem').textContent='📚';
+    document.getElementById('cti').textContent='¡Próximamente!';
+    document.getElementById('cde').textContent='Esta lección está en construcción. ¡Vuelve pronto!';
+    const cb=document.getElementById('cbd');
+    cb.textContent='🚧 En construcción';cb.style.cssText='background:'+col.bg+';color:'+col.c;
+    requestAnimationFrame(()=>cpan.classList.add('vis'));
+    return;
+  }
+  lbar.classList.add('on');
+  ifr.onload=()=>{
+    if(tab){
+      try{ const b=ifr.contentDocument.querySelector(tab); if(b) b.click(); }catch(e){}
+    }
+    lbar.classList.remove('on');
+    requestAnimationFrame(()=>ifr.classList.add('vis'));
+  };
+  ifr.src=url;
+}
+
+function navLnk(e,el,label,icon){
+  e.preventDefault();
+  document.querySelectorAll('.tp.active').forEach(t=>t.classList.remove('active'));
+  showBc(null);
+  const bsj=document.getElementById('bsj'),bs1=document.getElementById('bs1');
+  bsj.textContent=icon+' '+label;
+  bsj.style.cssText='display:inline-flex;background:var(--bg);color:var(--text)';
+  bs1.style.display='';
+  loadInFrame(el.href);
+  return false;
+}
+
+function goHome(){
+  document.querySelectorAll('.tp.active').forEach(e=>e.classList.remove('active'));
+  showBc(null);
+  const ifr=document.getElementById('lf'),cpan=document.getElementById('cpan'),lbar=document.getElementById('lbar');
+  cpan.classList.remove('vis');ifr.classList.remove('vis');lbar.classList.remove('on');
+  document.getElementById('wlc').classList.remove('gone');
+  ifr.src='about:blank';
+}
+</script>
+
+<script>
+(function(){
+  const STORAGE_KEY="cuaderno-floating-timer";
+  const RING_R=46;
+  const RING_CIRC=2*Math.PI*RING_R;
+  function loadState(){
+    try{
+      const raw=localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {running:false,endTime:null,totalSeconds:300,remaining:300,x:null,y:null,maximized:false};
+      return JSON.parse(raw);
+    }catch(e){ return {running:false,endTime:null,totalSeconds:300,remaining:300,x:null,y:null,maximized:false}; }
+  }
+  function saveState(s){ try{ localStorage.setItem(STORAGE_KEY,JSON.stringify(s)); }catch(e){} }
+  let state=loadState();
+  let tickInterval=null;
+  const style=document.createElement("style");
+  style.textContent=`
+    #cdnoTimerWidget{position:fixed; bottom:20px; right:20px; z-index:1200; font-family:'Nunito',system-ui,sans-serif;}
+    #cdnoTimerPill{display:flex; align-items:center; gap:8px; background:#1460c8; color:#fff; padding:10px 16px; border-radius:999px; box-shadow:0 8px 24px rgba(20,96,200,.3); cursor:grab; font-weight:800; font-size:15px; border:none;}
+    #cdnoTimerPill:active{cursor:grabbing;}
+    #cdnoTimerPill.finished{background:#d94008;}
+    #cdnoTimerCard{display:none; position:fixed; bottom:20px; right:20px; width:260px; background:#fff; border:2px solid #ddd8f5; border-radius:20px; padding:22px; box-shadow:0 16px 40px rgba(60,40,120,.22); z-index:1200;}
+    #cdnoTimerCard.open{display:block;}
+    #cdnoTimerCard.open.maximized{top:0; left:0; right:0; bottom:0; width:100vw; height:100vh; max-width:none; border-radius:0; display:flex; flex-direction:column; align-items:center; justify-content:center;}
+    #cdnoTimerCard.open.maximized #cdnoTimerRingWrap{width:min(60vw,60vh); height:min(60vw,60vh);}
+    #cdnoTimerCard.open.maximized #cdnoTimerRingWrap svg{width:100%; height:100%;}
+    #cdnoTimerCard.open.maximized .num{font-size:min(10vw,10vh);}
+    #cdnoTimerCard .cdno-drag-handle{cursor:move; text-align:center; font-size:10px; color:#c4bce8; letter-spacing:.1em; margin-bottom:8px; user-select:none;}
+    #cdnoTimerCard .cdno-close{position:absolute; top:12px; right:14px; background:none; border:none; font-size:16px; cursor:pointer; color:#7068a0;}
+    #cdnoTimerCard .cdno-max{position:absolute; top:12px; right:44px; background:none; border:none; font-size:14px; cursor:pointer; color:#7068a0;}
+    #cdnoTimerRingWrap{position:relative; width:110px; height:110px; margin:6px auto 14px;}
+    #cdnoTimerRingWrap svg{transform:rotate(-90deg); width:110px; height:110px;}
+    #cdnoTimerRingWrap circle.bg{fill:none; stroke:#e8e4fa; stroke-width:9;}
+    #cdnoTimerRingWrap circle.fg{fill:none; stroke:#1a8a3c; stroke-width:9; stroke-linecap:round; transition:stroke-dashoffset 1s linear, stroke .3s ease;}
+    #cdnoTimerRingWrap .num{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:19px; color:#1a1535;}
+    .cdno-set-row{display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:10px;}
+    .cdno-set-row input{width:48px; padding:6px; border-radius:8px; border:1.5px solid #ddd8f5; text-align:center; font-family:inherit; font-size:13px;}
+    .cdno-presets{display:flex; gap:6px; justify-content:center; margin-bottom:12px; flex-wrap:wrap;}
+    .cdno-preset{background:#f0eeff; border:none; border-radius:8px; padding:5px 9px; font-size:11px; font-weight:700; cursor:pointer; color:#1a1535;}
+    .cdno-btns{display:flex; gap:8px; justify-content:center;}
+    .cdno-btn{border:none; border-radius:10px; padding:9px 14px; font-weight:700; font-size:12.5px; cursor:pointer; font-family:inherit;}
+    .cdno-btn.primary{background:#1460c8; color:#fff;}
+    .cdno-btn.ghost{background:transparent; border:1.5px solid #ddd8f5; color:#7068a0;}
+    .cdno-msg{text-align:center; font-size:11.5px; font-weight:700; color:#d94008; min-height:16px; margin-top:8px;}
+  `;
+  document.head.appendChild(style);
+  const wrap=document.createElement("div");
+  wrap.id="cdnoTimerWidget";
+  if(state.x!=null&&state.y!=null){ wrap.style.left=state.x+'px'; wrap.style.top=state.y+'px'; wrap.style.right='auto'; wrap.style.bottom='auto'; }
+  wrap.innerHTML=`
+    <button id="cdnoTimerPill">⏱️ <span id="cdnoPillText">Temporizador</span></button>
+    <div id="cdnoTimerCard">
+      <div class="cdno-drag-handle" id="cdnoDragHandle">⠿⠿⠿</div>
+      <button class="cdno-max" id="cdnoMax" title="Maximizar">⤢</button>
+      <button class="cdno-close" id="cdnoClose">✕</button>
+      <div id="cdnoTimerRingWrap">
+        <svg viewBox="0 0 110 110"><circle class="bg" cx="55" cy="55" r="${RING_R}"/><circle class="fg" id="cdnoRingFg" cx="55" cy="55" r="${RING_R}" stroke-dasharray="${RING_CIRC}"/></svg>
+        <div class="num" id="cdnoDisplay">05:00</div>
+      </div>
+      <div class="cdno-presets">
+        <button class="cdno-preset" data-min="1">1m</button>
+        <button class="cdno-preset" data-min="3">3m</button>
+        <button class="cdno-preset" data-min="5">5m</button>
+        <button class="cdno-preset" data-min="10">10m</button>
+      </div>
+      <div class="cdno-set-row">
+        <input type="number" id="cdnoMin" min="0" max="60" value="5"/> min
+        <input type="number" id="cdnoSec" min="0" max="59" value="0"/> seg
+      </div>
+      <div class="cdno-btns">
+        <button class="cdno-btn primary" id="cdnoStart">Iniciar</button>
+        <button class="cdno-btn ghost" id="cdnoPause">Pausar</button>
+        <button class="cdno-btn ghost" id="cdnoReset">Reiniciar</button>
+      </div>
+      <div class="cdno-msg" id="cdnoMsg"></div>
+    </div>
+  `;
+  document.body.appendChild(wrap);
+  const els={
+    pill:document.getElementById("cdnoTimerPill"),
+    pillText:document.getElementById("cdnoPillText"),
+    card:document.getElementById("cdnoTimerCard"),
+    ring:document.getElementById("cdnoRingFg"),
+    display:document.getElementById("cdnoDisplay"),
+    min:document.getElementById("cdnoMin"),
+    sec:document.getElementById("cdnoSec"),
+    msg:document.getElementById("cdnoMsg"),
+  };
+  if(state.maximized) els.card.classList.add('maximized');
+  function fmt(sec){
+    sec=Math.max(0,Math.round(sec));
+    const m=Math.floor(sec/60),s=sec%60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function currentRemaining(){
+    if(state.running&&state.endTime) return Math.max(0,(state.endTime-Date.now())/1000);
+    return state.remaining;
+  }
+  function render(){
+    const remaining=currentRemaining();
+    els.display.textContent=fmt(remaining);
+    els.pillText.textContent=state.running||remaining<state.totalSeconds?fmt(remaining):"Temporizador";
+    const offset=RING_CIRC*(1-remaining/state.totalSeconds);
+    els.ring.setAttribute("stroke-dashoffset",isFinite(offset)?offset:0);
+    els.ring.style.stroke=remaining<=10&&remaining>0?"#d94008":"#1a8a3c";
+  }
+  function tick(){
+    const remaining=currentRemaining();
+    if(state.running&&remaining<=0){
+      state.running=false; state.remaining=0;
+      saveState(state);
+      els.msg.textContent="¡Se acabó el tiempo!";
+      els.pill.classList.add("finished");
+      clearInterval(tickInterval);
+      try{
+        const ctx=new (window.AudioContext||window.webkitAudioContext)();
+        const o=ctx.createOscillator(),g=ctx.createGain();
+        o.connect(g); g.connect(ctx.destination); o.frequency.value=880;
+        g.gain.setValueAtTime(0.15,ctx.currentTime);
+        o.start(); o.stop(ctx.currentTime+0.4);
+      }catch(e){}
+    }
+    render();
+  }
+  function startTicking(){ clearInterval(tickInterval); tickInterval=setInterval(tick,1000); }
+  let pillDragged=false;
+  els.pill.addEventListener("click",()=>{ if(!pillDragged) els.card.classList.toggle("open"); });
+  document.getElementById("cdnoClose").addEventListener("click",()=>els.card.classList.remove("open"));
+  document.getElementById("cdnoMax").addEventListener("click",()=>{
+    els.card.classList.toggle("maximized");
+    if(els.card.classList.contains("maximized")){ els.card.style.left=''; els.card.style.top=''; els.card.style.right=''; els.card.style.bottom=''; }
+    state.maximized=els.card.classList.contains("maximized");
+    saveState(state);
+  });
+  document.querySelectorAll(".cdno-preset").forEach(btn=>{
+    btn.addEventListener("click",()=>{
+      const min=parseInt(btn.dataset.min);
+      els.min.value=min; els.sec.value=0;
+      state.totalSeconds=min*60; state.remaining=state.totalSeconds;
+      state.running=false; state.endTime=null;
+      clearInterval(tickInterval); els.msg.textContent=""; els.pill.classList.remove("finished");
+      saveState(state); render();
+    });
+  });
+  document.getElementById("cdnoStart").addEventListener("click",()=>{
+    if(state.running) return;
+    if(state.remaining<=0||state.remaining===state.totalSeconds){
+      const min=parseInt(els.min.value)||0,sec=parseInt(els.sec.value)||0;
+      state.totalSeconds=min*60+sec; state.remaining=state.totalSeconds;
+      if(state.totalSeconds<=0){ els.msg.textContent="Elige un tiempo primero."; return; }
+    }
+    state.running=true; state.endTime=Date.now()+state.remaining*1000;
+    els.msg.textContent=""; els.pill.classList.remove("finished"); saveState(state); startTicking(); render();
+  });
+  document.getElementById("cdnoPause").addEventListener("click",()=>{
+    if(!state.running) return;
+    state.remaining=currentRemaining(); state.running=false; state.endTime=null;
+    clearInterval(tickInterval); saveState(state); render();
+  });
+  document.getElementById("cdnoReset").addEventListener("click",()=>{
+    const min=parseInt(els.min.value)||0,sec=parseInt(els.sec.value)||0;
+    state.totalSeconds=min*60+sec; state.remaining=state.totalSeconds;
+    state.running=false; state.endTime=null;
+    clearInterval(tickInterval); els.msg.textContent=""; els.pill.classList.remove("finished"); saveState(state); render();
+  });
+  let pillDragging=false,dragOffsetX=0,dragOffsetY=0;
+  els.pill.addEventListener("mousedown",(e)=>{
+    pillDragging=true; pillDragged=false;
+    const rect=wrap.getBoundingClientRect();
+    dragOffsetX=e.clientX-rect.left; dragOffsetY=e.clientY-rect.top;
+  });
+  document.addEventListener("mousemove",(e)=>{
+    if(!pillDragging) return;
+    pillDragged=true;
+    wrap.style.left=(e.clientX-dragOffsetX)+'px';
+    wrap.style.top=(e.clientY-dragOffsetY)+'px';
+    wrap.style.right='auto'; wrap.style.bottom='auto';
+  });
+  document.addEventListener("mouseup",()=>{
+    if(pillDragging&&pillDragged){
+      const rect=wrap.getBoundingClientRect();
+      state.x=rect.left; state.y=rect.top;
+      saveState(state);
+    }
+    pillDragging=false;
+    setTimeout(()=>{ pillDragged=false; },50);
+  });
+  let cardDragging=false,cardOffsetX=0,cardOffsetY=0;
+  document.getElementById("cdnoDragHandle").addEventListener("mousedown",(e)=>{
+    if(els.card.classList.contains('maximized')) return;
+    cardDragging=true;
+    const rect=els.card.getBoundingClientRect();
+    cardOffsetX=e.clientX-rect.left; cardOffsetY=e.clientY-rect.top;
+  });
+  document.addEventListener("mousemove",(e)=>{
+    if(!cardDragging) return;
+    els.card.style.left=(e.clientX-cardOffsetX)+'px';
+    els.card.style.top=(e.clientY-cardOffsetY)+'px';
+    els.card.style.right='auto'; els.card.style.bottom='auto';
+  });
+  document.addEventListener("mouseup",()=>{ cardDragging=false; });
+  if(state.running&&state.endTime){
+    if(state.endTime<=Date.now()){ state.running=false; state.remaining=0; saveState(state); }
+    else startTicking();
+  }
+  els.min.value=Math.floor((state.totalSeconds||300)/60);
+  els.sec.value=(state.totalSeconds||300)%60;
+  render();
+})();
+</script>
+</body>
+</html>
