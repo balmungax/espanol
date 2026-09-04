@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+    <title>Pixel Art</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <style>
+        /* ===== Estilos generales ===== */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: #f0f4f8;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            margin: 0;
+        }
+        .app {
+            max-width: 750px;
+            width: 100%;
+            background: #fff;
+            border-radius: 28px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            padding: 24px 20px 30px;
+        }
+        h1 { text-align: center; font-size: 26px; color: #1e2a3a; margin-bottom: 16px; }
+        .selector { display: flex; gap: 10px; justify-content: center; margin-bottom: 16px; flex-wrap: wrap; }
+        .selector button {
+            background: #eef2f6; border: none; padding: 8px 20px; border-radius: 40px;
+            font-size: 16px; font-weight: 600; color: #1e2a3a; cursor: pointer; transition: 0.15s;
+        }
+        .selector button:hover { background: #dce3ec; }
+        .selector button.active { background: #1e2a3a; color: #fff; box-shadow: 0 4px 10px rgba(30,42,58,0.25); }
+        .bar { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 16px; }
+        .bar button {
+            background: #eef2f6; border: none; padding: 8px 18px; border-radius: 40px;
+            font-size: 14px; font-weight: 600; color: #1e2a3a; cursor: pointer; transition: 0.15s;
+        }
+        .bar button:hover { background: #dce3ec; }
+        .bar button.primary { background: #1e2a3a; color: #fff; }
+        .bar button.primary:hover { background: #2d3a4a; }
+        .bar button.print { background: #dbeafe; color: #1e3a8a; }
+        .bar button.print:hover { background: #bfdbfe; }
+        .bar button.danger { background: #fee2e2; color: #b91c1c; }
+        .bar button.danger:hover { background: #fecaca; }
+        .palette-wrap {
+            background: #f8fafc; border-radius: 16px; padding: 12px 16px; margin-bottom: 16px;
+            border: 1px solid #e9edf2; display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+        }
+        .palette-wrap .label { font-weight: 600; font-size: 14px; color: #1e2a3a; }
+        .palette { display: flex; flex-wrap: wrap; gap: 6px; flex: 1; }
+        .color-chip {
+            display: flex; align-items: center; gap: 4px; background: #fff; border: 2px solid #dce3ec;
+            border-radius: 40px; padding: 3px 12px 3px 4px; cursor: pointer; font-size: 13px; font-weight: 600;
+            transition: 0.15s;
+        }
+        .color-chip:hover { border-color: #b0bccd; transform: scale(1.03); }
+        .color-chip.active { border-color: #1e2a3a; box-shadow: 0 0 0 3px rgba(30,42,58,0.2); background: #f0f4ff; }
+        .color-chip .swatch { width: 22px; height: 22px; border-radius: 50%; border: 1px solid rgba(0,0,0,0.08); flex-shrink: 0; }
+        .color-chip .num { background: #eef2f6; border-radius: 30px; padding: 0 7px; font-size: 11px; font-weight: 700; }
+        .grid-wrapper { background: #fff; border-radius: 16px; border: 1px solid #e9edf2; overflow: auto; padding: 6px; }
+        .grid-container { display: grid; gap: 1px; background: #dce3ec; margin: 0 auto; width: fit-content; max-width: 100%; }
+        .cell {
+            width: 34px; height: 34px; background: #ffffff; display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: #4a5a6a; cursor: pointer; user-select: none; transition: 0.08s;
+            border-radius: 2px;
+        }
+        .cell:hover { filter: brightness(0.92); transform: scale(1.03); z-index: 2; }
+        .cell.colored { color: transparent; }
+        .cell .num-label { font-size: 11px; font-weight: 700; opacity: 0.5; pointer-events: none; }
+        .cell.colored .num-label { opacity: 0; }
+        .status {
+            text-align: center; margin-top: 14px; font-size: 14px; color: #5a6a7a;
+            background: #f8fafc; padding: 8px 12px; border-radius: 40px; border: 1px solid #e9edf2;
+            display: inline-block; width: 100%;
+        }
+        #previewModal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7); z-index: 999; justify-content: center; align-items: center;
+        }
+        #previewModal .modal {
+            background: white; padding: 20px; border-radius: 16px; max-width: 95%; max-height: 95%;
+            overflow: auto; position: relative;
+        }
+        #previewModal .modal .close {
+            position: absolute; top: 8px; right: 12px; background: #e74c3c; color: white;
+            border: none; border-radius: 50%; width: 32px; height: 32px; font-size: 18px; cursor: pointer;
+        }
+        #previewModal .modal h3 { text-align: center; margin-bottom: 10px; }
+        #previewModal .preview-grid { display: grid; gap: 0; background: #fff; margin: 0 auto; width: fit-content; border: 2px solid #333; }
+        #previewModal .preview-grid .pcell { width: 34px; height: 34px; border: none; }
+        #previewModal .footer { text-align: center; margin-top: 10px; color: #555; font-size: 13px; }
+
+        @media (max-width: 600px) {
+            .cell { width: 26px; height: 26px; font-size: 10px; }
+            .cell .num-label { font-size: 9px; }
+            #previewModal .preview-grid .pcell { width: 26px; height: 26px; }
+        }
+        @media (max-width: 400px) {
+            .cell { width: 20px; height: 20px; font-size: 8px; }
+            .cell .num-label { font-size: 7px; }
+            #previewModal .preview-grid .pcell { width: 20px; height: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app">
+    <h1>🎨 Pixel Art</h1>
+
+    <div class="selector">
+        <button data-puzzle="0" class="active">Imagen 1</button>
+        <button data-puzzle="1">Imagen 2</button>
+    </div>
+
+    <div class="bar">
+        <button class="primary" id="resetBtn">⟳ Reiniciar</button>
+        <button class="danger" id="clearBtn">🗑️ Limpiar</button>
+        <button class="print" id="previewBtn">👁️ Vista previa</button>
+        <button class="print" id="openPdfBtn">📄 Abrir PDF</button>
+    </div>
+
+    <div class="palette-wrap">
+        <span class="label">🎨 Paleta:</span>
+        <div class="palette" id="paletteContainer"></div>
+    </div>
+
+    <div class="grid-wrapper">
+        <div class="grid-container" id="gridContainer"></div>
+    </div>
+
+    <div class="status" id="statusMsg">💡 Selecciona un color y luego pinta.</div>
+</div>
+
+<!-- Modal vista previa -->
+<div id="previewModal">
+    <div class="modal">
+        <button class="close" id="closePreview">✕</button>
+        <h3>🖼️ Imagen final</h3>
+        <div class="preview-grid" id="previewGrid"></div>
+        <div class="footer">(Así debe quedar después de colorear)</div>
+    </div>
+</div>
+
+<script>
+    // ================================================================
+    //  DATOS DE LAS IMÁGENES (16x16) - SIN DUPLICAR BLANCO
+    // ================================================================
+
+    // Imagen 1: Cara feliz con dientes (los dientes son 0 = blanco)
+    const imagen1 = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+        [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+        [0,0,1,1,1,2,1,1,1,1,2,1,1,1,0,0],
+        [0,0,1,1,1,2,1,1,1,1,2,1,1,1,0,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,0],
+        [0,1,1,1,1,1,2,0,0,0,2,1,1,1,1,0],
+        [0,1,1,1,1,1,2,0,0,0,2,1,1,1,1,0],
+        [0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ];
+
+    // Imagen 2: Cara sonriente con sonrojo
+    const imagen2 = [
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+        [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+        [0,0,1,1,1,1,2,2,1,1,2,2,1,1,1,0],
+        [0,0,1,1,1,1,2,2,1,1,2,2,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,1,4,1,1,1,1,1,1,1,1,4,1,1,0],
+        [0,1,1,4,1,1,1,1,1,1,1,1,4,1,1,0],
+        [0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,2,2,2,1,1,1,1,1,0],
+        [0,1,1,1,1,1,1,2,2,2,1,1,1,1,1,0],
+        [0,0,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+        [0,0,0,1,1,1,1,1,1,1,1,1,1,0,0,0],
+        [0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    ];
+
+    // ================================================================
+    //  PALETAS (sin duplicados)
+    // ================================================================
+    const paletas = [
+        // Imagen 1: 0=blanco, 1=amarillo, 2=negro
+        [
+            { num: 0, color: '#ffffff', label: 'Blanco' },
+            { num: 1, color: '#FFD700', label: 'Amarillo' },
+            { num: 2, color: '#1A1A1A', label: 'Negro' }
+        ],
+        // Imagen 2: 0=blanco, 1=amarillo, 2=negro, 4=rosado
+        [
+            { num: 0, color: '#ffffff', label: 'Blanco' },
+            { num: 1, color: '#FFD700', label: 'Amarillo' },
+            { num: 2, color: '#1A1A1A', label: 'Negro' },
+            { num: 4, color: '#FFB6C1', label: 'Rosado' }
+        ]
+    ];
+
+    const datos = [imagen1, imagen2];
+    const nombres = ['Imagen 1', 'Imagen 2'];
+
+    // ================================================================
+    //  ESTADO
+    // ================================================================
+    let puzzleActual = 0;
+    let colorSeleccionado = null;
+    let coloreado = {};
+
+    const gridEl = document.getElementById('gridContainer');
+    const paletteEl = document.getElementById('paletteContainer');
+    const statusEl = document.getElementById('statusMsg');
+    const previewModal = document.getElementById('previewModal');
+    const previewGrid = document.getElementById('previewGrid');
+    const selectorBtns = document.querySelectorAll('.selector button');
+
+    // ================================================================
+    //  FUNCIONES
+    // ================================================================
+
+    function obtenerDatos() { return datos[puzzleActual]; }
+    function obtenerPaleta() { return paletas[puzzleActual]; }
+
+    function renderGrid() {
+        const data = obtenerDatos();
+        const rows = data.length;
+        const cols = data[0].length;
+        gridEl.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        gridEl.innerHTML = '';
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.dataset.r = r;
+                cell.dataset.c = c;
+
+                const original = data[r][c];
+                const pintado = coloreado[`${r},${c}`];
+
+                const label = document.createElement('span');
+                label.className = 'num-label';
+                label.textContent = original;
+                cell.appendChild(label);
+
+                if (pintado !== undefined) {
+                    const entry = obtenerPaleta().find(p => p.num === pintado);
+                    if (entry) {
+                        cell.style.backgroundColor = entry.color;
+                        cell.classList.add('colored');
+                    }
+                } else {
+                    cell.style.backgroundColor = '#ffffff';
+                    cell.classList.remove('colored');
+                }
+
+                cell.addEventListener('click', () => {
+                    if (colorSeleccionado === null) {
+                        updateStatus('⚠️ Primero selecciona un color.');
+                        return;
+                    }
+                    const key = `${r},${c}`;
+                    if (coloreado[key] === colorSeleccionado) {
+                        delete coloreado[key];
+                        updateStatus(`↩️ Despintada (${r},${c})`);
+                    } else {
+                        coloreado[key] = colorSeleccionado;
+                        const entry = obtenerPaleta().find(p => p.num === colorSeleccionado);
+                        updateStatus(`✅ Pintada con ${entry ? entry.label : colorSeleccionado}`);
+                    }
+                    renderGrid();
+                    renderPalette();
+                });
+
+                gridEl.appendChild(cell);
+            }
+        }
+    }
+
+    function renderPalette() {
+        const pal = obtenerPaleta();
+        paletteEl.innerHTML = '';
+        pal.forEach(entry => {
+            const chip = document.createElement('div');
+            chip.className = 'color-chip';
+            if (colorSeleccionado === entry.num) chip.classList.add('active');
+
+            const swatch = document.createElement('span');
+            swatch.className = 'swatch';
+            swatch.style.backgroundColor = entry.color;
+            if (entry.color === '#ffffff') swatch.style.border = '1px solid #ccc';
+
+            const numBadge = document.createElement('span');
+            numBadge.className = 'num';
+            numBadge.textContent = entry.num;
+
+            const label = document.createElement('span');
+            label.textContent = entry.label;
+
+            chip.appendChild(swatch);
+            chip.appendChild(numBadge);
+            chip.appendChild(label);
+
+            chip.addEventListener('click', () => {
+                colorSeleccionado = (colorSeleccionado === entry.num) ? null : entry.num;
+                renderPalette();
+                updateStatus(colorSeleccionado !== null ?
+                    `🎯 Color: ${entry.label} (${entry.num})` :
+                    '💡 Ningún color seleccionado.');
+            });
+
+            paletteEl.appendChild(chip);
+        });
+    }
+
+    function updateStatus(msg) {
+        statusEl.textContent = msg;
+    }
+
+    function resetPuzzle() {
+        coloreado = {};
+        renderGrid();
+        renderPalette();
+        updateStatus('🔄 Reiniciado.');
+    }
+
+    function clearAll() {
+        coloreado = {};
+        renderGrid();
+        renderPalette();
+        updateStatus('🗑️ Todo limpio.');
+    }
+
+    function cambiarPuzzle(index) {
+        puzzleActual = index;
+        colorSeleccionado = null;
+        coloreado = {};
+        renderGrid();
+        renderPalette();
+        selectorBtns.forEach((btn, i) => {
+            btn.classList.toggle('active', i === index);
+        });
+        updateStatus('🎨 Elige un color y pinta.');
+    }
+
+    // ================================================================
+    //  VISTA PREVIA
+    // ================================================================
+    function showPreview() {
+        const data = obtenerDatos();
+        const rows = data.length;
+        const cols = data[0].length;
+        const pal = obtenerPaleta();
+
+        previewGrid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        previewGrid.innerHTML = '';
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const num = data[r][c];
+                const entry = pal.find(p => p.num === num);
+                const cell = document.createElement('div');
+                cell.className = 'pcell';
+                cell.style.backgroundColor = entry ? entry.color : '#ffffff';
+                previewGrid.appendChild(cell);
+            }
+        }
+        previewModal.style.display = 'flex';
+    }
+
+    function closePreview() {
+        previewModal.style.display = 'none';
+    }
+
+    previewModal.addEventListener('click', (e) => {
+        if (e.target === previewModal) closePreview();
+    });
+    document.getElementById('closePreview').addEventListener('click', closePreview);
+    document.getElementById('previewBtn').addEventListener('click', showPreview);
+
+    // ================================================================
+    //  GENERAR PDF CON GUÍAS MONTESSORI MÁS GRANDES
+    // ================================================================
+    async function abrirPDF() {
+        const data = obtenerDatos();
+        const pal = obtenerPaleta();
+        const rows = data.length;
+        const cols = data[0].length;
+
+        const container = document.createElement('div');
+        container.style.width = '210mm';
+        container.style.padding = '15mm';
+        container.style.fontFamily = 'Arial, sans-serif';
+        container.style.backgroundColor = '#fff';
+        container.style.color = '#000';
+        container.style.textAlign = 'left';
+
+        // Título
+        const title = document.createElement('h1');
+        title.textContent = 'Pixel Art';
+        title.style.textAlign = 'left';
+        title.style.fontSize = '26px';
+        title.style.marginBottom = '12px';
+        container.appendChild(title);
+
+        // Fila horizontal: Nombre y Día
+        const filaCampos = document.createElement('div');
+        filaCampos.style.display = 'flex';
+        filaCampos.style.flexWrap = 'wrap';
+        filaCampos.style.alignItems = 'center';
+        filaCampos.style.gap = '30px';
+        filaCampos.style.marginBottom = '20px';
+
+        function crearCampo(etiqueta, anchoPauta) {
+            const wrapper = document.createElement('div');
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.gap = '8px';
+
+            const label = document.createElement('span');
+            label.textContent = etiqueta;
+            label.style.fontSize = '16px';
+            label.style.fontWeight = 'bold';
+            wrapper.appendChild(label);
+
+            const pauta = document.createElement('div');
+            pauta.style.position = 'relative';
+            pauta.style.width = anchoPauta;
+            pauta.style.height = '38px'; // aumentado de 32px a 38px
+            pauta.style.backgroundColor = '#fff';
+            pauta.style.border = '1px solid #ccc';
+            pauta.style.borderRadius = '4px';
+            pauta.style.padding = '2px 0';
+
+            // Línea superior (sólida)
+            const sup = document.createElement('div');
+            sup.style.position = 'absolute';
+            sup.style.top = '5px';
+            sup.style.left = '0';
+            sup.style.width = '100%';
+            sup.style.height = '1px';
+            sup.style.borderBottom = '1px solid #000';
+            pauta.appendChild(sup);
+
+            // Línea media (punteada)
+            const med = document.createElement('div');
+            med.style.position = 'absolute';
+            med.style.top = '50%';
+            med.style.left = '0';
+            med.style.width = '100%';
+            med.style.height = '1px';
+            med.style.borderBottom = '1px dashed #000';
+            pauta.appendChild(med);
+
+            // Línea inferior (sólida)
+            const inf = document.createElement('div');
+            inf.style.position = 'absolute';
+            inf.style.bottom = '5px';
+            inf.style.left = '0';
+            inf.style.width = '100%';
+            inf.style.height = '1px';
+            inf.style.borderBottom = '1px solid #000';
+            pauta.appendChild(inf);
+
+            wrapper.appendChild(pauta);
+            return wrapper;
+        }
+
+        const nombreCampo = crearCampo('Nombre:', '240px'); // aumentado de 200px
+        const diaCampo = crearCampo('Día:', '160px');      // aumentado de 120px
+        filaCampos.appendChild(nombreCampo);
+        filaCampos.appendChild(diaCampo);
+        container.appendChild(filaCampos);
+
+        // Cuadrícula
+        const gridDiv = document.createElement('div');
+        gridDiv.style.display = 'grid';
+        gridDiv.style.gridTemplateColumns = `repeat(${cols}, 28px)`;
+        gridDiv.style.gap = '1px';
+        gridDiv.style.backgroundColor = '#333';
+        gridDiv.style.margin = '0';
+        gridDiv.style.width = 'fit-content';
+        gridDiv.style.marginBottom = '16px';
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const num = data[r][c];
+                const cell = document.createElement('div');
+                cell.style.width = '28px';
+                cell.style.height = '28px';
+                cell.style.backgroundColor = '#ffffff';
+                cell.style.display = 'flex';
+                cell.style.alignItems = 'center';
+                cell.style.justifyContent = 'center';
+                cell.style.fontSize = '12px';
+                cell.style.fontWeight = 'bold';
+                cell.style.color = '#333';
+                cell.textContent = num;
+                gridDiv.appendChild(cell);
+            }
+        }
+        container.appendChild(gridDiv);
+
+        // Leyenda
+        const legendDiv = document.createElement('div');
+        legendDiv.style.display = 'flex';
+        legendDiv.style.flexWrap = 'wrap';
+        legendDiv.style.justifyContent = 'flex-start';
+        legendDiv.style.gap = '12px';
+        legendDiv.style.marginBottom = '16px';
+        pal.forEach(entry => {
+            const item = document.createElement('div');
+            item.style.display = 'flex';
+            item.style.alignItems = 'center';
+            item.style.gap = '4px';
+            const swatch = document.createElement('span');
+            swatch.style.display = 'inline-block';
+            swatch.style.width = '18px';
+            swatch.style.height = '18px';
+            swatch.style.backgroundColor = entry.color;
+            swatch.style.border = '1px solid #999';
+            swatch.style.borderRadius = '4px';
+            const label = document.createElement('span');
+            label.textContent = `${entry.num} = ${entry.label}`;
+            label.style.fontSize = '14px';
+            item.appendChild(swatch);
+            item.appendChild(label);
+            legendDiv.appendChild(item);
+        });
+        container.appendChild(legendDiv);
+
+        // Pie
+        const footer = document.createElement('p');
+        footer.textContent = 'Ficha imprimible · Colorea por números';
+        footer.style.textAlign = 'left';
+        footer.style.fontSize = '12px';
+        footer.style.color = '#666';
+        container.appendChild(footer);
+
+        // Generar PDF
+        const opt = {
+            margin:        [0.5, 0.5, 0.5, 0.5],
+            filename:     `PixelArt_${nombres[puzzleActual].replace(' ', '_')}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2, letterRendering: true },
+            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+        };
+
+        try {
+            const pdfBlob = await html2pdf().set(opt).from(container).outputPdf('blob');
+            const url = URL.createObjectURL(pdfBlob);
+            window.open(url, '_blank');
+        } catch (error) {
+            console.error('Error al generar PDF:', error);
+            alert('Hubo un error al generar el PDF. Inténtalo de nuevo.');
+        }
+    }
+
+    document.getElementById('openPdfBtn').addEventListener('click', abrirPDF);
+
+    // ================================================================
+    //  EVENTOS
+    // ================================================================
+    selectorBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const idx = parseInt(btn.dataset.puzzle, 10);
+            if (idx !== puzzleActual) {
+                cambiarPuzzle(idx);
+            }
+        });
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', resetPuzzle);
+    document.getElementById('clearBtn').addEventListener('click', clearAll);
+
+    // ================================================================
+    //  INICIO
+    // ================================================================
+    cambiarPuzzle(0);
+    console.log('✅ Pixel Art cargado.');
+</script>
+
+</body>
+</html>
